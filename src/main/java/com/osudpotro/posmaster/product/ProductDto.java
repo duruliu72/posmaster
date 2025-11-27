@@ -27,5 +27,4 @@ public class ProductDto {
     private ProductTypeDto productType;
     private List<ProductDetailDto> details;
     private List<ProductGenericDto> productGenerics;
-    private List<ProductCategoryDto> productCategories;
 }

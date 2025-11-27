@@ -144,7 +144,14 @@ public class CategoryService {
         }
         return customCategoryMapper.toDto(category);
     }
-
+    public CategoryDto getCategoryOrNull(Long categoryId) {
+        var category = categoryRepository.findById(categoryId).orElseThrow();
+//        if (category.getParentCat() != null) {
+//            var categoryParent = categoryRepository.findById(category.getParentCat().getId()).orElseThrow(CategoryNotFoundException::new);
+//            category.setParentCat(categoryParent);
+//        }
+        return customCategoryMapper.toDto(category);
+    }
     public Category getCategoryEntity(Long categoryId) {
         return categoryRepository.findById(categoryId).orElseThrow(CategoryNotFoundException::new);
     }
@@ -166,7 +173,16 @@ public class CategoryService {
         categoryRepository.save(category);
         return customCategoryMapper.toDto(category);
     }
-
+    public List<CategoryDto> getChildren(Long parentId) {
+        return categoryRepository.findByParentId(parentId).stream()
+                .map(customCategoryMapper::toDto)
+                .toList();
+    }
+    public List<Long> getChildrenIds(Long parentId) {
+        return categoryRepository.findByParentId(parentId).stream()
+                .map(Category::getId)
+                .toList();
+    }
     public CategoryDto deleteCategory(Long categoryId) {
         var category = categoryRepository.findById(categoryId).orElseThrow(() -> new CategoryNotFoundException("Category not found with ID: " + categoryId));
         var user = authService.getCurrentUser();
@@ -178,5 +194,12 @@ public class CategoryService {
 
     public int deleteBulkCategory(List<Long> ids) {
         return categoryRepository.deleteBulkCategory(ids, 3L);
+    }
+    private void loadChildrenRecursively(Category category) {
+        List<Category> children = categoryRepository.findByParentId(category.getId());
+        category.setChildren(children);
+        for (Category child : children) {
+            loadChildrenRecursively(child);
+        }
     }
 }

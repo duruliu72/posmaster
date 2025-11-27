@@ -36,7 +36,11 @@ public class ProductSpecification {
             }
             if (filter.getCategoryId() != null) {
                 Join<Product, Category> cat = root.join("category", JoinType.LEFT);
-                predicates.add(cb.equal(cat.get("id"), filter.getCategoryId()));
+                if (filter.getSearchIncludeSubCategories()&&!filter.getChildCategoryIds().isEmpty()) {
+                    predicates.add(cat.get("id").in(filter.getChildCategoryIds()));
+                } else {
+                    predicates.add(cb.equal(cat.get("id"), filter.getCategoryId()));
+                }
             }
             if (filter.getBrandId() != null) {
                 Join<Product, Brand> brand = root.join("brand", JoinType.LEFT);

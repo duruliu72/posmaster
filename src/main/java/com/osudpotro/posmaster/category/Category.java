@@ -9,6 +9,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter
@@ -22,6 +25,8 @@ public class Category extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "parent_category_id", nullable = true)
     private Category parentCat;
+    @OneToMany(mappedBy = "parentCat", fetch = FetchType.LAZY)
+    private List<Category> children = new ArrayList<>();
     @OneToOne(fetch = FetchType.LAZY, optional = true)
     private Picture picture;
 }

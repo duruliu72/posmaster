@@ -14,7 +14,8 @@ public interface CategoryRepository extends JpaSpecificationExecutor<Category>, 
     boolean existsByName(String name);
 
     Optional<Category> findByPictureId(Long pictureId);
-
+    @Query("select c from Category c where c.parentCat.id = :parentId")
+    List<Category> findByParentId(Long parentId);
     @Transactional
     @Modifying
     @Query("update Category cat set cat.status = :status where cat.id in :ids")

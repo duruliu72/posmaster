@@ -80,18 +80,6 @@ public class ProductMapper {
             productGenerics.add(productGenericDto);
         }
         productDto.setProductGenerics(productGenerics);
-        // Product Categories
-        List<ProductCategoryDto> categories = new ArrayList<>();
-        for (ProductCategory productCategory : product.getProductCategories()) {
-            ProductCategoryDto productCategoryDto = new ProductCategoryDto();
-            CategoryDto categoryDto = new CategoryDto();
-            categoryDto.setId(productCategory.getCategory().getId());
-            categoryDto.setName(productCategory.getCategory().getName());
-            productCategoryDto.setCategory(categoryDto);
-//            productCategoryDto.
-            categories.add(productCategoryDto);
-        }
-        productDto.setProductCategories(categories);
         // Product Details
         List<ProductDetailDto> details = new ArrayList<>();
         for (ProductDetail detail : product.getDetails()) {

@@ -42,6 +42,4 @@ public class Product extends BaseEntity {
     private List<ProductDetail> details = new ArrayList<>();
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<ProductGeneric> productGenerics =new ArrayList<>();
-    @OneToMany(mappedBy = "product",cascade = CascadeType.ALL,orphanRemoval = true)
-    private List<ProductCategory> productCategories=new ArrayList<>();
 }

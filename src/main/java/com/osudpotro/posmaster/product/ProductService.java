@@ -85,24 +85,6 @@ public class ProductService {
             }
         }
         product.setProductGenerics(productGenerics);
-        //Product Category
-        CategoryDto categoryDto = customCategoryMapper.toDto(category);
-        List<ProductCategory> productCategories = new ArrayList<>();
-        for (Long catId : categoryDto.getCatIds()) {
-            ProductCategory productCategory = new ProductCategory();
-            if (!Objects.equals(catId, category.getId())) {
-                Category aCategory = categoryService.getCategoryEntity(catId);
-                productCategory.setCategory(aCategory);
-                productCategory.setProduct(product);
-                productCategories.add(productCategory);
-            } else {
-                productCategory.setCategory(category);
-                productCategory.setProduct(product);
-                productCategories.add(productCategory);
-            }
-            productCategory.setCreatedBy(user);
-        }
-        product.setProductCategories(productCategories);
         //Product Details
         List<ProductDetail> details = new ArrayList<>();
         if (request.getDetails() != null) {
@@ -222,26 +204,6 @@ public class ProductService {
             }
         }
         product.setProductGenerics(productGenerics);
-        //Product Category
-        productRepository.deleteCategoryByProduct(productId);
-        CategoryDto categoryDto = customCategoryMapper.toDto(category);
-        List<ProductCategory> productCategories = new ArrayList<>();
-        for (Long catId : categoryDto.getCatIds()) {
-            ProductCategory productCategory = new ProductCategory();
-            if (!Objects.equals(catId, category.getId())) {
-                Category aCategory = categoryService.getCategoryEntity(catId);
-                productCategory.setCategory(aCategory);
-                productCategory.setProduct(product);
-                productCategories.add(productCategory);
-            } else {
-                productCategory.setCategory(category);
-                productCategory.setProduct(product);
-                productCategories.add(productCategory);
-            }
-            productCategory.setCreatedBy(user);
-        }
-        product.getProductCategories().clear();
-        product.getProductCategories().addAll(productCategories);
         //Product Details
 
         List<ProductDetail> details = product.getDetails();
@@ -315,6 +277,18 @@ public class ProductService {
         return productRepository.findById(productId).orElseThrow(ProductNotFoundException::new);
     }
     public Page<ProductDto> getFilterProducts(ProductFilter filter, Pageable pageable) {
+        if(filter.getCategoryId()!=null && filter.getSearchIncludeSubCategories()){
+            List<Long> childrenIds=new ArrayList<>();
+            CategoryDto categoryDto=categoryService.getCategoryOrNull(filter.getCategoryId());
+            if(categoryDto.getId()!=null){
+                childrenIds.add(categoryDto.getId());
+                List<Long> moreChildrenIds=categoryService.getChildrenIds(categoryDto.getId());
+                if (moreChildrenIds != null && !moreChildrenIds.isEmpty()) {
+                    childrenIds.addAll(moreChildrenIds);
+                }
+                filter.setChildCategoryIds(childrenIds);
+            }
+        }
         return productRepository.findAll(ProductSpecification.filter(filter), pageable).map(productMapper::toDto);
     }
 }
