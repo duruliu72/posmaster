@@ -1,0 +1,190 @@
+package com.osudpotro.posmaster.security;
+
+import com.osudpotro.posmaster.action.Action;
+import com.osudpotro.posmaster.action.ActionNotFoundException;
+import com.osudpotro.posmaster.action.ActionRepository;
+import com.osudpotro.posmaster.resource.*;
+import com.osudpotro.posmaster.role.Role;
+import com.osudpotro.posmaster.role.RoleRepository;
+import com.osudpotro.posmaster.user.User;
+import com.osudpotro.posmaster.user.UserRepository;
+import com.osudpotro.posmaster.user.UserType;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
+
+@Configuration
+public class DataLoader {
+    @Bean
+    CommandLineRunner initData(
+            ActionRepository actionRepository,
+            RoleRepository roleRepository,
+            UiResourceRepository uiResourceRepository,
+            ApiResourceRepository apiResourceRepository,
+            UserRepository userRepository,
+            PermissionRepository permissionRepository,
+            PermissionDetailRepository permissionDetailRepository,
+            UiResourceDetailsRepository uiResourceDetailsRepository,
+            PasswordEncoder passwordEncoder
+    ) {
+        return args -> {
+            loadInitialData(
+                    actionRepository,
+                    roleRepository,
+                    uiResourceRepository,
+                    apiResourceRepository,
+                    userRepository,
+                    permissionRepository,
+                    permissionDetailRepository,
+                    uiResourceDetailsRepository,
+                    passwordEncoder
+            );
+        };
+    }
+
+    @Transactional
+    public void loadInitialData(
+            ActionRepository actionRepository,
+            RoleRepository roleRepository,
+            UiResourceRepository uiResourceRepository,
+            ApiResourceRepository apiResourceRepository,
+            UserRepository userRepository,
+            PermissionRepository permissionRepository,
+            PermissionDetailRepository permissionDetailRepository,
+            UiResourceDetailsRepository uiResourceDetailsRepository,
+            PasswordEncoder passwordEncoder
+    ) {
+        // === SUPER ADMIN USER ===
+        Optional<User> findUser = userRepository.findByEmail("duruliu72@gmail.com");
+        User superAdminUser = findUser.orElseGet(() -> {
+            User u = new User();
+            u.setName("Super Admin");
+            u.setEmail("duruliu72@gmail.com");
+            u.setMobile("01700000000");
+            u.setPassword("123");
+            u.setPassword(passwordEncoder.encode("123"));
+            u.setUserType(UserType.EMPLOYEE);
+            return userRepository.save(u);
+        });
+
+        // === ACTIONS ===
+        if (actionRepository.count() == 0) {
+            Action view = new Action("READ");
+            view.setCreatedBy(superAdminUser);
+            Action create = new Action("CREATE");
+            create.setCreatedBy(superAdminUser);
+            Action update = new Action("UPDATE");
+            update.setCreatedBy(superAdminUser);
+            Action delete = new Action("DELETE");
+            delete.setCreatedBy(superAdminUser);
+            actionRepository.saveAll(Arrays.asList(
+                    view, create, update, delete
+            ));
+            System.out.println("✅ Actions inserted");
+        }
+        // === ROLES ===
+        Role findSuperAdminRole = roleRepository.findByRoleKey("ROLE_SUPER_ADMIN")
+                .orElseGet(() -> {
+                    Role superAdmin = new Role();
+                    superAdmin.setName("Super Admin");
+                    superAdmin.setRoleKey("ROLE_SUPER_ADMIN");
+                    superAdmin.setCreatedBy(superAdminUser);
+                    superAdmin.setUsers(new HashSet<>());
+                    superAdmin.setPermissions(new HashSet<>());
+                    return roleRepository.save(superAdmin);
+                });
+        // === UiRESOURCES ===
+        UiResource findProductUIResource = uiResourceRepository.findByName("Product")
+                .orElseGet(() -> {
+                    UiResource productUIResource = new UiResource();
+                    productUIResource.setName("Product");
+                    productUIResource.setUiResourceKey("PRODUCT");
+                    productUIResource.setPageUrl("/products");
+                    productUIResource.setCreatedBy(superAdminUser);
+                    Action view = actionRepository.findByName("READ").orElseThrow(()->new ActionNotFoundException());
+                    Action create = actionRepository.findByName("CREATE").orElseThrow(()->new ActionNotFoundException());
+                    UiResourceDetails uiResourceDetailsView = new UiResourceDetails();
+                    uiResourceDetailsView.setUiResource(productUIResource);
+                    uiResourceDetailsView.setAction(view);
+                    uiResourceDetailsView.setCreatedBy(superAdminUser);
+                    UiResourceDetails uiResourceDetailsCreate = new UiResourceDetails();
+                    uiResourceDetailsCreate.setUiResource(productUIResource);
+                    uiResourceDetailsCreate.setAction(create);
+                    uiResourceDetailsCreate.setCreatedBy(superAdminUser);
+                    productUIResource.setActions(Arrays.asList(uiResourceDetailsView, uiResourceDetailsCreate));
+                    return uiResourceRepository.save(productUIResource);
+                });
+        UiResource findUserUiResource = uiResourceRepository.findByName("User")
+                .orElseGet(() -> {
+                    UiResource userUIResource = new UiResource();
+                    userUIResource.setName("User");
+                    userUIResource.setUiResourceKey("USER");
+                    userUIResource.setPageUrl("/users");
+                    userUIResource.setCreatedBy(superAdminUser);
+                    Action view = actionRepository.findByName("READ").orElseThrow(()->new ActionNotFoundException());
+                    Action create = actionRepository.findByName("CREATE").orElseThrow(()->new ActionNotFoundException());
+                    UiResourceDetails uiResourceDetailsView = new UiResourceDetails();
+                    uiResourceDetailsView.setUiResource(userUIResource);
+                    uiResourceDetailsView.setAction(view);
+                    uiResourceDetailsView.setCreatedBy(superAdminUser);
+                    UiResourceDetails uiResourceDetailsCreate = new UiResourceDetails();
+                    uiResourceDetailsCreate.setUiResource(userUIResource);
+                    uiResourceDetailsCreate.setAction(create);
+                    uiResourceDetailsCreate.setCreatedBy(superAdminUser);
+                    userUIResource.setActions(Arrays.asList(uiResourceDetailsView, uiResourceDetailsCreate));
+                    return uiResourceRepository.save(userUIResource);
+                });
+
+        // === API RESOURCES ===
+        ApiResource findApiResourceApi = apiResourceRepository.findByApiUrl("/api/api-resources")
+                .orElseGet(() -> {
+                    ApiResource productApiResource = new ApiResource();
+                    productApiResource.setName("Resource API");
+                    productApiResource.setApiResourceKey("RESOURCE");
+                    productApiResource.setApiUrl("/api/api-resources");
+                    productApiResource.setCreatedBy(superAdminUser);
+                    return apiResourceRepository.save(productApiResource);
+                });
+
+        ApiResource findUserApi = apiResourceRepository.findByApiUrl("/api/users")
+                .orElseGet(() -> {
+                    ApiResource userApiResource = new ApiResource();
+                    userApiResource.setName("User API");
+                    userApiResource.setApiResourceKey("USER");
+                    userApiResource.setApiUrl("/api/users");
+                    userApiResource.setCreatedBy(superAdminUser);
+                    return apiResourceRepository.save(userApiResource);
+                });
+        // ===SET ROLE SUPER ADMIN USER  ===
+        superAdminUser.setRoles(Set.of(findSuperAdminRole));
+        userRepository.save(superAdminUser);
+        // === PERMISSIONS ===
+        if (permissionRepository.count() == 0) {
+            Permission permission = new Permission();
+            permission.setRole(findSuperAdminRole);
+            permission.setApiResource(findApiResourceApi);
+            permission.setPermissionType(PermissionType.ROLE);
+            permission.setEnable(true);
+            permission.setCreatedBy(superAdminUser);
+            permission = permissionRepository.save(permission);
+            //=== ResourceRequest Details====
+            Action read = actionRepository.findByName("READ").orElseThrow(()->new ActionNotFoundException());
+            Action create = actionRepository.findByName("CREATE").orElseThrow(()->new ActionNotFoundException());
+            PermissionDetail detail1 = new PermissionDetail();
+            detail1.setPermission(permission);
+            detail1.setAction(read);
+            detail1.setCreatedBy(superAdminUser);
+
+            PermissionDetail detail2 = new PermissionDetail();
+            detail2.setPermission(permission);
+            detail2.setAction(create);
+            detail2.setCreatedBy(superAdminUser);
+            permissionDetailRepository.saveAll(Arrays.asList(detail1, detail2));
+            System.out.println("✅ Permissions inserted for Super Admin");
+        }
+    }
+}
