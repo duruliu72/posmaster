@@ -12,12 +12,14 @@ import lombok.Setter;
 @Setter
 @Getter
 @Entity
-@Table(name = "ui_resources_details")
-public class UiResourceDetails  extends BaseEntity {
+@Table(name = "ui_resource_actions")
+public class UiResourceAction extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ui_resource_id")
     private UiResource uiResource;
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "action_id")
     private Action action;
+    private Boolean checked;
+
 }

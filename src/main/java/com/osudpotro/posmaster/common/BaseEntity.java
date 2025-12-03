@@ -9,7 +9,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @MappedSuperclass
 @Setter
@@ -30,9 +30,9 @@ public class BaseEntity {
     private  User updatedBy;
 
     @CreationTimestamp
-    @JsonFormat(shape = JsonFormat.Shape.STRING , pattern="yyyy-MM-dd")
-    private LocalDate createdAt;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime createdAt;
     @UpdateTimestamp
-    @JsonFormat(shape = JsonFormat.Shape.STRING , pattern="yyyy-MM-dd")
-    private  LocalDate updatedAt;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private  LocalDateTime updatedAt;
 }

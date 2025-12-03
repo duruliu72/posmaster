@@ -1,0 +1,43 @@
+package com.osudpotro.posmaster.customer;
+
+import jakarta.persistence.criteria.Predicate;
+import org.springframework.data.jpa.domain.Specification;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class CustomerSpecification {
+    public static Specification<Customer> filter(CustomerFilter filter) {
+        return (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            if (filter.getEmail() != null && !filter.getEmail().isEmpty()) {
+                predicates.add(cb.like(cb.lower(root.get("email")),
+                        "%" + filter.getEmail().toLowerCase() + "%"));
+            }
+            if (filter.getFirstName() != null && !filter.getFirstName().isEmpty()) {
+                predicates.add(cb.like(cb.lower(root.get("firstName")),
+                        "%" + filter.getFirstName().toLowerCase() + "%"));
+            }
+            if (filter.getLastName() != null && !filter.getLastName().isEmpty()) {
+                predicates.add(cb.like(cb.lower(root.get("lastName")),
+                        "%" + filter.getLastName().toLowerCase() + "%"));
+            }
+            if (filter.getMobile() != null && !filter.getMobile().isEmpty()) {
+                predicates.add(cb.like(cb.lower(root.get("mobile")),
+                        "%" + filter.getMobile().toLowerCase() + "%"));
+            }
+            if (filter.getStatus() != null) {
+                predicates.add(cb.equal(root.get("status"), filter.getStatus()));
+            }
+            if (filter.getCreatedFrom() != null && filter.getCreatedTo() != null) {
+                predicates.add(cb.between(root.get("createdAt"),
+                        filter.getCreatedFrom(), filter.getCreatedTo()));
+            } else if (filter.getCreatedFrom() != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("createdAt"), filter.getCreatedFrom()));
+            } else if (filter.getCreatedTo() != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("createdAt"), filter.getCreatedTo()));
+            }
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+}

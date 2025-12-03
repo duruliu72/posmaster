@@ -37,5 +37,4 @@ public class Permission extends BaseEntity {
     private boolean isEnable = true;
     @OneToMany(mappedBy = "permission", cascade = CascadeType.ALL)
     private Set<PermissionDetail> permissionDetails = new HashSet<>();
-
 }

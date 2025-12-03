@@ -16,12 +16,12 @@ import java.util.Map;
 public class ActionController {
     private final ActionService actionService;
 
-    @PreAuthorize("hasAuthority('PRODUCT_VIEW')")
+//    @PreAuthorize("hasAuthority('PRODUCT_VIEW')")
     @GetMapping
     public List<ActionDto> getAllActions() {
         return actionService.getAllActions();
     }
-    @PreAuthorize("hasAuthority('PRODUCT_VIEW')")
+//    @PreAuthorize("hasAuthority('PRODUCT_VIEW')")
     @GetMapping("/{id}")
     public ActionDto getAction(@PathVariable Long id) {
         return actionService.getAction(id);

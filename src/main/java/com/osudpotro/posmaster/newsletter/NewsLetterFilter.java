@@ -1,9 +1,9 @@
-package com.osudpotro.posmaster.generic;
+package com.osudpotro.posmaster.newsletter;
 
 import lombok.Data;
 
 @Data
-public class GenericFilter {
+public class NewsLetterFilter {
     private String name;
     private Boolean isPublish;
     private Integer status;
