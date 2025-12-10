@@ -1,15 +1,11 @@
-package com.osudpotro.posmaster.resource;
+package com.osudpotro.posmaster.resource.api;
 
 import com.osudpotro.posmaster.common.BaseEntity;
-import com.osudpotro.posmaster.security.Permission;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.HashSet;
-import java.util.Set;
 
 @Getter
 @Setter

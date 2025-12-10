@@ -1,4 +1,4 @@
-package com.osudpotro.posmaster.resource;
+package com.osudpotro.posmaster.resource.ui;
 
 public class UiResourceNotFoundException extends RuntimeException{
     public UiResourceNotFoundException() {

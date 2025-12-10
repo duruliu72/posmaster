@@ -1,4 +1,4 @@
-package com.osudpotro.posmaster.resource;
+package com.osudpotro.posmaster.resource.api;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;

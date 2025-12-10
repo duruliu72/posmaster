@@ -1,4 +1,4 @@
-package com.osudpotro.posmaster.resource;
+package com.osudpotro.posmaster.resource.api;
 
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;

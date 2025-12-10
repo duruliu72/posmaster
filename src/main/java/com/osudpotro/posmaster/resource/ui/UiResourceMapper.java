@@ -1,6 +1,5 @@
-package com.osudpotro.posmaster.resource;
+package com.osudpotro.posmaster.resource.ui;
 import com.osudpotro.posmaster.action.ActionDto;
-import com.osudpotro.posmaster.product.ProductDetail;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

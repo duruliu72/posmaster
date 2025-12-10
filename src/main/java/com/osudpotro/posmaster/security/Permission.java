@@ -1,7 +1,7 @@
 package com.osudpotro.posmaster.security;
 
 import com.osudpotro.posmaster.common.BaseEntity;
-import com.osudpotro.posmaster.resource.ApiResource;
+import com.osudpotro.posmaster.resource.api.ApiResource;
 import com.osudpotro.posmaster.role.Role;
 import com.osudpotro.posmaster.user.User;
 import jakarta.persistence.*;

@@ -1,5 +1,6 @@
-package com.osudpotro.posmaster.resource;
+package com.osudpotro.posmaster.resource.ui;
 
+import com.osudpotro.posmaster.action.ActionService;
 import com.osudpotro.posmaster.auth.AuthService;
 import com.osudpotro.posmaster.utility.CsvReader;
 import lombok.AllArgsConstructor;
@@ -18,6 +19,8 @@ import java.util.Objects;
 public class UiResourceService {
     private final AuthService authService;
     private final UiResourceRepository uiResourceRepository;
+    private final ActionService actionService;
+    private final UiResourceActionService uiResourceActionService;
     private final UiResourceMapper uiResourceMapper;
     private final CsvReader csvReader;
 
@@ -59,12 +62,30 @@ public class UiResourceService {
         if (uiResourceRepository.existsByName(request.getName())) {
             throw new DuplicateUiResourceException();
         }
+        var user = authService.getCurrentUser();
         var uiResource = uiResourceMapper.toEntity(request);
         if (request.getParentId() != null) {
             var parentUiResource = uiResourceRepository.findById(request.getParentId()).orElseThrow(UiResourceNotFoundException::new);
             uiResource.setParentUiResource(parentUiResource);
         }
-        var user = authService.getCurrentUser();
+        //For UiResourceAction
+        List<UiResourceAction> uiResourceActions = new ArrayList<>();
+        if (request.getActionWithChecks() != null) {
+            for (UiResourceActionRequest item : request.getActionWithChecks()) {
+                if (uiResourceActionService.existsUiResourceAction(uiResource.getId(), item.getActionId())) {
+                    throw new DuplicateUiResourceActionException();
+                }
+                UiResourceAction uiResourceAction = new UiResourceAction();
+                var action = actionService.getActionEntity(item.getActionId());
+                uiResourceAction.setUiResource(uiResource);
+                uiResourceAction.setAction(action);
+                uiResourceAction.setChecked(item.getChecked());
+                uiResourceAction.setCreatedBy(user);
+                uiResourceActions.add(uiResourceAction);
+            }
+        }
+        uiResource.setUiResourceActions(uiResourceActions);
+
         uiResource.setCreatedBy(user);
         uiResourceRepository.save(uiResource);
         return uiResourceMapper.toDto(uiResource);
@@ -79,6 +100,7 @@ public class UiResourceService {
         }
         var user = authService.getCurrentUser();
         uiResourceMapper.update(request, uiResource);
+
         if (request.getParentId() != null) {
             if (!uiResourceId.equals(request.getParentId())) {
                 var parentUiResource = uiResourceRepository.findById(request.getParentId()).orElseThrow(UiResourceNotFoundException::new);
@@ -89,6 +111,35 @@ public class UiResourceService {
         } else {
             uiResource.setParentUiResource(null);
         }
+
+        //For UiResourceAction
+        List<UiResourceAction> uiResourceActions = new ArrayList<>();
+        if (request.getActionWithChecks() != null) {
+            for (UiResourceActionRequest item : request.getActionWithChecks()) {
+//                Fetch By uiResourceId and actionId
+                UiResourceAction uiResourceAction = uiResourceActionService.getUiResourceActionEntity(uiResource.getId(), item.getActionId());
+                if (uiResourceAction != null) {
+                    var action = actionService.getActionEntity(item.getActionId());
+                    uiResourceAction.setAction(action);
+                    uiResourceAction.setChecked(item.getChecked());
+                    uiResourceAction.setUpdatedBy(user);
+                    uiResourceActions.add(uiResourceAction);
+                } else {
+                    if (uiResourceActionService.existsUiResourceAction(uiResource.getId(), item.getActionId())) {
+                        throw new DuplicateUiResourceActionException();
+                    }
+                    UiResourceAction newUiResourceAction = new UiResourceAction();
+                    var action = actionService.getActionEntity(item.getActionId());
+                    newUiResourceAction.setUiResource(uiResource);
+                    newUiResourceAction.setAction(action);
+                    newUiResourceAction.setChecked(item.getChecked());
+                    newUiResourceAction.setCreatedBy(user);
+                    uiResourceActions.add(newUiResourceAction);
+                }
+            }
+        }
+        uiResource.getUiResourceActions().clear();
+        uiResource.getUiResourceActions().addAll(uiResourceActions);
         uiResource.setUpdatedBy(user);
         uiResourceRepository.save(uiResource);
         return uiResourceMapper.toDto(uiResource);
