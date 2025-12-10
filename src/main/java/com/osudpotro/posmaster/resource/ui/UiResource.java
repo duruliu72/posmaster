@@ -1,4 +1,4 @@
-package com.osudpotro.posmaster.resource;
+package com.osudpotro.posmaster.resource.ui;
 
 import com.osudpotro.posmaster.common.BaseEntity;
 import jakarta.persistence.*;

@@ -1,4 +1,4 @@
-package com.osudpotro.posmaster.resource;
+package com.osudpotro.posmaster.resource.ui;
 
 import com.osudpotro.posmaster.common.PagedResponse;
 import jakarta.validation.Valid;
@@ -18,12 +18,12 @@ import java.util.Map;
 @RestController
 @RequestMapping("/ui-resources")
 public class UiResourceController {
-    private final UiResourceService customerService;
+    private final UiResourceService uiResourceService;
 
     //    @PreAuthorize("hasAuthority('CUSTOMER_READ')")
     @GetMapping
     public List<UiResourceDto> getAllUiResources() {
-        return customerService.gerAllUiResources();
+        return uiResourceService.gerAllUiResources();
     }
 
     @PostMapping("/filter")
@@ -39,24 +39,24 @@ public class UiResourceController {
                 Sort.by(sortBy).ascending() :
                 Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<UiResourceDto> result = customerService.getUiResources(filter, pageable);
+        Page<UiResourceDto> result = uiResourceService.getUiResources(filter, pageable);
         return new PagedResponse<>(result);
     }
     @PostMapping("/upload_csv")
     public int uploadCsvFile(@RequestParam("filepond") MultipartFile file) {
-        return customerService.importUiResources(file);
+        return uiResourceService.importUiResources(file);
     }
 
     //    @PreAuthorize("hasAuthority('CUSTOMER_READ')")
     @GetMapping("/{id}")
     public UiResourceDto getUiResource(@PathVariable Long id) {
-        return customerService.getUiResource(id);
+        return uiResourceService.getUiResource(id);
     }
 
     //    @PreAuthorize("hasAuthority('CUSTOMER_CREATE')")
     @PostMapping
     public ResponseEntity<UiResourceDto> createUiResource(@Valid @RequestBody UiResourceCreateRequest request, UriComponentsBuilder uriBuilder) {
-        var customerDto = customerService.CreateUiResource(request);
+        var customerDto = uiResourceService.CreateUiResource(request);
         var uri = uriBuilder.path("/ui-resources/{id}").buildAndExpand(customerDto.getId()).toUri();
         return ResponseEntity.created(uri).body(customerDto);
     }
@@ -66,19 +66,19 @@ public class UiResourceController {
     public UiResourceDto updateUiResource(
             @PathVariable(name = "id") Long id,
             @RequestBody UiResourceUpdateRequest request) {
-        return customerService.updateUiResource(id, request);
+        return uiResourceService.updateUiResource(id, request);
     }
 
     //    @PreAuthorize("hasAuthority('CUSTOMER_DELETE')")
     @DeleteMapping("/{id}")
     public UiResourceDto deleteUiResource(
             @PathVariable(name = "id") Long id) {
-        return customerService.deleteUiResource(id);
+        return uiResourceService.deleteUiResource(id);
     }
 
     @PostMapping("/delete-bulk")
     public ResponseEntity<Map<String, Integer>> deleteBulkUiResource(@RequestBody UiResourceBulkUpdateRequest request) {
-        int count = customerService.deleteBulkUiResource(request.getUiResourceIds());
+        int count = uiResourceService.deleteBulkUiResource(request.getUiResourceIds());
         return ResponseEntity.ok().body(
                 Map.of("count", count)
         );
@@ -88,14 +88,14 @@ public class UiResourceController {
     @GetMapping("/{id}/activate")
     public UiResourceDto activateUiResource(
             @PathVariable(name = "id") Long id) {
-        return customerService.activeUiResource(id);
+        return uiResourceService.activeUiResource(id);
     }
 
     //    @PreAuthorize("hasAuthority('CUSTOMER_DELETE')")
     @GetMapping("/{id}/deactivate")
     public UiResourceDto deactivateUiResource(
             @PathVariable(name = "id") Long id) {
-        return customerService.deactivateUiResource(id);
+        return uiResourceService.deactivateUiResource(id);
     }
     @ExceptionHandler(DuplicateUiResourceException.class)
     public ResponseEntity<Map<String, String>> handleDuplicateUiResource(Exception ex) {

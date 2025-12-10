@@ -2,7 +2,6 @@ package com.osudpotro.posmaster.security;
 
 import com.osudpotro.posmaster.action.Action;
 import com.osudpotro.posmaster.common.BaseEntity;
-import com.osudpotro.posmaster.resource.ApiResource;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

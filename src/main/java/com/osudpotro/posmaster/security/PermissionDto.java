@@ -1,8 +1,7 @@
 package com.osudpotro.posmaster.security;
 
 
-import com.osudpotro.posmaster.resource.ApiResourceDto;
-import com.osudpotro.posmaster.resource.UiResourceDto;
+import com.osudpotro.posmaster.resource.api.ApiResourceDto;
 import lombok.Data;
 
 import java.util.HashSet;

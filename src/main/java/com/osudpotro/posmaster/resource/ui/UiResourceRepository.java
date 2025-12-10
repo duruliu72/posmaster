@@ -1,4 +1,4 @@
-package com.osudpotro.posmaster.resource;
+package com.osudpotro.posmaster.resource.ui;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -10,11 +10,15 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-public interface UiResourceRepository extends JpaSpecificationExecutor<UiResource>,JpaRepository<UiResource, Long> {
+public interface UiResourceRepository extends JpaSpecificationExecutor<UiResource>, JpaRepository<UiResource, Long> {
     boolean existsByName(String name);
+
     boolean existsByUiResourceKey(String uiResourceKey);
+
     boolean existsByPageUrl(String pageUrl);
+
     Optional<UiResource> findByName(String name);
+
     @Transactional
     @Modifying
     @Query("update UiResource uir set uir.status = :status where uir.id in :ids")

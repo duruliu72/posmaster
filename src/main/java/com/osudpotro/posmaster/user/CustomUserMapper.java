@@ -1,8 +1,7 @@
 package com.osudpotro.posmaster.user;
 
 import com.osudpotro.posmaster.action.ActionDto;
-import com.osudpotro.posmaster.resource.ApiResourceDto;
-import com.osudpotro.posmaster.resource.UiResourceDto;
+import com.osudpotro.posmaster.resource.api.ApiResourceDto;
 import com.osudpotro.posmaster.role.RoleDto;
 import com.osudpotro.posmaster.security.PermissionDetailDto;
 import com.osudpotro.posmaster.security.PermissionDto;
