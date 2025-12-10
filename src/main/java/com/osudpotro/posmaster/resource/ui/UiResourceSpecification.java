@@ -1,4 +1,4 @@
-package com.osudpotro.posmaster.resource;
+package com.osudpotro.posmaster.resource.ui;
 
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;

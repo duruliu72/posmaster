@@ -1,4 +1,4 @@
-package com.osudpotro.posmaster.resource;
+package com.osudpotro.posmaster.resource.api;
 
 public class ApiResourceNotFoundException extends RuntimeException{
     public ApiResourceNotFoundException() {

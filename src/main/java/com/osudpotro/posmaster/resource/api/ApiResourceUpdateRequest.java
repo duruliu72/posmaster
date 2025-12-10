@@ -1,10 +1,10 @@
-package com.osudpotro.posmaster.resource;
+package com.osudpotro.posmaster.resource.api;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class ApiResourceCreateRequest {
+public class ApiResourceUpdateRequest {
     @NotBlank(message = "Name is required")
     private String name;
     @NotBlank(message = "Key is required")
