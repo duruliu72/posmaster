@@ -12,7 +12,6 @@ import com.osudpotro.posmaster.manufacturer.ManufacturerService;
 import com.osudpotro.posmaster.producttype.ProductTypeService;
 import com.osudpotro.posmaster.variantunit.VariantUnit;
 import com.osudpotro.posmaster.variantunit.VariantUnitService;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,7 +19,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.IntStream;
 
 @AllArgsConstructor
@@ -205,7 +203,6 @@ public class ProductService {
         }
         product.setProductGenerics(productGenerics);
         //Product Details
-
         List<ProductDetail> details = product.getDetails();
         List<ProductDetail> detailList = new ArrayList<>();
         if (request.getDetails() != null) {

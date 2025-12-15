@@ -39,6 +39,7 @@ public class Product extends BaseEntity {
     @ManyToOne
     private ProductType productType;
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL,orphanRemoval = true)
+    @OrderBy("id ASC")
     private List<ProductDetail> details = new ArrayList<>();
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<ProductGeneric> productGenerics =new ArrayList<>();

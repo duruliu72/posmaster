@@ -1,8 +1,6 @@
 package com.osudpotro.posmaster.product;
 
 import com.osudpotro.posmaster.brand.BrandNotFoundException;
-import com.osudpotro.posmaster.category.Category;
-import com.osudpotro.posmaster.category.CategoryDto;
 import com.osudpotro.posmaster.category.CategoryNotFoundException;
 import com.osudpotro.posmaster.category.CategoryService;
 import com.osudpotro.posmaster.common.PagedResponse;
@@ -20,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 

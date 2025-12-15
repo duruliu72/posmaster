@@ -15,12 +15,14 @@ import lombok.Setter;
 @Getter
 @Entity
 public class ProductDetail extends BaseEntity {
+    private String productCode;
     private String productDetailCode;
+    private String productBarCode;
     private String productDetailBarCode;
     //Stock Keeping Unit
+    private String productSku;
     private String productDetailSku;
     private Double regularPrice;
-    @Column(nullable = true)
     private Double oldPrice;
     //If no variant then default variant will be NoSize,NoColor
     @ManyToOne(optional = true)
@@ -33,6 +35,9 @@ public class ProductDetail extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "parent_size_id")
     private VariantUnit parentSize;
+    @OneToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "parent_product_detail_id", nullable = true)
+    private ProductDetail parentProductDetail;
     @ManyToOne(fetch = FetchType.LAZY,optional = false)
     @JoinColumn(name = "product_id")
     @JsonBackReference

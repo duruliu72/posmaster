@@ -85,9 +85,9 @@ public class ProductMapper {
         for (ProductDetail detail : product.getDetails()) {
             ProductDetailDto detailDto = new ProductDetailDto();
             detailDto.setId(detail.getId());
-            detailDto.setProductChildCode(detail.getProductDetailCode());
-            detailDto.setProductChildBarCode(detail.getProductDetailBarCode());
-            detailDto.setProductChildSku(detail.getProductDetailSku());
+            detailDto.setProductDetailCode(detail.getProductDetailCode());
+            detailDto.setProductDetailBarCode(detail.getProductDetailBarCode());
+            detailDto.setProductDetailSku(detail.getProductDetailSku());
             detailDto.setRegularPrice(detail.getRegularPrice());
             VariantUnitDto size = new VariantUnitDto();
             size.setId(detail.getSize().getId());
@@ -105,6 +105,22 @@ public class ProductMapper {
             color.setId(detail.getColor().getId());
             color.setName(detail.getColor().getName());
             detailDto.setColor(color);
+//            For Parent Product Detail
+            if(detail.getParentProductDetail()!=null){
+                ProductDetailDto parentProductDetailDto=new ProductDetailDto();
+                parentProductDetailDto.setId(detail.getParentProductDetail().getId());
+                parentProductDetailDto.setProductDetailCode(detail.getParentProductDetail().getProductDetailCode());
+                parentProductDetailDto.setProductDetailBarCode(detail.getParentProductDetail().getProductDetailBarCode());
+                parentProductDetailDto.setProductDetailSku(detail.getParentProductDetail().getProductDetailSku());
+                parentProductDetailDto.setRegularPrice(detail.getParentProductDetail().getRegularPrice());
+                if(detail.getParentProductDetail().getSize()!=null){
+                    VariantUnitDto pSizeDto = new VariantUnitDto();
+                    pSizeDto.setId(detail.getParentProductDetail().getSize().getId());
+                    pSizeDto.setName(detail.getParentProductDetail().getSize().getName());
+                    parentProductDetailDto.setSize(pSizeDto);
+                }
+                detailDto.setParentProductDetail(parentProductDetailDto);
+            }
             details.add(detailDto);
         }
         productDto.setDetails(details);

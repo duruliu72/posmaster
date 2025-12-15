@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class ProductDetailUpdateRequest {
-    @NotBlank(message = "Detail code is required")
+    @NotBlank(message = "Child code is required")
     private String productDetailCode;
     @NotBlank(message = "Detail bar code is required")
     private String productDetailBarCode;
