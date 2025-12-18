@@ -84,54 +84,54 @@ public class ProductService {
         }
         product.setProductGenerics(productGenerics);
         //Product Details
-        List<ProductDetail> details = new ArrayList<>();
-        if (request.getDetails() != null) {
-            int lastAtomQty = 1;
-            for (ProductDetailCreateRequest detailRq : request.getDetails()) {
-                ProductDetail lastProductDetail = IntStream.range(0, details.size())
-                        .mapToObj(i -> details.get(details.size() - 1 - i)) // reverse
-                        .filter(p -> p.getColor().getId().equals(detailRq.getColorId()))
-                        .findFirst()
-                        .orElse(null);
-                if (lastProductDetail != null) {
-                    lastAtomQty = lastProductDetail.getAtomQty();
-                    if (detailRq.getParent_size_id() != null) {
-                        if (!lastProductDetail.getSize().getId().equals(detailRq.getParent_size_id())) {
-                            throw new ParentVariantSizeException();
-                        }
-                    } else {
-                        lastAtomQty = 1;
-                    }
-                } else {
-                    lastAtomQty = 1;
-                }
-                ProductDetail detail = new ProductDetail();
-                detail.setProductDetailCode(detailRq.getProductDetailCode());
-                detail.setProductDetailBarCode(detailRq.getProductDetailBarCode());
-                detail.setProductDetailSku(detailRq.getProductDetailSku());
-                detail.setRegularPrice(detailRq.getRegularPrice());
-                detail.setOldPrice(detailRq.getOldPrice());
-                VariantUnit size = variantUnitService.getVariantUnitEntity(detailRq.getSizeId());
-                detail.setSize(size);
-                if (lastProductDetail != null) {
-                    detail.setBulkSize(detailRq.getBulkSize());
-                    lastAtomQty = detailRq.getBulkSize() * lastAtomQty;
-                } else {
-                    detail.setBulkSize(1);
-                }
-                detail.setAtomQty(lastAtomQty);
-                if (lastProductDetail != null && detailRq.getParent_size_id() != null) {
-                    VariantUnit parentSize = variantUnitService.getVariantUnitEntity(detailRq.getParent_size_id());
-                    detail.setParentSize(parentSize);
-                }
-                VariantUnit color = variantUnitService.getVariantUnitEntity(detailRq.getColorId());
-                detail.setColor(color);
-                detail.setCreatedBy(user);
-                detail.setProduct(product); // link detail to parent
-                details.add(detail);
-            }
-        }
-        product.setDetails(details);
+//        List<ProductDetail> details = new ArrayList<>();
+//        if (request.getDetails() != null) {
+//            int lastAtomQty = 1;
+//            for (ProductDetailCreateRequest detailRq : request.getDetails()) {
+//                ProductDetail lastProductDetail = IntStream.range(0, details.size())
+//                        .mapToObj(i -> details.get(details.size() - 1 - i)) // reverse
+//                        .filter(p -> p.getColor().getId().equals(detailRq.getColorId()))
+//                        .findFirst()
+//                        .orElse(null);
+//                if (lastProductDetail != null) {
+//                    lastAtomQty = lastProductDetail.getAtomQty();
+//                    if (detailRq.getParent_size_id() != null) {
+//                        if (!lastProductDetail.getSize().getId().equals(detailRq.getParent_size_id())) {
+//                            throw new ParentVariantSizeException();
+//                        }
+//                    } else {
+//                        lastAtomQty = 1;
+//                    }
+//                } else {
+//                    lastAtomQty = 1;
+//                }
+//                ProductDetail detail = new ProductDetail();
+//                detail.setProductDetailCode(detailRq.getProductDetailCode());
+//                detail.setProductDetailBarCode(detailRq.getProductDetailBarCode());
+//                detail.setProductDetailSku(detailRq.getProductDetailSku());
+//                detail.setRegularPrice(detailRq.getRegularPrice());
+//                detail.setOldPrice(detailRq.getOldPrice());
+//                VariantUnit size = variantUnitService.getVariantUnitEntity(detailRq.getSizeId());
+//                detail.setSize(size);
+//                if (lastProductDetail != null) {
+//                    detail.setBulkSize(detailRq.getBulkSize());
+//                    lastAtomQty = detailRq.getBulkSize() * lastAtomQty;
+//                } else {
+//                    detail.setBulkSize(1);
+//                }
+//                detail.setAtomQty(lastAtomQty);
+//                if (lastProductDetail != null && detailRq.getParent_size_id() != null) {
+//                    VariantUnit parentSize = variantUnitService.getVariantUnitEntity(detailRq.getParent_size_id());
+//                    detail.setParentSize(parentSize);
+//                }
+//                VariantUnit color = variantUnitService.getVariantUnitEntity(detailRq.getColorId());
+//                detail.setColor(color);
+//                detail.setCreatedBy(user);
+//                detail.setProduct(product); // link detail to parent
+//                details.add(detail);
+//            }
+//        }
+//        product.setDetails(details);
         product.setCreatedBy(user);
         productRepository.save(product);
         return productMapper.toDto(product);
@@ -215,10 +215,10 @@ public class ProductService {
                         .findFirst()
                         .orElse(null);
                 if (lastProductDetail != null) {
-                    lastAtomQty = lastProductDetail.getAtomQty();
-                    if (!lastProductDetail.getSize().getId().equals(detailRq.getParent_size_id())) {
-                        throw new ParentVariantSizeException();
-                    }
+//                    lastAtomQty = lastProductDetail.getAtomQty();
+//                    if (!lastProductDetail.getSize().getId().equals(detailRq.getParent_size_id())) {
+//                        throw new ParentVariantSizeException();
+//                    }
                 } else {
                     lastAtomQty = 1;
                 }
@@ -245,10 +245,10 @@ public class ProductService {
                     detail.setBulkSize(1);
                 }
                 detail.setAtomQty(lastAtomQty);
-                if (lastProductDetail != null && detailRq.getParent_size_id() != null) {
-                    VariantUnit parentSize = variantUnitService.getVariantUnitEntity(detailRq.getParent_size_id());
-                    detail.setParentSize(parentSize);
-                }
+//                if (lastProductDetail != null && detailRq.getParent_size_id() != null) {
+//                    VariantUnit parentSize = variantUnitService.getVariantUnitEntity(detailRq.getParent_size_id());
+//                    detail.setParentSize(parentSize);
+//                }
                 VariantUnit color = variantUnitService.getVariantUnitEntity(detailRq.getColorId());
                 detail.setColor(color);
                 detail.setUpdatedBy(user);

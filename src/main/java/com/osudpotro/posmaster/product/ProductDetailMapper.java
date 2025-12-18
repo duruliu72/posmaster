@@ -30,12 +30,12 @@ public class ProductDetailMapper {
             colorDto.setName(productDetail.getColor().getName());
             productDetailDto.setColor(colorDto);
         }
-        if (productDetail.getParentSize() != null) {
-            VariantUnitDto parentSizeDto = new VariantUnitDto();
-            parentSizeDto.setId(productDetail.getParentSize().getId());
-            parentSizeDto.setName(productDetail.getParentSize().getName());
-            productDetailDto.setParentSize(parentSizeDto);
-        }
+//        if (productDetail.getParentSize() != null) {
+//            VariantUnitDto parentSizeDto = new VariantUnitDto();
+//            parentSizeDto.setId(productDetail.getParentSize().getId());
+//            parentSizeDto.setName(productDetail.getParentSize().getName());
+//            productDetailDto.setParentSize(parentSizeDto);
+//        }
         if (productDetail.getParentProductDetail() != null) {
             ProductDetailDto parentProductDetailDto = new ProductDetailDto();
             parentProductDetailDto.setId(productDetail.getParentProductDetail().getId());

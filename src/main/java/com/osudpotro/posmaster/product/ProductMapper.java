@@ -89,22 +89,28 @@ public class ProductMapper {
             detailDto.setProductDetailBarCode(detail.getProductDetailBarCode());
             detailDto.setProductDetailSku(detail.getProductDetailSku());
             detailDto.setRegularPrice(detail.getRegularPrice());
-            VariantUnitDto size = new VariantUnitDto();
-            size.setId(detail.getSize().getId());
-            size.setName(detail.getSize().getName());
-            detailDto.setSize(size);
+            if(detail.getSize()!=null){
+                VariantUnitDto size = new VariantUnitDto();
+                size.setId(detail.getSize().getId());
+                size.setName(detail.getSize().getName());
+                detailDto.setSize(size);
+            }
+
             detailDto.setBulkSize(detail.getBulkSize());
             detailDto.setAtomQty(detail.getAtomQty());
-            if (detail.getParentSize() != null) {
-                VariantUnitDto parentSize = new VariantUnitDto();
-                parentSize.setId(detail.getParentSize().getId());
-                parentSize.setName(detail.getParentSize().getName());
-                detailDto.setParentSize(parentSize);
+//            if (detail.getParentSize() != null) {
+//                VariantUnitDto parentSize = new VariantUnitDto();
+//                parentSize.setId(detail.getParentSize().getId());
+//                parentSize.setName(detail.getParentSize().getName());
+//                detailDto.setParentSize(parentSize);
+//            }
+            if(detail.getColor()!=null){
+                VariantUnitDto color = new VariantUnitDto();
+                color.setId(detail.getColor().getId());
+                color.setName(detail.getColor().getName());
+                detailDto.setColor(color);
             }
-            VariantUnitDto color = new VariantUnitDto();
-            color.setId(detail.getColor().getId());
-            color.setName(detail.getColor().getName());
-            detailDto.setColor(color);
+
 //            For Parent Product Detail
             if(detail.getParentProductDetail()!=null){
                 ProductDetailDto parentProductDetailDto=new ProductDetailDto();

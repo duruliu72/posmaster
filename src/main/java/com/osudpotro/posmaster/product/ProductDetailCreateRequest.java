@@ -18,9 +18,8 @@ public class ProductDetailCreateRequest {
     private double oldPrice;
     @NotNull(message = "Detail size is required")
     private Long sizeId;
-    @NotNull(message = "Detail color is required")
+//    @NotNull(message = "Detail color is required")
     private Long colorId;
     private int bulkSize;
-    private Long parent_size_id;
     private Long parentProductDetailId;
 }

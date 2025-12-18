@@ -15,12 +15,10 @@ import lombok.Setter;
 @Getter
 @Entity
 public class ProductDetail extends BaseEntity {
-    private String productCode;
     private String productDetailCode;
     private String productBarCode;
     private String productDetailBarCode;
     //Stock Keeping Unit
-    private String productSku;
     private String productDetailSku;
     private Double regularPrice;
     private Double oldPrice;
@@ -32,9 +30,6 @@ public class ProductDetail extends BaseEntity {
     private Integer bulkSize;
     private Integer atomQty;
     private Boolean isPublished;
-    @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "parent_size_id")
-    private VariantUnit parentSize;
     @OneToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "parent_product_detail_id", nullable = true)
     private ProductDetail parentProductDetail;

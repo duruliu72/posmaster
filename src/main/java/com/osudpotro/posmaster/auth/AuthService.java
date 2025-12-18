@@ -4,7 +4,6 @@ import com.osudpotro.posmaster.security.CustomUserDetails;
 import com.osudpotro.posmaster.security.UnauthorizedException;
 import com.osudpotro.posmaster.user.CustomUserMapper;
 import com.osudpotro.posmaster.user.User;
-import com.osudpotro.posmaster.user.UserDto;
 import com.osudpotro.posmaster.user.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
