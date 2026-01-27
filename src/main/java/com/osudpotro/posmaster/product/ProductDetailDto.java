@@ -1,6 +1,7 @@
 package com.osudpotro.posmaster.product;
 
 import com.osudpotro.posmaster.variantunit.VariantUnitDto;
+import jakarta.persistence.Column;
 import lombok.Data;
 
 import java.util.List;
@@ -10,8 +11,12 @@ public class ProductDetailDto {
     private Long id;
     private String productDetailCode;
     private String productDetailBarCode;
+    private byte[] productDetailBarCodeImage;
     private String productDetailSku;
-    private double regularPrice;
+    private Double regularPrice;//sell price
+    private Double oldPrice;//sell price
+    @Column(nullable = true)
+    private Double purchasePrice;
     private VariantUnitDto size;
     private VariantUnitDto color;
     private int bulkSize;
@@ -19,4 +24,5 @@ public class ProductDetailDto {
     private VariantUnitDto parentSize;
     private List<Long> productDetailIds;
     private ProductDetailDto parentProductDetail;
+    private ProductDto product;
 }

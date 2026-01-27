@@ -20,7 +20,7 @@ public class BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     //    like ACTIVE=1, INACTIVE=2, DELETED=3
-    private int status=1;
+    private Integer status=1;
     @ManyToOne(fetch = FetchType.LAZY ,optional = false)
     @JoinColumn(name = "created_by", nullable = false)
     private User createdBy;

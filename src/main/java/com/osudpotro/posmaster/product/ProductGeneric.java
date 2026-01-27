@@ -4,10 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.osudpotro.posmaster.common.BaseEntity;
 import com.osudpotro.posmaster.generic.Generic;
 import com.osudpotro.posmaster.genericunit.GenericUnit;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,4 +27,6 @@ public class ProductGeneric extends BaseEntity {
     @JoinColumn(name = "product_id")
     @JsonBackReference
     private Product product;
+    @Transient
+    private Boolean isNew=false;
 }

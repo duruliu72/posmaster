@@ -12,7 +12,7 @@ import java.util.Optional;
 
 public interface CategoryRepository extends JpaSpecificationExecutor<Category>, JpaRepository<Category, Long> {
     boolean existsByName(String name);
-
+    Optional<Category> findByName(String name);
     Optional<Category> findByPictureId(Long pictureId);
     @Query("select c from Category c where c.parentCat.id = :parentId")
     List<Category> findByParentId(Long parentId);

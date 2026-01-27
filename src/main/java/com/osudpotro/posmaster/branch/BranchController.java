@@ -22,7 +22,7 @@ import java.util.Map;
 @RequestMapping("/branches")
 public class BranchController {
     private final BranchService branchService;
-    @PreAuthorize("hasAuthority('BRANCH_READ')")
+//    @PreAuthorize("hasAuthority('BRANCH_READ')")
     @GetMapping
     public List<BranchDto> getAllBranches(){
         return branchService.getAllBranches();

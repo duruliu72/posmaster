@@ -20,11 +20,7 @@ import java.util.Map;
 @AllArgsConstructor
 @RestController
 @RequestMapping("/categories")
-public class
-
-
-
-CategoryController {
+public class CategoryController {
     private final CategoryService categoryService;
 
     //    @PreAuthorize("hasAuthority('CATEGORY_READ')")

@@ -88,7 +88,12 @@ public class GenericService {
             String[] cols = rows.get(i);
             // Expecting: name, description
             String name = cols.length > 0 ? cols[0] : null;
-            if (name == null || name.trim().isEmpty()) {
+            if (name == null) {
+                continue; // Skip invalid rows
+            }
+            name = name.replaceAll("^(\"{1,2})|(\\\"{1,2})$", "");
+            name = name.replaceAll("^(\"{1,2})|(\\\"{1,2})$", "");
+            if(name.trim().isEmpty()){
                 continue; // Skip invalid rows
             }
             Generic generic = new Generic();

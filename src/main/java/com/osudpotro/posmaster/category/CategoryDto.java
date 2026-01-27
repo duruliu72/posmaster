@@ -1,5 +1,6 @@
 package com.osudpotro.posmaster.category;
 
+import com.osudpotro.posmaster.multimedia.MultimediaDto;
 import com.osudpotro.posmaster.picture.PictureDto;
 import lombok.Data;
 
@@ -14,4 +15,5 @@ public class CategoryDto {
     private String fullPath;
     private List<Long> catIds;
     private PictureDto picture;
+    private MultimediaDto media;
 }

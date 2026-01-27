@@ -1,9 +1,14 @@
 package com.osudpotro.posmaster.user;
 
 
-import com.osudpotro.posmaster.category.DuplicateCategoryException;
+import com.osudpotro.posmaster.common.PagedResponse;
+import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisitionFilter;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -23,6 +28,39 @@ public class UserController {
     public List<UserDto> getAllUsers(@RequestHeader(required = false, name = "x-auth-token") String authToken, @RequestParam(required = false, defaultValue = "", name = "sort") String sort) {
         return userService.gerAllUsers();
 
+    }
+
+    @PostMapping("/filter")
+    public PagedResponse<UserMainDto> filterUsers(
+            @RequestBody UserFilter filter,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir
+    ) {
+
+        Sort sort = sortDir.equalsIgnoreCase("asc") ?
+                Sort.by(sortBy).ascending() :
+                Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<UserMainDto> result = userService.filterUsers(filter, pageable);
+        return new PagedResponse<>(result);
+    }
+
+    @PostMapping("/filter-or")
+    public PagedResponse<UserMainDto> filterUsersOr(
+            @RequestBody UserFilter filter,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir
+    ) {
+        Sort sort = sortDir.equalsIgnoreCase("asc") ?
+                Sort.by(sortBy).ascending() :
+                Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<UserMainDto> result = userService.filterForOrUsers(filter, pageable);
+        return new PagedResponse<>(result);
     }
 
     @PostMapping

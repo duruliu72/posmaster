@@ -12,8 +12,9 @@ public class ProductDetailUpdateRequest {
     @NotBlank(message = "Detail sku required")
     private String productDetailSku;
     @NotNull(message = "Detail regular price is required")
-    private double regularPrice;
-    private double oldPrice;
+    private Double regularPrice;
+    private Double oldPrice;
+    private Double purchasePrice;
     @NotNull(message = "Detail size is required")
     private Long sizeId;
 //    @NotNull(message = "Detail color is required")

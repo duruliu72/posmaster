@@ -1,14 +1,14 @@
 package com.osudpotro.posmaster.requisitiontype;
 
-import com.osudpotro.posmaster.requisition.ApproverUpdateRequest;
+import com.osudpotro.posmaster.requisition.RequisitionApproverUpdateRequest;
 import lombok.Data;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 public class RequisitionTypeUpdateRequest {
     private String name;
     private String requisitionTypeKey;
-    private Set<ApproverUpdateRequest> approvers =  new HashSet<>();
+    private List<RequisitionApproverUpdateRequest> approvers =  new ArrayList<>();
 }

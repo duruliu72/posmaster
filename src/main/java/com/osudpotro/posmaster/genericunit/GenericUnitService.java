@@ -1,10 +1,6 @@
 package com.osudpotro.posmaster.genericunit;
 
 import com.osudpotro.posmaster.auth.AuthService;
-import com.osudpotro.posmaster.generic.Generic;
-import com.osudpotro.posmaster.generic.GenericDto;
-import com.osudpotro.posmaster.generic.GenericFilter;
-import com.osudpotro.posmaster.generic.GenericSpecification;
 import com.osudpotro.posmaster.utility.CsvReader;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -54,6 +50,7 @@ public class GenericUnitService {
     public GenericUnit getGenericUnitEntity(Long genericUnitId){
         return genericUnitRepository.findById(genericUnitId).orElseThrow(() -> new GenericUnitNotFoundException("Generic Unit not found with ID: " + genericUnitId));
     }
+
     public GenericUnitDto activateGenericUnit(Long genericUnitId){
         var genericUnit = genericUnitRepository.findById(genericUnitId).orElseThrow(() -> new GenericUnitNotFoundException("Generic Unit not found with ID: " + genericUnitId));
         var user = authService.getCurrentUser();
@@ -92,7 +89,12 @@ public class GenericUnitService {
             String[] cols = rows.get(i);
             // Expecting: name, description
             String name = cols.length > 0 ? cols[0] : null;
-            if (name == null || name.trim().isEmpty()) {
+            if (name == null) {
+                continue; // Skip invalid rows
+            }
+            name = name.replaceAll("^(\"{1,2})|(\\\"{1,2})$", "");
+            name = name.replaceAll("^(\"{1,2})|(\\\"{1,2})$", "");
+            if(name.trim().isEmpty()){
                 continue; // Skip invalid rows
             }
             GenericUnit genericUnit = new GenericUnit();

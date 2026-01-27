@@ -21,7 +21,7 @@ public class PictureController {
     private final PictureService pictureService;
     @PostMapping(value = "/upload444", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> upload(
-            @RequestPart("data") CategoryCreateRequest request,
+            @RequestPart("data") PictureCreateRequest request,
             @RequestPart("file") MultipartFile file
     ) {
         return ResponseEntity.ok("Uploaded!");

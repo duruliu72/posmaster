@@ -1,6 +1,8 @@
 package com.osudpotro.posmaster.category;
 
 import com.osudpotro.posmaster.auth.AuthService;
+import com.osudpotro.posmaster.multimedia.Multimedia;
+import com.osudpotro.posmaster.multimedia.MultimediaRepository;
 import com.osudpotro.posmaster.picture.Picture;
 import com.osudpotro.posmaster.picture.PictureNotFoundException;
 import com.osudpotro.posmaster.picture.PictureRepository;
@@ -24,6 +26,7 @@ public class CategoryService {
     private final CategoryMapper categoryMapper;
     private final CustomCategoryMapper customCategoryMapper;
     private final PictureRepository pictureRepository;
+    private final MultimediaRepository multimediaRepository;
     private final CsvReader csvReader;
 
     public List<CategoryDto> gerAllCategories() {
@@ -47,16 +50,65 @@ public class CategoryService {
             String[] cols = rows.get(i);
             // Expecting: name, description
             String name = cols.length > 0 ? cols[0] : null;
-            if (name == null || name.trim().isEmpty()) {
+            String description = cols.length > 1 ? cols[1] : null;
+            String imageLink = cols.length > 2 ? cols[2] : null;
+            String parentName = cols.length > 3 ? cols[3] : null;
+            if (name == null) {
+                continue; // Skip invalid rows
+            }
+            name = name.replaceAll("^(\"{1,2})|(\\\"{1,2})$", "");
+            name = name.replaceAll("^(\"{1,2})|(\\\"{1,2})$", "");
+            name = name.replace("- ", ", ");
+            if (name.trim().isEmpty()) {
+                continue; // Skip invalid rows
+            }
+            Category findCategory = categoryRepository.findByName(name).orElse(null);
+            if (findCategory != null) {
                 continue; // Skip invalid rows
             }
             Category category = new Category();
-            category.setName(name.trim());
+            category.setName(name);
+            if(description!=null){
+                description = description.replaceAll("^(\"{1,2})|(\\\"{1,2})$", "");
+                description = description.replaceAll("^(\"{1,2})|(\\\"{1,2})$", "");
+                description = description.replace("- ", ", ");
+                category.setDescription(description);
+            }
+            //For Alias
+            String alias = name.replace(" ", "-").toLowerCase();
+            category.setAlias(alias);
+            if (imageLink != null) {
+                imageLink = imageLink.replaceAll("^(\"{1,2})|(\\\"{1,2})$", "");
+                imageLink = imageLink.replaceAll("^(\"{1,2})|(\\\"{1,2})$", "");
+                imageLink = imageLink.replace("- ", ", ");
+                if(!imageLink.isEmpty()){
+                    Multimedia multimedia = new Multimedia();
+                    multimedia.setName(name);
+                    multimedia.setImageUrl(imageLink);
+                    multimedia.setLinked(true);
+                    multimedia.setSourceLink(2);
+                    multimedia.setCreatedBy(user);
+                    multimediaRepository.save(multimedia);
+                    category.setMedia(multimedia);
+                }else {
+                    category.setMedia(null);
+                }
+            }
             category.setCreatedBy(user);
-            categories.add(category);
+            if (parentName != null) {
+                parentName = parentName.replaceAll("^(\"{1,2})|(\\\"{1,2})$", "");
+                parentName = parentName.replaceAll("^(\"{1,2})|(\\\"{1,2})$", "");
+                parentName = parentName.replace("- ", ", ");
+                Category parentCategory = categoryRepository.findByName(parentName).orElse(null);
+                if (parentCategory != null) {
+                    category.setParentCat(parentCategory);
+                }
+            }
+            categoryRepository.save(category);
+//            categories.add(category);
             count++;
         }
-        categoryRepository.saveAll(categories);
+//        categoryRepository.saveAll(categories);
         return count;
     }
 
@@ -82,7 +134,11 @@ public class CategoryService {
                 category.setPicture(picture);
             }
         }
-
+        //For Alias
+        if (request.getName() != null) {
+            String alias = request.getName().replace(" ", "-").toLowerCase();
+            category.setAlias(alias);
+        }
         var user = authService.getCurrentUser();
         category.setCreatedBy(user);
         categoryRepository.save(category);
@@ -131,6 +187,11 @@ public class CategoryService {
         } else {
             category.setParentCat(null);
         }
+        //For Alias
+        if (request.getName() != null) {
+            String alias = request.getName().replace(" ", "-").toLowerCase();
+            category.setAlias(alias);
+        }
         category.setUpdatedBy(user);
         categoryRepository.save(category);
         return customCategoryMapper.toDto(category);
@@ -144,6 +205,7 @@ public class CategoryService {
         }
         return customCategoryMapper.toDto(category);
     }
+
     public CategoryDto getCategoryOrNull(Long categoryId) {
         var category = categoryRepository.findById(categoryId).orElseThrow();
 //        if (category.getParentCat() != null) {
@@ -152,6 +214,7 @@ public class CategoryService {
 //        }
         return customCategoryMapper.toDto(category);
     }
+
     public Category getCategoryEntity(Long categoryId) {
         return categoryRepository.findById(categoryId).orElseThrow(CategoryNotFoundException::new);
     }
@@ -173,16 +236,19 @@ public class CategoryService {
         categoryRepository.save(category);
         return customCategoryMapper.toDto(category);
     }
+
     public List<CategoryDto> getChildren(Long parentId) {
         return categoryRepository.findByParentId(parentId).stream()
                 .map(customCategoryMapper::toDto)
                 .toList();
     }
+
     public List<Long> getChildrenIds(Long parentId) {
         return categoryRepository.findByParentId(parentId).stream()
                 .map(Category::getId)
                 .toList();
     }
+
     public CategoryDto deleteCategory(Long categoryId) {
         var category = categoryRepository.findById(categoryId).orElseThrow(() -> new CategoryNotFoundException("Category not found with ID: " + categoryId));
         var user = authService.getCurrentUser();
@@ -195,6 +261,7 @@ public class CategoryService {
     public int deleteBulkCategory(List<Long> ids) {
         return categoryRepository.deleteBulkCategory(ids, 3L);
     }
+
     private void loadChildrenRecursively(Category category) {
         List<Category> children = categoryRepository.findByParentId(category.getId());
         category.setChildren(children);

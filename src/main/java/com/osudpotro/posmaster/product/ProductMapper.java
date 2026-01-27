@@ -4,13 +4,16 @@ import com.osudpotro.posmaster.brand.Brand;
 import com.osudpotro.posmaster.brand.BrandDto;
 import com.osudpotro.posmaster.category.Category;
 import com.osudpotro.posmaster.category.CategoryDto;
+import com.osudpotro.posmaster.category.CustomCategoryMapper;
 import com.osudpotro.posmaster.generic.GenericDto;
 import com.osudpotro.posmaster.genericunit.GenericUnitDto;
 import com.osudpotro.posmaster.manufacturer.Manufacturer;
 import com.osudpotro.posmaster.manufacturer.ManufacturerDto;
+import com.osudpotro.posmaster.multimedia.MultimediaDto;
 import com.osudpotro.posmaster.producttype.ProductType;
 import com.osudpotro.posmaster.producttype.ProductTypeDto;
 import com.osudpotro.posmaster.variantunit.VariantUnitDto;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -18,6 +21,8 @@ import java.util.List;
 
 @Component
 public class ProductMapper {
+    @Autowired
+    private CustomCategoryMapper customCategoryMapper;
     //Mapping Here
     //Entity → DTO
     public ProductDto toDto(Product product) {
@@ -27,11 +32,17 @@ public class ProductMapper {
         productDto.setProductCode(product.getProductCode());
         productDto.setProductBarCode(product.getProductBarCode());
         productDto.setProductSku(product.getProductSku());
+        productDto.setTags(product.getTags());
+        productDto.setSeoPageName(product.getSeoPageName());
+        productDto.setMetaTitle(product.getMetaTitle());
+        productDto.setMetaKeywords(product.getMetaKeywords());
+        productDto.setMetaDescription(product.getMetaDescription());
+
+        productDto.setIsPrescribeNeeded(product.getIsPrescribeNeeded());
         productDto.setDescription(product.getDescription());
         // Manufacturer
         Manufacturer manufacturer = product.getManufacturer();
         if (manufacturer != null) {
-            productDto.setManufacturerId(manufacturer.getId());
             ManufacturerDto manufacturerDto = new ManufacturerDto();
             manufacturerDto.setId(manufacturer.getId());
             manufacturerDto.setName(manufacturer.getName());
@@ -40,16 +51,14 @@ public class ProductMapper {
         //Category
         Category category =product.getCategory();
         if(category!=null){
-            productDto.setCategoryId(category.getId());
             CategoryDto categoryDto=new CategoryDto();
             categoryDto.setId(category.getId());
             categoryDto.setName(category.getName());
-            productDto.setCategory(categoryDto);
+            productDto.setCategory(customCategoryMapper.toDto(category));
         }
         // Brand
         Brand brand = product.getBrand();
         if (brand != null) {
-            productDto.setBrandId(brand.getId());
             BrandDto brandDto = new BrandDto();
             brandDto.setId(brand.getId());
             brandDto.setName(brand.getName());
@@ -58,11 +67,18 @@ public class ProductMapper {
         //Product Type
         ProductType productType = product.getProductType();
         if (productType != null) {
-            productDto.setProductTypeId(productType.getId());
             ProductTypeDto productTypeDto = new ProductTypeDto();
             productTypeDto.setId(productType.getId());
             productTypeDto.setName(productType.getName());
             productDto.setProductType(productTypeDto);
+        }
+        if(product.getMedia()!=null&&product.getMedia().getImageUrl()!=null){
+            MultimediaDto multimediaDto=new MultimediaDto();
+            multimediaDto.setId(product.getMedia().getId());
+            multimediaDto.setName(product.getMedia().getName());
+            multimediaDto.setImageUrl(product.getMedia().getImageUrl());
+            multimediaDto.setMediaType(product.getMedia().getMediaType());
+            productDto.setMedia(multimediaDto);
         }
         // PRODUCT GENERICS
         List<ProductGenericDto> productGenerics = new ArrayList<>();
@@ -87,8 +103,10 @@ public class ProductMapper {
             detailDto.setId(detail.getId());
             detailDto.setProductDetailCode(detail.getProductDetailCode());
             detailDto.setProductDetailBarCode(detail.getProductDetailBarCode());
+            detailDto.setProductDetailBarCodeImage(detail.generateProductDetailsBarCodeImage(null,null));
             detailDto.setProductDetailSku(detail.getProductDetailSku());
             detailDto.setRegularPrice(detail.getRegularPrice());
+            detailDto.setOldPrice(detail.getOldPrice());
             if(detail.getSize()!=null){
                 VariantUnitDto size = new VariantUnitDto();
                 size.setId(detail.getSize().getId());

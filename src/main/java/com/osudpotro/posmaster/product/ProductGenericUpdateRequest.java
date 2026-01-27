@@ -8,6 +8,6 @@ public class ProductGenericUpdateRequest {
     @NotNull(message = "Generic is required")
     private Long genericId;
     private Double dose;
-    @NotNull(message = "Generic Unit is required")
+//    @NotNull(message = "Generic Unit is required")
     private Long genericUnitId;
 }

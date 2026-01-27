@@ -13,8 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ProductSpecification {
-    private static Join<Product, Category> cat;
-
     public static Specification<Product> filter(ProductFilter filter) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
@@ -22,6 +20,7 @@ public class ProductSpecification {
                 predicates.add(cb.like(cb.lower(root.get("productName")),
                         "%" + filter.getProductName().toLowerCase() + "%"));
             }
+            Join<Product, ProductDetail> details = root.join("details", JoinType.LEFT);
             if (filter.getProductCode() != null && !filter.getProductCode().isEmpty()) {
                 predicates.add(cb.like(cb.lower(root.get("productCode")),
                         "%" + filter.getProductCode().toLowerCase() + "%"));
@@ -36,7 +35,7 @@ public class ProductSpecification {
             }
             if (filter.getCategoryId() != null) {
                 Join<Product, Category> cat = root.join("category", JoinType.LEFT);
-                if (filter.getSearchIncludeSubCategories()&&!filter.getChildCategoryIds().isEmpty()) {
+                if (filter.getSearchIncludeSubCategories() && !filter.getChildCategoryIds().isEmpty()) {
                     predicates.add(cat.get("id").in(filter.getChildCategoryIds()));
                 } else {
                     predicates.add(cb.equal(cat.get("id"), filter.getCategoryId()));

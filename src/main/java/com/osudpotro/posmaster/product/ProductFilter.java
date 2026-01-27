@@ -10,6 +10,9 @@ public class ProductFilter {
     private String productCode;
     private String productBarCode;
     private String productSku;
+    private String productDetailCode;
+    private String productDetailBarCode;
+    private String productDetailSku;
     private Long categoryId;
     private List<Long> ChildCategoryIds;
     private Long brandId;

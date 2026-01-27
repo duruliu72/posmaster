@@ -1,9 +1,9 @@
 package com.osudpotro.posmaster.requisition;
 
 import com.osudpotro.posmaster.common.BaseEntity;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import com.osudpotro.posmaster.requisitiontype.RequisitionType;
+import com.osudpotro.posmaster.user.User;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,13 +14,15 @@ import lombok.Setter;
 @Setter
 @Getter
 @Entity
+@Table(name = "requisition_approvers")
 public class RequisitionApprover extends BaseEntity {
     @ManyToOne
-    @JoinColumn(name = "requisition_id")
-    private Requisition requisition;
+    private User prevUser;
     @ManyToOne
-    @JoinColumn(name = "approver_id")
-    private Approver approver;
-    private int approvedStatus;//"1=Pending", "2=Approved", "3=rejected"
-    private String comment;
+    private User user ;
+    @ManyToOne
+    private User nextUser;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "requisition_type_id")
+    private RequisitionType requisitionType;
 }

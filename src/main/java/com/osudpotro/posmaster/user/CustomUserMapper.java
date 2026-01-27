@@ -80,8 +80,15 @@ public class CustomUserMapper {
             });
         }
         userDto.setPermissions(permissions);
-
         return userDto;
+    }
+    public UserMainDto toMainDto(User user){
+        UserMainDto userMainDto = new UserMainDto();
+        userMainDto.setId(user.getId());
+        userMainDto.setName(user.getName());
+        userMainDto.setEmail(user.getEmail());
+        userMainDto.setCreatedAt(user.getCreatedAt());
+        return userMainDto;
     }
 }
 

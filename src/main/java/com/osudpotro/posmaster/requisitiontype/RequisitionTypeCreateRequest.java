@@ -1,7 +1,7 @@
 package com.osudpotro.posmaster.requisitiontype;
 
 
-import com.osudpotro.posmaster.requisition.ApproverCreateRequest;
+import com.osudpotro.posmaster.requisition.RequisitionApproverCreateRequest;
 import lombok.Data;
 
 import java.util.HashSet;
@@ -11,5 +11,5 @@ import java.util.Set;
 public class RequisitionTypeCreateRequest {
     private String name;
     private String requisitionTypeKey;
-    private Set<ApproverCreateRequest> approvers =  new HashSet<>();
+    private Set<RequisitionApproverCreateRequest> approvers =  new HashSet<>();
 }
