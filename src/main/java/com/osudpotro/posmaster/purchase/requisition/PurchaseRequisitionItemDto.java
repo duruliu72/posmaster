@@ -11,5 +11,10 @@ public class PurchaseRequisitionItemDto {
     private ProductDetailDto productDetail;
     private Double purchasePrice;
     private Integer purchaseQty;
+    private Integer actualQty;
+    private Integer giftQty;
     private Double purchaseLinePrice;
+    private Double actualLinePrice;
+    private Double giftLinePrice;
+    private Integer addableStatus;
 }

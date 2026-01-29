@@ -17,10 +17,15 @@ public class PurchaseRequisitionDto {
     private OrganizationDto organization;
     private BranchDto branch;
     private LocalDateTime createdAt;
-    private  LocalDateTime updatedAt;
-//    private Warehouse warehouse;
+    private LocalDateTime updatedAt;
+    //    private Warehouse warehouse;
 //    private Supplier supplier;
     private Double totalPrice;
+    private Integer totalQty;
+    private Double totalActualPrice;
+    private Integer totalActualQty;
+    private Double totalGiftPrice;
+    private Integer totalGiftQty;
     private Integer requisitionStatus;
     private String note;
     private List<PurchaseRequisitionItemDto> items = new ArrayList<>();

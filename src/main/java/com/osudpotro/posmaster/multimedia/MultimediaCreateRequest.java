@@ -6,4 +6,5 @@ import org.springframework.web.multipart.MultipartFile;
 @Data
 public class MultimediaCreateRequest {
     private MultipartFile filepond;
+    private Integer mediaType;
 }

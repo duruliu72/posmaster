@@ -40,4 +40,14 @@ public interface PurchaseRequisitionItemRepository extends JpaSpecificationExecu
                   AND pri.purchaseRequisition.id = :purchaseRequisitionId
             """)
     int removeBulkPurchaseRequisitionItem(@Param("purchaseRequisitionId") Long purchaseRequisitionId, @Param("purchaseRequisitionItemIds") List<Long> purchaseRequisitionItemIds);
+    @Transactional
+    @Modifying
+    @Query("""
+                update PurchaseRequisitionItem pri
+                set pri.addableStatus = :addableStatus
+                WHERE pri.id in :purchaseRequisitionItemIds
+                  AND pri.purchaseRequisition.id = :purchaseRequisitionId
+            """)
+//    @Query("update Organization o set o.status = :status where o.id in :ids")
+    int updateBulkForAddableItem(@Param("purchaseRequisitionId") Long purchaseRequisitionId, @Param("purchaseRequisitionItemIds") List<Long> purchaseRequisitionItemIds,@Param("addableStatus") Integer addableStatus);
 }

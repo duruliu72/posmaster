@@ -30,6 +30,12 @@ public class PurchaseRequisitionMapper {
             prDto.setRequisitionStatus(pr.getRequisition().getRequisitionStatus());
             prDto.setNote(pr.getRequisition().getNote());
         }
+        prDto.setTotalPrice(pr.getTotalPrice());
+        prDto.setTotalQty(pr.getTotalQty());
+        prDto.setTotalActualQty(pr.getTotalActualQty());
+        prDto.setTotalActualPrice(pr.getTotalActualPrice());
+        prDto.setTotalGiftQty(pr.getTotalGiftQty());
+        prDto.setTotalGiftPrice(pr.getTotalGiftPrice());
         return prDto;
     }
 
@@ -57,8 +63,13 @@ public class PurchaseRequisitionMapper {
 
         pageResponse.setTotalPrice(pr.getTotalPrice());
         pageResponse.setTotalQty(pr.getTotalQty());
+
+        pageResponse.setTotalActualQty(pr.getTotalActualQty());
+        pageResponse.setTotalActualPrice(pr.getTotalActualPrice());
+        pageResponse.setTotalGiftQty(pr.getTotalGiftQty());
+        pageResponse.setTotalGiftPrice(pr.getTotalGiftPrice());
         //For Item Pagination
-        pageResponse.setContent(page.getContent());
+        pageResponse.setItems(page.getContent());
         pageResponse.setTotalElements(page.getTotalElements());
         pageResponse.setPageNumber(page.getNumber());
         pageResponse.setPageSize(page.getSize());

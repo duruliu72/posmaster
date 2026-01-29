@@ -19,6 +19,6 @@ public class Multimedia extends BaseEntity {
 //    1=Local,2=https://cdn.osudpotro.com
     private Integer sourceLink=1;
     private boolean isLinked=false;
-//    1=Image ,2= Video
+//    1=Image ,2= Video,3=Audio,4=PDF
     private Integer mediaType=1;
 }

@@ -12,7 +12,6 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Getter
 @Setter
@@ -28,6 +27,9 @@ public class PurchaseRequisition extends BaseEntity {
     private Organization organization;
     @ManyToOne(fetch = FetchType.LAZY)
     private Branch branch;
+    private String purchaseInvoices;
+    private String purchaseInvoiceDocs;
+    private String orderRefs;
     //    @ManyToOne(fetch = FetchType.LAZY)
 //    private Warehouse warehouse;
 //    @ManyToOne(fetch = FetchType.LAZY)
@@ -54,16 +56,52 @@ public class PurchaseRequisition extends BaseEntity {
                 .sum();
     }
 
+    public int getTotalActualQty() {
+        return items.stream()
+                .mapToInt(PurchaseRequisitionItem::getPurchaseQty)
+                .sum();
+    }
+
+    public int getTotalGiftQty() {
+        return items.stream()
+                .mapToInt(PurchaseRequisitionItem::getPurchaseQty)
+                .sum();
+    }
+
     public Double getTotalPrice() {
         return items.stream()
                 .filter(i ->
-                        i.getPurchaseQty() != null &&
-                                i.getProductDetail() != null &&
-                                i.getProductDetail().getPurchasePrice() != null
+                        i.getPurchaseQty() != null && i.getPurchasePrice() != null
                 )
                 .mapToDouble(i ->
                         i.getPurchaseQty()
-                                * i.getProductDetail().getPurchasePrice()
+                                * i.getPurchasePrice()
+                )
+                .sum();
+    }
+
+    public Double getTotalActualPrice() {
+        return items.stream()
+                .filter(i ->
+                        i.getActualQty() != null &&
+                                i.getPurchasePrice() != null
+                )
+                .mapToDouble(i ->
+                        i.getActualQty()
+                                * i.getPurchasePrice()
+                )
+                .sum();
+    }
+
+    public Double getTotalGiftPrice() {
+        return items.stream()
+                .filter(i ->
+                        i.getGiftQty() != null &&
+                                i.getPurchasePrice() != null
+                )
+                .mapToDouble(i ->
+                        i.getGiftQty()
+                                * i.getPurchasePrice()
                 )
                 .sum();
     }

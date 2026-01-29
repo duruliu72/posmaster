@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class PurchaseRequisitionService {
@@ -119,7 +120,7 @@ public class PurchaseRequisitionService {
     @Transactional
     public PurchaseRequisitionDto updatePurchaseRequisition(Long purchaseRequisitionId, PurchaseRequisitionUpdateRequest request) {
         var pr = purchaseRequisitionRepository.findById(purchaseRequisitionId).orElseThrow(PurchaseRequisitionNotFoundException::new);
-        if(pr.getTotalItems()==0){
+        if (pr.getTotalItems() == 0) {
             throw new PurchaseRequisitionEmptyException();
         }
         if (request.getOrganizationId() != null) {
@@ -197,8 +198,8 @@ public class PurchaseRequisitionService {
         }
         pr.setRequisition(requisition);
         // requisition approver paths
-        if (requisitionStatus == 1 &&request.getRequisitionStatus()!=null && request.getRequisitionStatus()==2) {
-            if(!ropRepository.existRequisitionOnPathByUser(authUser.getId(),pr.getRequisition().getId())){
+        if (requisitionStatus == 1 && request.getRequisitionStatus() != null && request.getRequisitionStatus() == 2) {
+            if (!ropRepository.existRequisitionOnPathByUser(authUser.getId(), pr.getRequisition().getId())) {
                 var findApproverPrevNullUser = requisitionApproverRepository.findApproverWithNullPrevUser(requisitionType.getId()).orElseThrow(RequsitionOnPathNotFoundException::new);
                 if (findApproverPrevNullUser != null) {
                     RequisitionOnPath rop = new RequisitionOnPath();
@@ -266,8 +267,8 @@ public class PurchaseRequisitionService {
     }
 
     public PurchaseRequisitionItemDto addPurchaseRequisitionItem(Long purchaseRequisitionId, PurchaseRequisitionItemAddRequest request) {
-        PurchaseRequisition purchaseRequisition = purchaseRequisitionRepository.findById(purchaseRequisitionId).orElse(null);
-        if (purchaseRequisition == null) {
+        PurchaseRequisition pr = purchaseRequisitionRepository.findById(purchaseRequisitionId).orElse(null);
+        if (pr == null) {
             throw new PurchaseRequisitionNotFoundException();
         }
         var product = productRepository.findById(request.getProductId()).orElse(null);
@@ -282,28 +283,53 @@ public class PurchaseRequisitionService {
         if (findPurchaseRequisitionItem != null) {
             throw new PurchaseRequisitionItemDuplicateException();
         }
-        PurchaseRequisitionItem purchaseRequisitionItem = new PurchaseRequisitionItem();
-        purchaseRequisitionItem.setPurchaseRequisition(purchaseRequisition);
-        purchaseRequisitionItem.setProduct(product);
-        purchaseRequisitionItem.setProductDetail(productDetail);
-        purchaseRequisitionItem.setPurchaseQty(request.getPurchaseQty());
-        purchaseRequisitionItemRepository.save(purchaseRequisitionItem);
-        return purchaseRequisitionItemMapper.toDto(purchaseRequisitionItem);
+        PurchaseRequisitionItem prItem = new PurchaseRequisitionItem();
+        prItem.setPurchaseRequisition(pr);
+        prItem.setProduct(product);
+        prItem.setProductDetail(productDetail);
+        if (request.getPurchasePrice() != null) {
+            prItem.setPurchasePrice(request.getPurchasePrice());
+        }
+        prItem.setPurchaseQty(request.getPurchaseQty());
+        prItem.setActualQty(request.getPurchaseQty());
+        purchaseRequisitionItemRepository.save(prItem);
+        return purchaseRequisitionItemMapper.toDto(prItem);
     }
 
+    @Transactional
     public PurchaseRequisitionItemDto updatePurchaseRequisitionItem(Long purchaseRequisitionId, Long purchaseRequisitionItemId, PurchaseRequisitionItemUpdateRequest request) {
-        PurchaseRequisition purchaseRequisition = purchaseRequisitionRepository.findById(purchaseRequisitionId).orElse(null);
-        if (purchaseRequisition == null) {
+        PurchaseRequisition pr = purchaseRequisitionRepository.findById(purchaseRequisitionId).orElse(null);
+        if (pr == null) {
             throw new PurchaseRequisitionNotFoundException();
         }
-        PurchaseRequisitionItem purchaseRequisitionItem = purchaseRequisitionItemRepository.findById(purchaseRequisitionItemId).orElse(null);
-        if (purchaseRequisitionItem == null) {
+        PurchaseRequisitionItem prItem = purchaseRequisitionItemRepository.findById(purchaseRequisitionItemId).orElse(null);
+        if (prItem == null) {
             throw new PurchaseRequisitionItemNotFoundException();
         }
-        purchaseRequisitionItem.setPurchaseRequisition(purchaseRequisition);
-        purchaseRequisitionItem.setPurchaseQty(request.getPurchaseQty());
-        purchaseRequisitionItemRepository.save(purchaseRequisitionItem);
-        return purchaseRequisitionItemMapper.toDto(purchaseRequisitionItem);
+        if (pr.getRequisition().getRequisitionStatus() == 3) {
+            if (request.getActualQty() != null) {
+                prItem.setActualQty(request.getActualQty());
+            }
+            if (request.getGiftQty() != null) {
+                prItem.setGiftQty(request.getGiftQty());
+            }
+            if (request.getAddableStatus() != null) {
+                prItem.setAddableStatus(request.getAddableStatus());
+            }
+        }
+        if (request.getPurchaseQty() != null) {
+            prItem.setPurchaseQty(request.getPurchaseQty());
+        }
+        if (request.getPurchasePrice() != null) {
+            if (!Objects.equals(request.getPurchasePrice(), prItem.getProductDetail().getPurchasePrice())) {
+                var productDetail = prItem.getProductDetail();
+                productDetail.setPurchasePrice(request.getPurchasePrice());
+                productDetailRepository.save(productDetail);
+            }
+            prItem.setPurchasePrice(request.getPurchasePrice());
+        }
+        purchaseRequisitionItemRepository.save(prItem);
+        return purchaseRequisitionItemMapper.toDto(prItem);
     }
 
     public PurchaseRequisitionItemDto removePurchaseRequisitionItem(Long purchaseRequisitionId, Long purchaseRequisitionItemId) {
@@ -325,6 +351,9 @@ public class PurchaseRequisitionService {
         return purchaseRequisitionItemRepository.removeBulkPurchaseRequisitionItem(purchaseRequisitionId, purchaseRequisitionItemIds);
     }
 
+    public int updateBulkForAddableItem(Long purchaseRequisitionId, List<Long> purchaseRequisitionItemIds,Integer addableStatus) {
+        return purchaseRequisitionItemRepository.updateBulkForAddableItem(purchaseRequisitionId, purchaseRequisitionItemIds,addableStatus);
+    }
     private String generateRequisitionRef() {
         PurchaseRequisition pr = purchaseRequisitionRepository.findTopByOrderByCreatedAtDesc();
         String prefix = "OSPRE";

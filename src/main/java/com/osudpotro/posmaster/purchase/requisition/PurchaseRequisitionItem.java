@@ -34,7 +34,12 @@ public class PurchaseRequisitionItem {
     @ManyToOne
     @JoinColumn(name = "product_detail_id")
     private ProductDetail productDetail;
+    private Double purchasePrice;
     private Integer purchaseQty;
+    private Integer actualQty;
+    private Integer giftQty;
+    //1 or Null=For Added,2=Addable,3=Added
+    private Integer addableStatus;
     @CreationTimestamp
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;

@@ -5,6 +5,6 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class PurchaseRequisitionItemBulkRemoveRequest {
-    private List<Long> purchaseRequisitionIds;
+public class PurchaseRequisitionItemBulkRequest {
+    private List<Long> purchaseRequisitionItemIds;
 }

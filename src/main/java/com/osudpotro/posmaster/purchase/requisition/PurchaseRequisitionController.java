@@ -126,13 +126,19 @@ public class PurchaseRequisitionController {
     }
 
     @PostMapping("/{purchaseRequisitionId}/remove-bulk")
-    public ResponseEntity<Map<String, Integer>> removeBulkPurchaseRequisitionItem(@PathVariable(name = "purchaseRequisitionId") Long purchaseRequisitionId, @RequestBody PurchaseRequisitionItemBulkRemoveRequest request) {
-        var count = purchaseRequisitionService.removeBulkPurchaseRequisitionItem(purchaseRequisitionId, request.getPurchaseRequisitionIds());
+    public ResponseEntity<Map<String, Integer>> removeBulkPurchaseRequisitionItem(@PathVariable(name = "purchaseRequisitionId") Long purchaseRequisitionId, @RequestBody PurchaseRequisitionItemBulkRequest request) {
+        var count = purchaseRequisitionService.removeBulkPurchaseRequisitionItem(purchaseRequisitionId, request.getPurchaseRequisitionItemIds());
         return ResponseEntity.ok().body(
                 Map.of("count", count)
         );
     }
-
+    @PostMapping("/{purchaseRequisitionId}/addable-bulk")
+    public ResponseEntity<Map<String, Integer>> updateBulkForAddableItem(@PathVariable(name = "purchaseRequisitionId") Long purchaseRequisitionId, @RequestBody PurchaseRequisitionItemBulkRequest request) {
+        var count = purchaseRequisitionService.updateBulkForAddableItem(purchaseRequisitionId, request.getPurchaseRequisitionItemIds(),2);
+        return ResponseEntity.ok().body(
+                Map.of("count", count)
+        );
+    }
     @ExceptionHandler(DuplicatePurchaseRequisitionException.class)
     public ResponseEntity<Map<String, String>> handleDuplicatePurchaseRequisition(Exception ex) {
         return ResponseEntity.badRequest().body(
@@ -162,6 +168,13 @@ public class PurchaseRequisitionController {
     }
     @ExceptionHandler(PurchaseRequisitionEmptyException.class)
     public ResponseEntity<Map<String, String>> handlePurchaseRequisitionEmptyException(Exception e) {
+        return ResponseEntity.badRequest().body(
+                Map.of("error", e.getMessage())
+        );
+//        return ResponseEntity.notFound().build();
+    }
+    @ExceptionHandler(PurchaseRequisitionItemDuplicateException.class)
+    public ResponseEntity<Map<String, String>> handlePurchaseRequisitionItemDuplicateException(Exception e) {
         return ResponseEntity.badRequest().body(
                 Map.of("error", e.getMessage())
         );

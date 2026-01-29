@@ -66,7 +66,7 @@ public class MultimediaService {
             throw new FileRequiredException();
         }
 
-        Multimedia picture= new Multimedia();
+        Multimedia multimedia= new Multimedia();
         // 1. Ensure upload folder exists
         Path uploadPath = Paths.get(uploadDir);
         if (!Files.exists(uploadPath)) {
@@ -82,15 +82,17 @@ public class MultimediaService {
         Path filePath = uploadPath.resolve(fileName);
         try {
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-            picture.setName(file.getOriginalFilename());
-            picture.setImageUrl(fileName);
+            multimedia.setName(file.getOriginalFilename());
+            multimedia.setImageUrl(fileName);
         } catch (Exception e) {
             throw new CopyFileException();
         }
-
-        picture.setCreatedBy(user);
-        multimediaRepository.save(picture);
-        return multimediaMapper.toDto(picture);
+        if(request.getMediaType()!=null){
+            multimedia.setMediaType(request.getMediaType());
+        }
+        multimedia.setCreatedBy(user);
+        multimediaRepository.save(multimedia);
+        return multimediaMapper.toDto(multimedia);
     }
     public MultimediaDto updateMultimedia(Long pictureId, MultimediaUpdateRequest request){
 
