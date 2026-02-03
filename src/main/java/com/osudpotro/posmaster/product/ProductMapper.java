@@ -23,6 +23,7 @@ import java.util.List;
 public class ProductMapper {
     @Autowired
     private CustomCategoryMapper customCategoryMapper;
+
     //Mapping Here
     //Entity → DTO
     public ProductDto toDto(Product product) {
@@ -37,7 +38,10 @@ public class ProductMapper {
         productDto.setMetaTitle(product.getMetaTitle());
         productDto.setMetaKeywords(product.getMetaKeywords());
         productDto.setMetaDescription(product.getMetaDescription());
-
+        if(product.getPurchaseProductUnit()!=null){
+            ProductDetailDto purchaseProductUnitDto = setForMapProductDetails(product.getPurchaseProductUnit());
+            productDto.setPurchaseProductUnit(purchaseProductUnitDto);
+        }
         productDto.setIsPrescribeNeeded(product.getIsPrescribeNeeded());
         productDto.setDescription(product.getDescription());
         // Manufacturer
@@ -49,9 +53,9 @@ public class ProductMapper {
             productDto.setManufacturer(manufacturerDto);
         }
         //Category
-        Category category =product.getCategory();
-        if(category!=null){
-            CategoryDto categoryDto=new CategoryDto();
+        Category category = product.getCategory();
+        if (category != null) {
+            CategoryDto categoryDto = new CategoryDto();
             categoryDto.setId(category.getId());
             categoryDto.setName(category.getName());
             productDto.setCategory(customCategoryMapper.toDto(category));
@@ -72,8 +76,8 @@ public class ProductMapper {
             productTypeDto.setName(productType.getName());
             productDto.setProductType(productTypeDto);
         }
-        if(product.getMedia()!=null&&product.getMedia().getImageUrl()!=null){
-            MultimediaDto multimediaDto=new MultimediaDto();
+        if (product.getMedia() != null && product.getMedia().getImageUrl() != null) {
+            MultimediaDto multimediaDto = new MultimediaDto();
             multimediaDto.setId(product.getMedia().getId());
             multimediaDto.setName(product.getMedia().getName());
             multimediaDto.setImageUrl(product.getMedia().getImageUrl());
@@ -99,55 +103,40 @@ public class ProductMapper {
         // Product Details
         List<ProductDetailDto> details = new ArrayList<>();
         for (ProductDetail detail : product.getDetails()) {
-            ProductDetailDto detailDto = new ProductDetailDto();
-            detailDto.setId(detail.getId());
-            detailDto.setProductDetailCode(detail.getProductDetailCode());
-            detailDto.setProductDetailBarCode(detail.getProductDetailBarCode());
-            detailDto.setProductDetailBarCodeImage(detail.generateProductDetailsBarCodeImage(null,null));
-            detailDto.setProductDetailSku(detail.getProductDetailSku());
-            detailDto.setRegularPrice(detail.getRegularPrice());
-            detailDto.setOldPrice(detail.getOldPrice());
-            if(detail.getSize()!=null){
-                VariantUnitDto size = new VariantUnitDto();
-                size.setId(detail.getSize().getId());
-                size.setName(detail.getSize().getName());
-                detailDto.setSize(size);
-            }
-
-            detailDto.setBulkSize(detail.getBulkSize());
-            detailDto.setAtomQty(detail.getAtomQty());
-//            if (detail.getParentSize() != null) {
-//                VariantUnitDto parentSize = new VariantUnitDto();
-//                parentSize.setId(detail.getParentSize().getId());
-//                parentSize.setName(detail.getParentSize().getName());
-//                detailDto.setParentSize(parentSize);
-//            }
-            if(detail.getColor()!=null){
-                VariantUnitDto color = new VariantUnitDto();
-                color.setId(detail.getColor().getId());
-                color.setName(detail.getColor().getName());
-                detailDto.setColor(color);
-            }
-
+            ProductDetailDto detailDto = setForMapProductDetails(detail);
 //            For Parent Product Detail
-            if(detail.getParentProductDetail()!=null){
-                ProductDetailDto parentProductDetailDto=new ProductDetailDto();
-                parentProductDetailDto.setId(detail.getParentProductDetail().getId());
-                parentProductDetailDto.setProductDetailCode(detail.getParentProductDetail().getProductDetailCode());
-                parentProductDetailDto.setProductDetailBarCode(detail.getParentProductDetail().getProductDetailBarCode());
-                parentProductDetailDto.setProductDetailSku(detail.getParentProductDetail().getProductDetailSku());
-                parentProductDetailDto.setRegularPrice(detail.getParentProductDetail().getRegularPrice());
-                if(detail.getParentProductDetail().getSize()!=null){
-                    VariantUnitDto pSizeDto = new VariantUnitDto();
-                    pSizeDto.setId(detail.getParentProductDetail().getSize().getId());
-                    pSizeDto.setName(detail.getParentProductDetail().getSize().getName());
-                    parentProductDetailDto.setSize(pSizeDto);
-                }
+            if (detail.getParentProductDetail() != null) {
+                ProductDetailDto parentProductDetailDto = setForMapProductDetails(detail.getParentProductDetail());
                 detailDto.setParentProductDetail(parentProductDetailDto);
             }
             details.add(detailDto);
         }
         productDto.setDetails(details);
         return productDto;
+    }
+    private ProductDetailDto setForMapProductDetails(ProductDetail detail){
+        ProductDetailDto detailDto = new ProductDetailDto();
+        detailDto.setId(detail.getId());
+        detailDto.setProductDetailCode(detail.getProductDetailCode());
+        detailDto.setProductDetailBarCode(detail.getProductDetailBarCode());
+        detailDto.setProductDetailBarCodeImage(detail.generateProductDetailsBarCodeImage(null, null));
+        detailDto.setProductDetailSku(detail.getProductDetailSku());
+        detailDto.setRegularPrice(detail.getRegularPrice());
+        detailDto.setOldPrice(detail.getOldPrice());
+        if (detail.getSize() != null) {
+            VariantUnitDto size = new VariantUnitDto();
+            size.setId(detail.getSize().getId());
+            size.setName(detail.getSize().getName());
+            detailDto.setSize(size);
+        }
+        detailDto.setBulkSize(detail.getBulkSize());
+        detailDto.setAtomQty(detail.getAtomQty());
+        if(detail.getColor()!=null){
+            VariantUnitDto color = new VariantUnitDto();
+            color.setId(detail.getColor().getId());
+            color.setName(detail.getColor().getName());
+            detailDto.setColor(color);
+        }
+        return detailDto;
     }
 }

@@ -41,6 +41,7 @@ public class CustomerService {
         var customer = customerMapper.toEntity(request);
 
         customer.setOtpRequestDateTime(LocalDateTime.now());
+
         var user = authService.getCurrentUser();
         customer.setCreatedBy(user);
 

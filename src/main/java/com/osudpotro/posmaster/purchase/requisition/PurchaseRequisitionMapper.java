@@ -36,6 +36,10 @@ public class PurchaseRequisitionMapper {
         prDto.setTotalActualPrice(pr.getTotalActualPrice());
         prDto.setTotalGiftQty(pr.getTotalGiftQty());
         prDto.setTotalGiftPrice(pr.getTotalGiftPrice());
+        prDto.setPurchaseInvoices(pr.getPurchaseInvoices());
+        prDto.setPurchaseInvoiceDocs(pr.getPurchaseInvoiceDocs());
+        prDto.setOrderRefs(pr.getOrderRefs());
+        prDto.setIsFinal(pr.getIsFinal());
         return prDto;
     }
 
@@ -60,14 +64,17 @@ public class PurchaseRequisitionMapper {
             pageResponse.setRequisitionStatus(pr.getRequisition().getRequisitionStatus());
             pageResponse.setNote(pr.getRequisition().getNote());
         }
-
         pageResponse.setTotalPrice(pr.getTotalPrice());
         pageResponse.setTotalQty(pr.getTotalQty());
-
         pageResponse.setTotalActualQty(pr.getTotalActualQty());
         pageResponse.setTotalActualPrice(pr.getTotalActualPrice());
         pageResponse.setTotalGiftQty(pr.getTotalGiftQty());
         pageResponse.setTotalGiftPrice(pr.getTotalGiftPrice());
+        pageResponse.setPurchaseInvoices(pr.getPurchaseInvoices());
+        pageResponse.setPurchaseInvoiceDocs(pr.getPurchaseInvoiceDocs());
+        pageResponse.setOrderRefs(pr.getOrderRefs());
+        pageResponse.setIsFinal(pr.getIsFinal());
+
         //For Item Pagination
         pageResponse.setItems(page.getContent());
         pageResponse.setTotalElements(page.getTotalElements());
@@ -75,5 +82,39 @@ public class PurchaseRequisitionMapper {
         pageResponse.setPageSize(page.getSize());
         pageResponse.setTotalPages(page.getTotalPages());
         return pageResponse;
+    }
+
+    public PurchaseRequisitionReportDto toReportDto(PurchaseRequisition pr) {
+        PurchaseRequisitionReportDto prDto = new PurchaseRequisitionReportDto();
+        prDto.setId(pr.getId());
+        prDto.setRequsitionRef(pr.getRequsitionRef());
+        String purchaseCode = pr.getPurchaseType().getDescription();
+        String purchaseKey = pr.getPurchaseType().getCode();
+        prDto.setPurchaseType(purchaseCode);
+        prDto.setPurchaseKey(purchaseKey);
+        OrganizationDto orgDto = new OrganizationDto();
+        orgDto.setId(pr.getOrganization().getId());
+        orgDto.setName(pr.getOrganization().getName());
+        prDto.setOrganization(orgDto);
+        BranchDto branchDto = new BranchDto();
+        branchDto.setId(pr.getBranch().getId());
+        branchDto.setName(pr.getBranch().getName());
+        prDto.setBranch(branchDto);
+        prDto.setCreatedAt(pr.getCreatedAt());
+        if(pr.getRequisition()!=null){
+            prDto.setRequisitionStatus(pr.getRequisition().getRequisitionStatus());
+            prDto.setNote(pr.getRequisition().getNote());
+        }
+        prDto.setTotalPrice(pr.getTotalPrice());
+        prDto.setTotalQty(pr.getTotalQty());
+        prDto.setTotalActualQty(pr.getTotalActualQty());
+        prDto.setTotalActualPrice(pr.getTotalActualPrice());
+        prDto.setTotalGiftQty(pr.getTotalGiftQty());
+        prDto.setTotalGiftPrice(pr.getTotalGiftPrice());
+        prDto.setPurchaseInvoices(pr.getPurchaseInvoices());
+        prDto.setPurchaseInvoiceDocs(pr.getPurchaseInvoiceDocs());
+        prDto.setOrderRefs(pr.getOrderRefs());
+        prDto.setIsFinal(pr.getIsFinal());
+        return prDto;
     }
 }

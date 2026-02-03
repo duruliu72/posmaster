@@ -20,7 +20,6 @@ public class Customer extends BaseEntity {
     public Customer() {
         this.email = this.randomEmail();
     }
-
     private String firstName;
     private String lastName;
     @Column(unique = true, nullable = true)

@@ -30,6 +30,7 @@ public class PurchaseRequisition extends BaseEntity {
     private String purchaseInvoices;
     private String purchaseInvoiceDocs;
     private String orderRefs;
+    private Boolean isFinal = false;
     //    @ManyToOne(fetch = FetchType.LAZY)
 //    private Warehouse warehouse;
 //    @ManyToOne(fetch = FetchType.LAZY)
@@ -52,30 +53,39 @@ public class PurchaseRequisition extends BaseEntity {
 
     public int getTotalQty() {
         return items.stream()
+                .filter(i ->
+                        i.getPurchaseQty() != null
+                )
                 .mapToInt(PurchaseRequisitionItem::getPurchaseQty)
                 .sum();
     }
 
     public int getTotalActualQty() {
         return items.stream()
-                .mapToInt(PurchaseRequisitionItem::getPurchaseQty)
+                .filter(i ->
+                        i.getActualQty() != null
+                )
+                .mapToInt(PurchaseRequisitionItem::getActualQty)
                 .sum();
     }
 
     public int getTotalGiftQty() {
         return items.stream()
-                .mapToInt(PurchaseRequisitionItem::getPurchaseQty)
+                .filter(i ->
+                        i.getGiftQty() != null
+                )
+                .mapToInt(PurchaseRequisitionItem::getGiftQty)
                 .sum();
     }
 
     public Double getTotalPrice() {
         return items.stream()
                 .filter(i ->
-                        i.getPurchaseQty() != null && i.getPurchasePrice() != null
+                        i.getPurchaseQty() != null && i.getProductDetail().getPurchasePrice() != null
                 )
                 .mapToDouble(i ->
                         i.getPurchaseQty()
-                                * i.getPurchasePrice()
+                                * i.getProductDetail().getPurchasePrice()
                 )
                 .sum();
     }

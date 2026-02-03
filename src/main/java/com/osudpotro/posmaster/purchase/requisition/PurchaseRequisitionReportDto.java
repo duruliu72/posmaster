@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class PurchaseRequisitionDto {
+public class PurchaseRequisitionReportDto {
     private Long id;
     private String requsitionRef;
     private String purchaseType;
@@ -30,5 +30,5 @@ public class PurchaseRequisitionDto {
     private String purchaseInvoiceDocs;
     private String orderRefs;
     private Boolean isFinal;
-    private List<PurchaseRequisitionItemDto> items = new ArrayList<>();
+    private List<PurchaseRequisitionItemReportDTO> items = new ArrayList<>();
 }

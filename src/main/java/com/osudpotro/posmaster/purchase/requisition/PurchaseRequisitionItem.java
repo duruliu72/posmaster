@@ -38,11 +38,14 @@ public class PurchaseRequisitionItem {
     private Integer purchaseQty;
     private Integer actualQty;
     private Integer giftQty;
-    //1 or Null=For Added,2=Addable,3=Added
+    //1 or Null=For Add,2=Addable,3=Added
     private Integer addableStatus;
     @CreationTimestamp
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "purchase_product_unit_id")
+    private ProductDetail purchaseProductUnit;
     public BigDecimal getQty() {
         return BigDecimal.valueOf(purchaseQty);
     }

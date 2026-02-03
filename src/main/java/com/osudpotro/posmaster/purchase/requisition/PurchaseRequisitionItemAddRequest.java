@@ -8,5 +8,6 @@ public class PurchaseRequisitionItemAddRequest {
     private Long productDetailId;
     private Double purchasePrice;
     private Integer purchaseQty;
+    private Integer giftQty;
     private Double purchaseLinePrice;
 }

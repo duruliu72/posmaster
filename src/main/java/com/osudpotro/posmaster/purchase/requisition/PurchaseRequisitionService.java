@@ -219,11 +219,40 @@ public class PurchaseRequisitionService {
         return purchaseRequisitionMapper.toDto(pr);
     }
 
-    public PurchaseRequisitionDto getPurchaseRequisition(Long purchaseRequisitionId) {
-        var pr = purchaseRequisitionRepository.findById(purchaseRequisitionId).orElseThrow(() -> new PurchaseRequisitionNotFoundException("PurchaseRequisition not found with ID: " + purchaseRequisitionId));
+    @Transactional
+    public PurchaseRequisitionDto updatePurchaseRequisitionInvoiceRef(Long purchaseRequisitionId, PurchaseRequisitionInvoiceRefRequest request) {
+        var pr = purchaseRequisitionRepository.findById(purchaseRequisitionId).orElseThrow(PurchaseRequisitionNotFoundException::new);
+        if (pr.getTotalItems() == 0) {
+            throw new PurchaseRequisitionEmptyException();
+        }
+        var authUser = authService.getCurrentUser();
+        pr.setUpdatedBy(authUser);
+        if (request.getIsFinal() != null && request.getIsFinal()) {
+            pr.setIsFinal(true);
+        }
+        pr.setPurchaseInvoices(request.getPurchaseInvoices());
+        pr.setPurchaseInvoiceDocs(request.getPurchaseInvoiceDocs());
+        pr.setOrderRefs(request.getOrderRefs());
+        purchaseRequisitionRepository.save(pr);
         return purchaseRequisitionMapper.toDto(pr);
     }
 
+    public PurchaseRequisitionDto getPurchaseRequisition(Long purchaseRequisitionId) {
+        var pr = purchaseRequisitionRepository.findById(purchaseRequisitionId).orElseThrow(() -> new PurchaseRequisitionNotFoundException("PurchaseRequisition not found with ID: " + purchaseRequisitionId));
+        List<PurchaseRequisitionItemDto> prilist = purchaseRequisitionItemRepository.findPurchaseRequisitionItemsList(purchaseRequisitionId).stream()
+                .map(purchaseRequisitionItemMapper::toDto)
+                .toList();
+        var prDto=purchaseRequisitionMapper.toDto(pr);
+        prDto.setItems(prilist);
+        return prDto;
+    }
+    public PurchaseRequisitionReportDto findPurchaseRequisitionItemReportList(Long purchaseRequisitionId) {
+        var pr = purchaseRequisitionRepository.findById(purchaseRequisitionId).orElseThrow(() -> new PurchaseRequisitionNotFoundException("PurchaseRequisition not found with ID: " + purchaseRequisitionId));
+        List<PurchaseRequisitionItemReportDTO> prilist = purchaseRequisitionItemRepository.findPurchaseRequisitionItemReportList(purchaseRequisitionId);
+        var prDto=purchaseRequisitionMapper.toReportDto(pr);
+        prDto.setItems(prilist);
+        return prDto;
+    }
     public PurchaseRequisition getPurchaseRequisitionEntity(Long purchaseRequisitionId) {
         return purchaseRequisitionRepository.findById(purchaseRequisitionId).orElseThrow(() -> new PurchaseRequisitionNotFoundException("PurchaseRequisition not found with ID: " + purchaseRequisitionId));
     }
@@ -287,11 +316,22 @@ public class PurchaseRequisitionService {
         prItem.setPurchaseRequisition(pr);
         prItem.setProduct(product);
         prItem.setProductDetail(productDetail);
-        if (request.getPurchasePrice() != null) {
-            prItem.setPurchasePrice(request.getPurchasePrice());
+        prItem.setPurchaseProductUnit(product.getPurchaseProductUnit());
+        if (request.getGiftQty() != null) {
+            prItem.setGiftQty(request.getGiftQty());
         }
         prItem.setPurchaseQty(request.getPurchaseQty());
         prItem.setActualQty(request.getPurchaseQty());
+        if (request.getPurchasePrice() != null) {
+            prItem.setPurchasePrice(request.getPurchasePrice());
+        }
+        if (request.getPurchasePrice() != null) {
+            if (!Objects.equals(request.getPurchasePrice(), productDetail.getPurchasePrice())) {
+                productDetail.setPurchasePrice(request.getPurchasePrice());
+                productDetailRepository.save(productDetail);
+            }
+            prItem.setPurchasePrice(request.getPurchasePrice());
+        }
         purchaseRequisitionItemRepository.save(prItem);
         return purchaseRequisitionItemMapper.toDto(prItem);
     }
@@ -306,6 +346,7 @@ public class PurchaseRequisitionService {
         if (prItem == null) {
             throw new PurchaseRequisitionItemNotFoundException();
         }
+        prItem.setPurchaseProductUnit(prItem.getProduct().getPurchaseProductUnit());
         if (pr.getRequisition().getRequisitionStatus() == 3) {
             if (request.getActualQty() != null) {
                 prItem.setActualQty(request.getActualQty());
@@ -351,9 +392,11 @@ public class PurchaseRequisitionService {
         return purchaseRequisitionItemRepository.removeBulkPurchaseRequisitionItem(purchaseRequisitionId, purchaseRequisitionItemIds);
     }
 
-    public int updateBulkForAddableItem(Long purchaseRequisitionId, List<Long> purchaseRequisitionItemIds,Integer addableStatus) {
-        return purchaseRequisitionItemRepository.updateBulkForAddableItem(purchaseRequisitionId, purchaseRequisitionItemIds,addableStatus);
+    public int updateBulkForAddableItem(Long purchaseRequisitionId, List<Long> purchaseRequisitionItemIds, Integer addableStatus) {
+
+        return purchaseRequisitionItemRepository.updateBulkForAddableItem(purchaseRequisitionId, purchaseRequisitionItemIds, addableStatus);
     }
+
     private String generateRequisitionRef() {
         PurchaseRequisition pr = purchaseRequisitionRepository.findTopByOrderByCreatedAtDesc();
         String prefix = "OSPRE";

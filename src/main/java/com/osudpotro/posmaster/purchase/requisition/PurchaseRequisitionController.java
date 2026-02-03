@@ -48,7 +48,10 @@ public class PurchaseRequisitionController {
     public PurchaseRequisitionDto getPurchaseRequisition(@PathVariable Long id) {
         return purchaseRequisitionService.getPurchaseRequisition(id);
     }
-
+    @GetMapping("/{id}/report")
+    public PurchaseRequisitionReportDto findPurchaseRequisitionItemReportList(@PathVariable Long id) {
+        return purchaseRequisitionService.findPurchaseRequisitionItemReportList(id);
+    }
     @PostMapping
     public ResponseEntity<PurchaseRequisitionDto> createPurchaseRequisition(@Valid @RequestBody PurchaseRequisitionCreateRequest request, UriComponentsBuilder uriBuilder) {
         var PurchaseRequisitionDto = purchaseRequisitionService.createPurchaseRequisition(request);
@@ -62,7 +65,12 @@ public class PurchaseRequisitionController {
             @RequestBody PurchaseRequisitionUpdateRequest request) {
         return purchaseRequisitionService.updatePurchaseRequisition(id, request);
     }
-
+    @PostMapping("/{id}/invoice-ref")
+    public PurchaseRequisitionDto updatePurchaseRequisitionInvoiceRef(
+            @PathVariable(name = "id") Long id,
+            @RequestBody PurchaseRequisitionInvoiceRefRequest request) {
+        return purchaseRequisitionService.updatePurchaseRequisitionInvoiceRef(id, request);
+    }
     @DeleteMapping("/{id}")
     public PurchaseRequisitionDto deletePurchaseRequisition(
             @PathVariable(name = "id") Long id) {

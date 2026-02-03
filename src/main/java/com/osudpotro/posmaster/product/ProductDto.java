@@ -31,4 +31,5 @@ public class ProductDto {
     private String metaKeywords;
     private String metaDescription;
     private MultimediaDto media;
+    private ProductDetailDto purchaseProductUnit;
 }

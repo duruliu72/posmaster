@@ -1,5 +1,6 @@
 package com.osudpotro.posmaster.multimedia;
 
+import com.osudpotro.posmaster.manufacturer.ManufacturerDto;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -26,6 +27,10 @@ public class MultimediaController {
     @GetMapping
     public List<MultimediaDto> getAllMultimedias(){
         return multimediaService.getAllMultimedias();
+    }
+    @PostMapping("/by_ids")
+    public List<MultimediaDto> getMultimediaListByIds(@RequestBody MultimediaFilterByIds filter) {
+        return multimediaService.getMultimediaListByIds(filter.getMultimediaIds());
     }
     @GetMapping("/{id}")
     public MultimediaDto getMultimedia(@PathVariable Long id) {

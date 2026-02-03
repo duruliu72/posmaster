@@ -48,13 +48,39 @@ public class Product extends BaseEntity {
     //  Milk Powder,Tablet,Capsule etc
     @ManyToOne
     private ProductType productType;
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
 //    @SQLRestriction("status = 1")
-    private List<ProductGeneric> productGenerics =new ArrayList<>();
+    private List<ProductGeneric> productGenerics = new ArrayList<>();
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "multimedia_id")
     private Multimedia media;
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("id ASC")
     private List<ProductDetail> details = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "purchase_product_unit_id")
+    private ProductDetail purchaseProductUnit;
+//    public ProductDetail getProductDetailForPurchase() {
+//        if (details == null || details.isEmpty()) {
+//            return null;
+//        }
+//        if (details.size() == 1) {
+//            return details.get(0);
+//        } else {
+//            return findSelectedItem(details.get(0));
+//        }
+//    }
+//
+//    private ProductDetail findSelectedItem(ProductDetail root) {
+//        ProductDetail item = details.stream()
+//                .filter(pd -> {
+//                    return pd.getParentProductDetail() != null && pd.getParentProductDetail().getId().equals(root.getId());
+//                })
+//                .findFirst()
+//                .orElse(null);
+//        if (item == null) {
+//            return root;
+//        }
+//        return findSelectedItem(item);
+//    }
 }

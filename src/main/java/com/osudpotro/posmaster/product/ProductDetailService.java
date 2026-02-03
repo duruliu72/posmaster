@@ -56,9 +56,11 @@ public class ProductDetailService {
         var productDetail = productDetailRepository.findById(productDetailId).orElseThrow(ProductDetailNotFoundException::new);
         return productDetailMapper.toDto(productDetail);
     }
+
     public Page<ProductDetailDto> searchByAnyFields(ProductDetailFilter filter, Pageable pageable) {
         return productDetailRepository.searchByAnyFields(filter.getSearchKey(), pageable).map(productDetailMapper::toDto);
     }
+
     public String getAllTypeProductDetailNextCode(Long productId) {
         var product = productRepository.findById(productId).orElseThrow(ProductNotFoundException::new);
         String productDetailCode = generateProductDetailCode(product.getCategory().getId());
@@ -66,10 +68,10 @@ public class ProductDetailService {
         return "";
     }
 
+    @Transactional
     public ProductDetailDto createProductDetail(Long productId, ProductDetailCreateRequest request) {
         var product = productRepository.findById(productId).orElseThrow(ProductNotFoundException::new);
         var user = authService.getCurrentUser();
-
         ProductDetail productDetail = new ProductDetail();
         if (product.getCategory() != null) {
             String productDetailCode = generateProductDetailCode(product.getCategory().getId());
@@ -138,9 +140,15 @@ public class ProductDetailService {
             }
         }
         productDetail.setCreatedBy(user);
+
         productDetailRepository.save(productDetail);
+        if (request.getIsPurchaseUnit() != null && request.getIsPurchaseUnit()) {
+            product.setPurchaseProductUnit(productDetail);
+            productRepository.save(product);
+        }
         return productDetailMapper.toDto(productDetail);
     }
+
     @Transactional
     public ProductDetailDto updateProductDetail(Long productId, Long productDetailId, ProductDetailUpdateRequest request) {
         var product = productRepository.findById(productId).orElseThrow(ProductNotFoundException::new);
@@ -154,8 +162,8 @@ public class ProductDetailService {
             productDetail.setProductDetailSku(request.getProductDetailSku());
         }
 //        Log the ProductPricingLog if regularPrice,oldPrice and purchasePrice changed
-        if(!Objects.equals(productDetail.getRegularPrice(), request.getRegularPrice())||!Objects.equals(productDetail.getOldPrice(),request.getOldPrice())||!Objects.equals(productDetail.getPurchasePrice(),request.getPurchasePrice())){
-            ProductPricingLog productPricingLog=new ProductPricingLog();
+        if (!Objects.equals(productDetail.getRegularPrice(), request.getRegularPrice()) || !Objects.equals(productDetail.getOldPrice(), request.getOldPrice()) || !Objects.equals(productDetail.getPurchasePrice(), request.getPurchasePrice())) {
+            ProductPricingLog productPricingLog = new ProductPricingLog();
             productPricingLog.setRegularPrice(productDetail.getRegularPrice());
             productPricingLog.setOldPrice(productDetail.getOldPrice());
             productPricingLog.setPurchasePrice(productDetail.getPurchasePrice());
@@ -216,6 +224,10 @@ public class ProductDetailService {
         }
         productDetail.setUpdatedBy(user);
         productDetailRepository.save(productDetail);
+        if (request.getIsPurchaseUnit() != null && request.getIsPurchaseUnit()) {
+            product.setPurchaseProductUnit(productDetail);
+            productRepository.save(product);
+        }
         return productDetailMapper.toDto(productDetail);
     }
 

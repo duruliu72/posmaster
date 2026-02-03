@@ -1,5 +1,6 @@
 package com.osudpotro.posmaster.purchase.requisition;
 
+import com.osudpotro.posmaster.product.ProductDetail;
 import com.osudpotro.posmaster.product.ProductDetailDto;
 import com.osudpotro.posmaster.product.ProductDto;
 import lombok.Data;
@@ -17,4 +18,5 @@ public class PurchaseRequisitionItemDto {
     private Double actualLinePrice;
     private Double giftLinePrice;
     private Integer addableStatus;
+    private ProductDetailDto purchaseProductUnit;
 }

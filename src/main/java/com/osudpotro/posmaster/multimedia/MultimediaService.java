@@ -23,16 +23,24 @@ public class MultimediaService {
     private AuthService authService;
     @Value("${file.upload-dir}")
     private String rootDir;
-    public List<MultimediaDto> getAllMultimedias(){
+
+    public List<MultimediaDto> getAllMultimedias() {
         return multimediaRepository.findAll()
                 .stream()
                 .map(multimediaMapper::toDto)
                 .toList();
     }
+
+    public List<MultimediaDto> getMultimediaListByIds(List<Long> multimediaIds) {
+        return multimediaRepository.getMultimediaListByIds(multimediaIds, 3L).stream()
+                .map(multimediaMapper::toDto)
+                .toList();
+    }
+
     public MultimediaDto createMultimedia(MultipartFile file) {
-        String uploadDir=rootDir+"/uploads";
+        String uploadDir = rootDir + "/uploads";
         var user = authService.getCurrentUser();
-        Multimedia multimedia= new Multimedia();
+        Multimedia multimedia = new Multimedia();
         // 1. Ensure upload folder exists
         Path uploadPath = Paths.get(uploadDir);
         if (!Files.exists(uploadPath)) {
@@ -58,15 +66,16 @@ public class MultimediaService {
         multimediaRepository.save(multimedia);
         return multimediaMapper.toDto(multimedia);
     }
+
     public MultimediaDto createMultimediaFile(MultimediaCreateRequest request) {
-        String uploadDir=rootDir+"/uploads";
+        String uploadDir = rootDir + "/uploads";
         var user = authService.getCurrentUser();
         MultipartFile file = request.getFilepond();
         if (file == null || file.isEmpty()) {
             throw new FileRequiredException();
         }
 
-        Multimedia multimedia= new Multimedia();
+        Multimedia multimedia = new Multimedia();
         // 1. Ensure upload folder exists
         Path uploadPath = Paths.get(uploadDir);
         if (!Files.exists(uploadPath)) {
@@ -87,16 +96,16 @@ public class MultimediaService {
         } catch (Exception e) {
             throw new CopyFileException();
         }
-        if(request.getMediaType()!=null){
+        if (request.getMediaType() != null) {
             multimedia.setMediaType(request.getMediaType());
         }
         multimedia.setCreatedBy(user);
         multimediaRepository.save(multimedia);
         return multimediaMapper.toDto(multimedia);
     }
-    public MultimediaDto updateMultimedia(Long pictureId, MultimediaUpdateRequest request){
 
-        var picture= multimediaRepository.findById(pictureId).orElseThrow(MultimediaNotFoundException::new);
+    public MultimediaDto updateMultimedia(Long multimedia, MultimediaUpdateRequest request) {
+        var picture = multimediaRepository.findById(multimedia).orElseThrow(MultimediaNotFoundException::new);
         var user = authService.getCurrentUser();
         multimediaMapper.update(request, picture);
         picture.setUpdatedBy(user);
@@ -104,35 +113,41 @@ public class MultimediaService {
         return multimediaMapper.toDto(picture);
     }
 
-    public MultimediaDto getMultimedia(Long pictureId){
-        var picture= multimediaRepository.findById(pictureId).orElseThrow(() -> new MultimediaNotFoundException("Multimedia not found with ID: " + pictureId));
+    public MultimediaDto getMultimedia(Long multimedia) {
+        var picture = multimediaRepository.findById(multimedia).orElseThrow(() -> new MultimediaNotFoundException("Multimedia not found with ID: " + multimedia));
         return multimediaMapper.toDto(picture);
     }
-    public Multimedia getMultimediaEntity(Long pictureId){
-        return multimediaRepository.findById(pictureId).orElseThrow(() -> new MultimediaNotFoundException("Multimedia not found with ID: " + pictureId));
+
+    public Multimedia getMultimediaEntity(Long multimedia) {
+        return multimediaRepository.findById(multimedia).orElseThrow(() -> new MultimediaNotFoundException("Multimedia not found with ID: " + multimedia));
     }
-    public MultimediaDto activateMultimedia(Long pictureId){
-        var picture = multimediaRepository.findById(pictureId).orElseThrow(() -> new MultimediaNotFoundException("Multimedia not found with ID: " + pictureId));
+
+    public MultimediaDto activateMultimedia(Long multimedia) {
+        var picture = multimediaRepository.findById(multimedia).orElseThrow(() -> new MultimediaNotFoundException("Multimedia not found with ID: " + multimedia));
         var user = authService.getCurrentUser();
         picture.setStatus(1);
         picture.setUpdatedBy(user);
         multimediaRepository.save(picture);
         return multimediaMapper.toDto(picture);
     }
-    public MultimediaDto deactivateMultimedia(Long pictureId){
-        var picture= multimediaRepository.findById(pictureId).orElseThrow(() -> new MultimediaNotFoundException("Multimedia not found with ID: " + pictureId));
-        var user=authService.getCurrentUser();
+
+    public MultimediaDto deactivateMultimedia(Long multimedia) {
+        var picture = multimediaRepository.findById(multimedia).orElseThrow(() -> new MultimediaNotFoundException("Multimedia not found with ID: " + multimedia));
+        var user = authService.getCurrentUser();
         picture.setStatus(2);
         picture.setUpdatedBy(user);
         multimediaRepository.save(picture);
         return multimediaMapper.toDto(picture);
     }
-    public MultimediaDto deleteMultimedia(Long pictureId){
-        var picture= multimediaRepository.findById(pictureId).orElseThrow(() -> new MultimediaNotFoundException("Multimedia not found with ID: " + pictureId));
-        var user=authService.getCurrentUser();
+
+    public MultimediaDto deleteMultimedia(Long multimedia) {
+        var picture = multimediaRepository.findById(multimedia).orElseThrow(() -> new MultimediaNotFoundException("Multimedia not found with ID: " + multimedia));
+        var user = authService.getCurrentUser();
         picture.setStatus(3);
         picture.setUpdatedBy(user);
         multimediaRepository.save(picture);
         return multimediaMapper.toDto(picture);
     }
+
+
 }

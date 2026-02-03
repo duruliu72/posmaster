@@ -22,4 +22,5 @@ public class ProductDetailCreateRequest {
     private Long colorId;
     private int bulkSize;
     private Long parentProductDetailId;
+    private Boolean isPurchaseUnit;
 }
