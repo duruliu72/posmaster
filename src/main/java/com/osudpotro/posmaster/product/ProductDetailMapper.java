@@ -42,8 +42,8 @@ public class ProductDetailMapper {
             parentProductDetailDto.setId(productDetail.getParentProductDetail().getId());
             productDetailDto.setParentProductDetail(parentProductDetailDto);
         }
-        productDetailDto.setOldPrice(productDetail.getOldPrice());
-        productDetailDto.setRegularPrice(productDetail.getRegularPrice());
+        productDetailDto.setMrpPrice(productDetail.getMrpPrice());
+        productDetailDto.setSellPrice(productDetail.getSellPrice());
         productDetailDto.setPurchasePrice(productDetail.getPurchasePrice());
         List<Long> productDetailIds = new ArrayList<>();
         productDetailDto.setProductDetailIds(getProductDetailWithParents(productDetail, productDetailIds));

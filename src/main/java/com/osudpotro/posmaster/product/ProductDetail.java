@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.ByteArrayOutputStream;
+import java.math.BigDecimal;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -25,9 +26,17 @@ public class ProductDetail extends BaseEntity {
     private String productDetailBarCode;
     //Stock Keeping Unit
     private String productDetailSku;
-    private Double regularPrice;
-    private Double oldPrice;
-    private Double purchasePrice;
+    //    private Double regularPrice;
+//    private Double oldPrice;
+//    Product Sell Price
+    @Column(precision = 38, scale = 18)
+    private BigDecimal sellPrice;
+    //    Product Manufacturer price
+    @Column(precision = 38, scale = 18)
+    private BigDecimal mrpPrice;
+    //    Product Purchase Price during Purchase time
+    @Column(precision = 38, scale = 18)
+    private BigDecimal purchasePrice;
     //If no variant then default variant will be NoSize,NoColor
     @ManyToOne(optional = true)
     private VariantUnit size;
@@ -39,10 +48,11 @@ public class ProductDetail extends BaseEntity {
     @OneToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "parent_product_detail_id", nullable = true)
     private ProductDetail parentProductDetail;
-    @ManyToOne(fetch = FetchType.LAZY,optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "product_id")
     @JsonBackReference
     private Product product;
+
     public byte[] generateProductDetailsBarCodeImage(Integer customHeight, Integer customWidth) {
         int width = customWidth != null ? customWidth : 400;
         int height = customHeight != null ? customHeight : 150;

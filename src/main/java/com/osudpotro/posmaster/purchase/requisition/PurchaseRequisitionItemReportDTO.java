@@ -8,7 +8,7 @@ public interface PurchaseRequisitionItemReportDTO {
     String getManufacturerName();
     Long getPurchaseProductUnitId();
     String getUnitName();
-    Double getTotalAtomQty();
+    Integer getTotalAtomQty();
     Integer getAtomQty();
     Integer getTotalUnitItem();
 }

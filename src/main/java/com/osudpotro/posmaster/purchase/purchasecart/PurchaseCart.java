@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +16,8 @@ import java.util.List;
 @Table(name = "purchase_carts")
 public class PurchaseCart extends BaseEntity {
     private String name;
-    private Double totalPrice;
+    @Column(precision = 15, scale = 2)
+    private BigDecimal totalPrice;
     @JsonIgnore
     @OneToMany(mappedBy = "purchaseCart", cascade = CascadeType.MERGE, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<PurchaseCartItem> items = new ArrayList<>();

@@ -3,6 +3,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Data
 public class ProductDetailUpdateRequest {
     @NotBlank(message = "Child code is required")
@@ -12,9 +14,9 @@ public class ProductDetailUpdateRequest {
     @NotBlank(message = "Detail sku required")
     private String productDetailSku;
     @NotNull(message = "Detail regular price is required")
-    private Double regularPrice;
-    private Double oldPrice;
-    private Double purchasePrice;
+    private BigDecimal sellPrice;
+    private BigDecimal mrpPrice;
+    private BigDecimal purchasePrice;
     @NotNull(message = "Detail size is required")
     private Long sizeId;
 //    @NotNull(message = "Detail color is required")

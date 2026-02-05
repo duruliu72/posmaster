@@ -33,7 +33,7 @@ public class PurchaseCartItem {
     @ManyToOne
     @JoinColumn(name = "product_detail_id")
     private ProductDetail productDetail;
-    private Long purchaseQty;
+    private Integer purchaseQty;
     //    private Double profit;//    Not for  Calculation
 //  %=1,2=amount
 //    private int profitIn;

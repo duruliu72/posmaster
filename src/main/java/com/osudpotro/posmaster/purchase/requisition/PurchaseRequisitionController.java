@@ -48,10 +48,12 @@ public class PurchaseRequisitionController {
     public PurchaseRequisitionDto getPurchaseRequisition(@PathVariable Long id) {
         return purchaseRequisitionService.getPurchaseRequisition(id);
     }
+
     @GetMapping("/{id}/report")
     public PurchaseRequisitionReportDto findPurchaseRequisitionItemReportList(@PathVariable Long id) {
         return purchaseRequisitionService.findPurchaseRequisitionItemReportList(id);
     }
+
     @PostMapping
     public ResponseEntity<PurchaseRequisitionDto> createPurchaseRequisition(@Valid @RequestBody PurchaseRequisitionCreateRequest request, UriComponentsBuilder uriBuilder) {
         var PurchaseRequisitionDto = purchaseRequisitionService.createPurchaseRequisition(request);
@@ -65,12 +67,14 @@ public class PurchaseRequisitionController {
             @RequestBody PurchaseRequisitionUpdateRequest request) {
         return purchaseRequisitionService.updatePurchaseRequisition(id, request);
     }
+
     @PostMapping("/{id}/invoice-ref")
     public PurchaseRequisitionDto updatePurchaseRequisitionInvoiceRef(
             @PathVariable(name = "id") Long id,
             @RequestBody PurchaseRequisitionInvoiceRefRequest request) {
         return purchaseRequisitionService.updatePurchaseRequisitionInvoiceRef(id, request);
     }
+
     @DeleteMapping("/{id}")
     public PurchaseRequisitionDto deletePurchaseRequisition(
             @PathVariable(name = "id") Long id) {
@@ -127,6 +131,14 @@ public class PurchaseRequisitionController {
         return purchaseRequisitionService.updatePurchaseRequisitionItem(purchaseRequisitionId, purchaseRequisitionItemId, request);
     }
 
+    @PostMapping("/{purchaseRequisitionId}/check-invoice-update-item/{purchaseRequisitionItemId}")
+    public PurchaseRequisitionItemDto CheckInvoiceAndUpdatePurchaseRequisitionItem(
+            @PathVariable(name = "purchaseRequisitionId") Long purchaseRequisitionId,
+            @PathVariable(name = "purchaseRequisitionItemId") Long purchaseRequisitionItemId,
+            @RequestBody PurchaseRequisitionItemUpdateRequest request) {
+        return purchaseRequisitionService.CheckInvoiceAndUpdatePurchaseRequisitionItem(purchaseRequisitionId, purchaseRequisitionItemId, request);
+    }
+
     @DeleteMapping("/{purchaseRequisitionId}/remove-item/{purchaseRequisitionItemId}")
     public PurchaseRequisitionItemDto removePurchaseRequisitionItem(
             @PathVariable(name = "purchaseRequisitionId") Long purchaseRequisitionId, @PathVariable(name = "purchaseRequisitionItemId") Long purchaseRequisitionItemId) {
@@ -140,13 +152,15 @@ public class PurchaseRequisitionController {
                 Map.of("count", count)
         );
     }
+
     @PostMapping("/{purchaseRequisitionId}/addable-bulk")
     public ResponseEntity<Map<String, Integer>> updateBulkForAddableItem(@PathVariable(name = "purchaseRequisitionId") Long purchaseRequisitionId, @RequestBody PurchaseRequisitionItemBulkRequest request) {
-        var count = purchaseRequisitionService.updateBulkForAddableItem(purchaseRequisitionId, request.getPurchaseRequisitionItemIds(),2);
+        var count = purchaseRequisitionService.updateBulkForAddableItem(purchaseRequisitionId, request.getPurchaseRequisitionItemIds(), 2);
         return ResponseEntity.ok().body(
                 Map.of("count", count)
         );
     }
+
     @ExceptionHandler(DuplicatePurchaseRequisitionException.class)
     public ResponseEntity<Map<String, String>> handleDuplicatePurchaseRequisition(Exception ex) {
         return ResponseEntity.badRequest().body(
@@ -174,6 +188,7 @@ public class PurchaseRequisitionController {
         );
 //        return ResponseEntity.notFound().build();
     }
+
     @ExceptionHandler(PurchaseRequisitionEmptyException.class)
     public ResponseEntity<Map<String, String>> handlePurchaseRequisitionEmptyException(Exception e) {
         return ResponseEntity.badRequest().body(
@@ -181,6 +196,7 @@ public class PurchaseRequisitionController {
         );
 //        return ResponseEntity.notFound().build();
     }
+
     @ExceptionHandler(PurchaseRequisitionItemDuplicateException.class)
     public ResponseEntity<Map<String, String>> handlePurchaseRequisitionItemDuplicateException(Exception e) {
         return ResponseEntity.badRequest().body(

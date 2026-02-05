@@ -3,6 +3,8 @@ package com.osudpotro.posmaster.product;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Data
 public class ProductDetailCreateRequest {
 //    @NotBlank(message = "Detail code is required")
@@ -12,10 +14,10 @@ public class ProductDetailCreateRequest {
 //    @NotBlank(message = "Detail sku required")
 //    private String productDetailSku;
     @NotNull(message = "Detail regular price is required")
-    private Double regularPrice;
+    private BigDecimal sellPrice;
 //    @NotNull(message = "Detail Old price is required")
-    private Double oldPrice;
-    private Double purchasePrice;
+    private BigDecimal mrpPrice;
+    private BigDecimal purchasePrice;
     @NotNull(message = "Detail size is required")
     private Long sizeId;
 //    @NotNull(message = "Detail color is required")

@@ -121,8 +121,8 @@ public class ProductMapper {
         detailDto.setProductDetailBarCode(detail.getProductDetailBarCode());
         detailDto.setProductDetailBarCodeImage(detail.generateProductDetailsBarCodeImage(null, null));
         detailDto.setProductDetailSku(detail.getProductDetailSku());
-        detailDto.setRegularPrice(detail.getRegularPrice());
-        detailDto.setOldPrice(detail.getOldPrice());
+        detailDto.setMrpPrice(detail.getMrpPrice());
+        detailDto.setSellPrice(detail.getSellPrice());
         if (detail.getSize() != null) {
             VariantUnitDto size = new VariantUnitDto();
             size.setId(detail.getSize().getId());

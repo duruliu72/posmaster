@@ -79,11 +79,11 @@ public class ProductDetailService {
         }
         String productDetailBarCode = generateProductDetailsBarCode();
         productDetail.setProductDetailBarCode(productDetailBarCode);
-        if (request.getRegularPrice() != null) {
-            productDetail.setRegularPrice(request.getRegularPrice());
+        if (request.getSellPrice() != null) {
+            productDetail.setSellPrice(request.getSellPrice());
         }
-        if (request.getOldPrice() != null) {
-            productDetail.setOldPrice(request.getOldPrice());
+        if (request.getMrpPrice() != null) {
+            productDetail.setMrpPrice(request.getMrpPrice());
         }
         if (request.getPurchasePrice() != null) {
             productDetail.setPurchasePrice(request.getPurchasePrice());
@@ -162,21 +162,21 @@ public class ProductDetailService {
             productDetail.setProductDetailSku(request.getProductDetailSku());
         }
 //        Log the ProductPricingLog if regularPrice,oldPrice and purchasePrice changed
-        if (!Objects.equals(productDetail.getRegularPrice(), request.getRegularPrice()) || !Objects.equals(productDetail.getOldPrice(), request.getOldPrice()) || !Objects.equals(productDetail.getPurchasePrice(), request.getPurchasePrice())) {
+        if (!Objects.equals(productDetail.getSellPrice(), request.getSellPrice()) || !Objects.equals(productDetail.getMrpPrice(), request.getMrpPrice()) || !Objects.equals(productDetail.getPurchasePrice(), request.getPurchasePrice())) {
             ProductPricingLog productPricingLog = new ProductPricingLog();
-            productPricingLog.setRegularPrice(productDetail.getRegularPrice());
-            productPricingLog.setOldPrice(productDetail.getOldPrice());
+            productPricingLog.setSellPrice(productDetail.getSellPrice());
+            productPricingLog.setMrpPrice(productDetail.getMrpPrice());
             productPricingLog.setPurchasePrice(productDetail.getPurchasePrice());
             productPricingLog.setProduct(product);
             productPricingLog.setProductDetail(productDetail);
             productPricingLog.setCreatedBy(user);
             productPricingLogRepository.save(productPricingLog);
         }
-        if (request.getRegularPrice() != null) {
-            productDetail.setRegularPrice(request.getRegularPrice());
+        if (request.getSellPrice() != null) {
+            productDetail.setSellPrice(request.getSellPrice());
         }
-        if (request.getOldPrice() != null) {
-            productDetail.setOldPrice(request.getOldPrice());
+        if (request.getMrpPrice() != null) {
+            productDetail.setMrpPrice(request.getMrpPrice());
         }
         if (request.getPurchasePrice() != null) {
             productDetail.setPurchasePrice(request.getPurchasePrice());

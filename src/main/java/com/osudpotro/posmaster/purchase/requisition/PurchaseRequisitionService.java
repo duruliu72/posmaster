@@ -27,13 +27,13 @@ public class PurchaseRequisitionService {
     @Autowired
     private PurchaseRequisitionRepository purchaseRequisitionRepository;
     @Autowired
-    private PurchaseRequisitionItemRepository purchaseRequisitionItemRepository;
+    private PurchaseRequisitionItemRepository priRepostory;
     @Autowired
     private AuthService authService;
     @Autowired
     private PurchaseRequisitionMapper purchaseRequisitionMapper;
     @Autowired
-    private PurchaseRequisitionItemMapper purchaseRequisitionItemMapper;
+    private PurchaseRequisitionItemMapper priMapper;
     @Autowired
     private OrganizationRepository organizationRepository;
     @Autowired
@@ -233,26 +233,29 @@ public class PurchaseRequisitionService {
         pr.setPurchaseInvoices(request.getPurchaseInvoices());
         pr.setPurchaseInvoiceDocs(request.getPurchaseInvoiceDocs());
         pr.setOrderRefs(request.getOrderRefs());
+        pr.setOverallDiscount(request.getOverallDiscount());
         purchaseRequisitionRepository.save(pr);
         return purchaseRequisitionMapper.toDto(pr);
     }
 
     public PurchaseRequisitionDto getPurchaseRequisition(Long purchaseRequisitionId) {
         var pr = purchaseRequisitionRepository.findById(purchaseRequisitionId).orElseThrow(() -> new PurchaseRequisitionNotFoundException("PurchaseRequisition not found with ID: " + purchaseRequisitionId));
-        List<PurchaseRequisitionItemDto> prilist = purchaseRequisitionItemRepository.findPurchaseRequisitionItemsList(purchaseRequisitionId).stream()
-                .map(purchaseRequisitionItemMapper::toDto)
+        List<PurchaseRequisitionItemDto> prilist = priRepostory.findPurchaseRequisitionItemsList(purchaseRequisitionId).stream()
+                .map(priMapper::toDto)
                 .toList();
-        var prDto=purchaseRequisitionMapper.toDto(pr);
+        var prDto = purchaseRequisitionMapper.toDto(pr);
         prDto.setItems(prilist);
         return prDto;
     }
+
     public PurchaseRequisitionReportDto findPurchaseRequisitionItemReportList(Long purchaseRequisitionId) {
         var pr = purchaseRequisitionRepository.findById(purchaseRequisitionId).orElseThrow(() -> new PurchaseRequisitionNotFoundException("PurchaseRequisition not found with ID: " + purchaseRequisitionId));
-        List<PurchaseRequisitionItemReportDTO> prilist = purchaseRequisitionItemRepository.findPurchaseRequisitionItemReportList(purchaseRequisitionId);
-        var prDto=purchaseRequisitionMapper.toReportDto(pr);
+        List<PurchaseRequisitionItemReportDTO> prilist = priRepostory.findPurchaseRequisitionItemReportList(purchaseRequisitionId);
+        var prDto = purchaseRequisitionMapper.toReportDto(pr);
         prDto.setItems(prilist);
         return prDto;
     }
+
     public PurchaseRequisition getPurchaseRequisitionEntity(Long purchaseRequisitionId) {
         return purchaseRequisitionRepository.findById(purchaseRequisitionId).orElseThrow(() -> new PurchaseRequisitionNotFoundException("PurchaseRequisition not found with ID: " + purchaseRequisitionId));
     }
@@ -291,7 +294,7 @@ public class PurchaseRequisitionService {
     //    For Purchase Requisition Item
     public PurchaseRequisitionWithItemPageResponse getPurchaseRequisitionWithItemPagination(Long purchaseRequisitionId, Pageable pageable, PurchaseRequisitionItemFilter filter) {
         PurchaseRequisition pr = purchaseRequisitionRepository.findPurchaseRequisitionById(purchaseRequisitionId).orElseThrow(PurchaseRequisitionNotFoundException::new);
-        Page<PurchaseRequisitionItemDto> result = purchaseRequisitionItemRepository.findPurchaseRequisitionItems(purchaseRequisitionId, filter.getName(), pageable).map(purchaseRequisitionItemMapper::toDto);
+        Page<PurchaseRequisitionItemDto> result = priRepostory.findPurchaseRequisitionItems(purchaseRequisitionId, filter.getName(), pageable).map(priMapper::toDto);
         return purchaseRequisitionMapper.toMinDto(pr, result);
     }
 
@@ -308,7 +311,7 @@ public class PurchaseRequisitionService {
         if (productDetail == null) {
             throw new ProductDetailNotFoundException();
         }
-        var findPurchaseRequisitionItem = purchaseRequisitionItemRepository.findPurchaseRequisitionItem(purchaseRequisitionId, request.getProductId(), request.getProductDetailId()).orElse(null);
+        var findPurchaseRequisitionItem = priRepostory.findPurchaseRequisitionItem(purchaseRequisitionId, request.getProductId(), request.getProductDetailId()).orElse(null);
         if (findPurchaseRequisitionItem != null) {
             throw new PurchaseRequisitionItemDuplicateException();
         }
@@ -317,32 +320,54 @@ public class PurchaseRequisitionService {
         prItem.setProduct(product);
         prItem.setProductDetail(productDetail);
         prItem.setPurchaseProductUnit(product.getPurchaseProductUnit());
-        if (request.getGiftQty() != null) {
-            prItem.setGiftQty(request.getGiftQty());
-        }
         prItem.setPurchaseQty(request.getPurchaseQty());
         prItem.setActualQty(request.getPurchaseQty());
-        if (request.getPurchasePrice() != null) {
-            prItem.setPurchasePrice(request.getPurchasePrice());
-        }
-        if (request.getPurchasePrice() != null) {
-            if (!Objects.equals(request.getPurchasePrice(), productDetail.getPurchasePrice())) {
-                productDetail.setPurchasePrice(request.getPurchasePrice());
-                productDetailRepository.save(productDetail);
+        if (prItem.getProductDetail() != null) {
+            prItem.setPurchasePrice(prItem.getProductDetail().getPurchasePrice());
+            prItem.setMrpPrice(prItem.getProductDetail().getMrpPrice());
+            if(prItem.getProductDetail().getPurchasePrice()!=null&&prItem.getProductDetail().getMrpPrice()!=null){
+                prItem.setDiscount(prItem.getProductDetail().getMrpPrice()
+                        .subtract(prItem.getProductDetail().getPurchasePrice()));
             }
-            prItem.setPurchasePrice(request.getPurchasePrice());
         }
-        purchaseRequisitionItemRepository.save(prItem);
-        return purchaseRequisitionItemMapper.toDto(prItem);
+        priRepostory.save(prItem);
+        return priMapper.toDto(prItem);
     }
 
-    @Transactional
     public PurchaseRequisitionItemDto updatePurchaseRequisitionItem(Long purchaseRequisitionId, Long purchaseRequisitionItemId, PurchaseRequisitionItemUpdateRequest request) {
         PurchaseRequisition pr = purchaseRequisitionRepository.findById(purchaseRequisitionId).orElse(null);
         if (pr == null) {
             throw new PurchaseRequisitionNotFoundException();
         }
-        PurchaseRequisitionItem prItem = purchaseRequisitionItemRepository.findById(purchaseRequisitionItemId).orElse(null);
+        PurchaseRequisitionItem prItem = priRepostory.findById(purchaseRequisitionItemId).orElse(null);
+        if (prItem == null) {
+            throw new PurchaseRequisitionItemNotFoundException();
+        }
+        var authUser = authService.getCurrentUser();
+        prItem.setPurchaseProductUnit(prItem.getProduct().getPurchaseProductUnit());
+        if (request.getPurchaseQty() != null) {
+            prItem.setPurchaseQty(request.getPurchaseQty());
+            prItem.setActualQty(request.getPurchaseQty());
+        }
+        if (prItem.getProductDetail() != null) {
+            prItem.setPurchasePrice(prItem.getProductDetail().getPurchasePrice());
+            prItem.setMrpPrice(prItem.getProductDetail().getMrpPrice());
+            if (prItem.getProductDetail().getPurchasePrice() != null && prItem.getProductDetail().getMrpPrice() != null) {
+                prItem.setDiscount(prItem.getProductDetail().getMrpPrice()
+                        .subtract(prItem.getProductDetail().getPurchasePrice()));
+            }
+        }
+        priRepostory.save(prItem);
+        return priMapper.toDto(prItem);
+    }
+
+//    @Transactional
+    public PurchaseRequisitionItemDto CheckInvoiceAndUpdatePurchaseRequisitionItem(Long purchaseRequisitionId, Long purchaseRequisitionItemId, PurchaseRequisitionItemUpdateRequest request) {
+        PurchaseRequisition pr = purchaseRequisitionRepository.findById(purchaseRequisitionId).orElse(null);
+        if (pr == null) {
+            throw new PurchaseRequisitionNotFoundException();
+        }
+        PurchaseRequisitionItem prItem = priRepostory.findById(purchaseRequisitionItemId).orElse(null);
         if (prItem == null) {
             throw new PurchaseRequisitionItemNotFoundException();
         }
@@ -351,26 +376,30 @@ public class PurchaseRequisitionService {
             if (request.getActualQty() != null) {
                 prItem.setActualQty(request.getActualQty());
             }
-            if (request.getGiftQty() != null) {
-                prItem.setGiftQty(request.getGiftQty());
+            if (request.getGiftOrBonusQty() != null) {
+                prItem.setGiftOrBonusQty(request.getGiftOrBonusQty());
             }
             if (request.getAddableStatus() != null) {
                 prItem.setAddableStatus(request.getAddableStatus());
             }
         }
-        if (request.getPurchaseQty() != null) {
-            prItem.setPurchaseQty(request.getPurchaseQty());
-        }
-        if (request.getPurchasePrice() != null) {
-            if (!Objects.equals(request.getPurchasePrice(), prItem.getProductDetail().getPurchasePrice())) {
-                var productDetail = prItem.getProductDetail();
+        if (request.getPurchasePrice() != null && request.getMrpPrice() != null) {
+            var productDetail = prItem.getProductDetail();
+            if (!Objects.equals(request.getPurchasePrice(), prItem.getPurchasePrice())) {
                 productDetail.setPurchasePrice(request.getPurchasePrice());
-                productDetailRepository.save(productDetail);
             }
-            prItem.setPurchasePrice(request.getPurchasePrice());
+            if (!Objects.equals(request.getMrpPrice(), prItem.getMrpPrice())) {
+                productDetail.setPurchasePrice(request.getPurchasePrice());
+            }
+            productDetailRepository.save(productDetail);
         }
-        purchaseRequisitionItemRepository.save(prItem);
-        return purchaseRequisitionItemMapper.toDto(prItem);
+        if (request.getPurchasePrice() != null && request.getMrpPrice() != null) {
+            prItem.setDiscount(request.getMrpPrice().subtract(request.getPurchasePrice()));
+        }
+        prItem.setPurchasePrice(request.getPurchasePrice());
+        prItem.setMrpPrice(request.getMrpPrice());
+        priRepostory.save(prItem);
+        return priMapper.toDto(prItem);
     }
 
     public PurchaseRequisitionItemDto removePurchaseRequisitionItem(Long purchaseRequisitionId, Long purchaseRequisitionItemId) {
@@ -378,23 +407,23 @@ public class PurchaseRequisitionService {
         if (purchaseRequisition == null) {
             throw new PurchaseRequisitionNotFoundException();
         }
-        PurchaseRequisitionItem purchaseRequisitionItem = purchaseRequisitionItemRepository.findById(purchaseRequisitionItemId).orElse(null);
+        PurchaseRequisitionItem purchaseRequisitionItem = priRepostory.findById(purchaseRequisitionItemId).orElse(null);
         if (purchaseRequisitionItem == null) {
             throw new PurchaseRequisitionItemNotFoundException();
         }
         purchaseRequisition.getItems().remove(purchaseRequisitionItem);
         purchaseRequisitionItem.setPurchaseRequisition(null);
         purchaseRequisitionRepository.save(purchaseRequisition);
-        return purchaseRequisitionItemMapper.toDto(purchaseRequisitionItem);
+        return priMapper.toDto(purchaseRequisitionItem);
     }
 
     public int removeBulkPurchaseRequisitionItem(Long purchaseRequisitionId, List<Long> purchaseRequisitionItemIds) {
-        return purchaseRequisitionItemRepository.removeBulkPurchaseRequisitionItem(purchaseRequisitionId, purchaseRequisitionItemIds);
+        return priRepostory.removeBulkPurchaseRequisitionItem(purchaseRequisitionId, purchaseRequisitionItemIds);
     }
 
     public int updateBulkForAddableItem(Long purchaseRequisitionId, List<Long> purchaseRequisitionItemIds, Integer addableStatus) {
 
-        return purchaseRequisitionItemRepository.updateBulkForAddableItem(purchaseRequisitionId, purchaseRequisitionItemIds, addableStatus);
+        return priRepostory.updateBulkForAddableItem(purchaseRequisitionId, purchaseRequisitionItemIds, addableStatus);
     }
 
     private String generateRequisitionRef() {

@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @AllArgsConstructor
@@ -29,9 +30,9 @@ public class ProductPricingLog {
     @ManyToOne
     @JoinColumn(name = "product_detail_id")
     private ProductDetail productDetail;
-    private Double regularPrice;
-    private Double oldPrice;
-    private Double purchasePrice;
+    private BigDecimal sellPrice;
+    private BigDecimal mrpPrice;
+    private BigDecimal purchasePrice;
     @ManyToOne(fetch = FetchType.LAZY ,optional = false)
     @JoinColumn(name = "created_by", nullable = false)
     private User createdBy;

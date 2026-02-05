@@ -22,21 +22,19 @@ public class PurchaseRequisitionItemMapper {
         prItemDto.setPurchaseProductUnit(detailMapper.toDto(prItem.getPurchaseProductUnit()));
         prItemDto.setPurchaseQty(prItem.getPurchaseQty());
         prItemDto.setActualQty(prItem.getActualQty());
-        prItemDto.setGiftQty(prItem.getGiftQty());
+        prItemDto.setGiftOrBonusQty(prItem.getGiftOrBonusQty());
         prItemDto.setAddableStatus(prItem.getAddableStatus());
-        if (prItem.getProductDetail() != null) {
-            if (prItem.getProductDetail().getPurchasePrice() != null) {
-                prItemDto.setPurchasePrice(prItem.getProductDetail().getPurchasePrice());
-                if(prItem.getPurchaseQty()!=null){
-                    prItemDto.setPurchaseLinePrice(prItem.getProductDetail().getPurchasePrice() * prItem.getPurchaseQty());
-                }
-                if (prItem.getActualQty() != null) {
-                    prItemDto.setActualLinePrice(prItem.getProductDetail().getPurchasePrice() * prItem.getActualQty());
-                }
-                if (prItem.getGiftQty() != null) {
-                    prItemDto.setGiftLinePrice(prItem.getProductDetail().getPurchasePrice() * prItem.getGiftQty());
-                }
-            }
+        prItemDto.setPurchasePrice(prItem.getPurchasePrice());
+        prItemDto.setMrpPrice(prItem.getMrpPrice());
+        prItemDto.setDiscount(prItem.getDiscountPrice());
+        if (prItem.getPurchaseQty() != null) {
+            prItemDto.setPurchaseLinePrice(prItem.getPurchaseLinePrice());
+        }
+        if (prItem.getActualQty() != null) {
+            prItemDto.setActualLinePrice(prItem.getActualLinePrice());
+        }
+        if (prItem.getGiftOrBonusQty() != null) {
+            prItemDto.setGiftOrBonusLinePrice(prItem.getGiftOrBonusLinePrice());
         }
         return prItemDto;
     }

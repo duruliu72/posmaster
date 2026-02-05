@@ -30,12 +30,13 @@ public class PurchaseRequisitionMapper {
             prDto.setRequisitionStatus(pr.getRequisition().getRequisitionStatus());
             prDto.setNote(pr.getRequisition().getNote());
         }
+        prDto.setOverallDiscount(prDto.getOverallDiscount());
         prDto.setTotalPrice(pr.getTotalPrice());
         prDto.setTotalQty(pr.getTotalQty());
         prDto.setTotalActualQty(pr.getTotalActualQty());
         prDto.setTotalActualPrice(pr.getTotalActualPrice());
-        prDto.setTotalGiftQty(pr.getTotalGiftQty());
-        prDto.setTotalGiftPrice(pr.getTotalGiftPrice());
+        prDto.setTotalGiftOrBonusQty(pr.getTotalGiftOrBonusQty());
+        prDto.setTotalGiftOrBonusPrice(pr.getTotalGiftOrBonusPrice());
         prDto.setPurchaseInvoices(pr.getPurchaseInvoices());
         prDto.setPurchaseInvoiceDocs(pr.getPurchaseInvoiceDocs());
         prDto.setOrderRefs(pr.getOrderRefs());
@@ -64,12 +65,13 @@ public class PurchaseRequisitionMapper {
             pageResponse.setRequisitionStatus(pr.getRequisition().getRequisitionStatus());
             pageResponse.setNote(pr.getRequisition().getNote());
         }
+        pageResponse.setOverallDiscount(pr.getOverallDiscount());
         pageResponse.setTotalPrice(pr.getTotalPrice());
         pageResponse.setTotalQty(pr.getTotalQty());
         pageResponse.setTotalActualQty(pr.getTotalActualQty());
         pageResponse.setTotalActualPrice(pr.getTotalActualPrice());
-        pageResponse.setTotalGiftQty(pr.getTotalGiftQty());
-        pageResponse.setTotalGiftPrice(pr.getTotalGiftPrice());
+        pageResponse.setTotalGiftOrBonusQty(pr.getTotalGiftOrBonusQty());
+        pageResponse.setTotalGiftOrBonusPrice(pr.getTotalGiftOrBonusPrice());
         pageResponse.setPurchaseInvoices(pr.getPurchaseInvoices());
         pageResponse.setPurchaseInvoiceDocs(pr.getPurchaseInvoiceDocs());
         pageResponse.setOrderRefs(pr.getOrderRefs());
@@ -109,11 +111,12 @@ public class PurchaseRequisitionMapper {
         prDto.setTotalQty(pr.getTotalQty());
         prDto.setTotalActualQty(pr.getTotalActualQty());
         prDto.setTotalActualPrice(pr.getTotalActualPrice());
-        prDto.setTotalGiftQty(pr.getTotalGiftQty());
-        prDto.setTotalGiftPrice(pr.getTotalGiftPrice());
+        prDto.setTotalGiftOrBonusQty(pr.getTotalGiftOrBonusQty());
+        prDto.setTotalGiftOrBonusPrice(pr.getTotalGiftOrBonusPrice());
         prDto.setPurchaseInvoices(pr.getPurchaseInvoices());
         prDto.setPurchaseInvoiceDocs(pr.getPurchaseInvoiceDocs());
         prDto.setOrderRefs(pr.getOrderRefs());
+        prDto.setOverallDiscount(prDto.getOverallDiscount());
         prDto.setIsFinal(pr.getIsFinal());
         return prDto;
     }

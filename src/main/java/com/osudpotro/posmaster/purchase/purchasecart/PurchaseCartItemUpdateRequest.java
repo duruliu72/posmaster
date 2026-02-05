@@ -1,9 +1,11 @@
 package com.osudpotro.posmaster.purchase.purchasecart;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Data
 public class PurchaseCartItemUpdateRequest {
     private Double purchasePrice;
-    private Long purchaseQty;
-    private Double purchaseLinePrice;
+    private Integer purchaseQty;
+    private BigDecimal purchaseLinePrice;
 }

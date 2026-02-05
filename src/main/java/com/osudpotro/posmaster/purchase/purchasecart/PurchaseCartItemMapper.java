@@ -5,6 +5,8 @@ import com.osudpotro.posmaster.product.ProductMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+
 @Component
 public class PurchaseCartItemMapper {
     @Autowired
@@ -22,7 +24,8 @@ public class PurchaseCartItemMapper {
         if(purchaseCartItem.getProductDetail()!=null){
             if(purchaseCartItem.getProductDetail().getPurchasePrice()!=null){
                 purchaseCartItemDto.setPurchasePrice(purchaseCartItem.getProductDetail().getPurchasePrice());
-                purchaseCartItemDto.setPurchaseLinePrice(purchaseCartItem.getProductDetail().getPurchasePrice()*purchaseCartItem.getPurchaseQty());
+                purchaseCartItemDto.setPurchaseLinePrice(purchaseCartItem.getProductDetail().getPurchasePrice()
+                        .multiply(BigDecimal.valueOf(purchaseCartItem.getPurchaseQty())));
             }
 
         }

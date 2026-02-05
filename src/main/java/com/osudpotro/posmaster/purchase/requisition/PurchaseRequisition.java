@@ -10,6 +10,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +29,7 @@ public class PurchaseRequisition extends BaseEntity {
     private Organization organization;
     @ManyToOne(fetch = FetchType.LAZY)
     private Branch branch;
+    private BigDecimal overallDiscount;
     private String purchaseInvoices;
     private String purchaseInvoiceDocs;
     private String orderRefs;
@@ -69,52 +72,53 @@ public class PurchaseRequisition extends BaseEntity {
                 .sum();
     }
 
-    public int getTotalGiftQty() {
+    public int getTotalGiftOrBonusQty() {
         return items.stream()
                 .filter(i ->
-                        i.getGiftQty() != null
+                        i.getGiftOrBonusQty() != null
                 )
-                .mapToInt(PurchaseRequisitionItem::getGiftQty)
+                .mapToInt(PurchaseRequisitionItem::getGiftOrBonusQty)
                 .sum();
     }
 
-    public Double getTotalPrice() {
+    public BigDecimal getTotalPrice() {
         return items.stream()
                 .filter(i ->
                         i.getPurchaseQty() != null && i.getProductDetail().getPurchasePrice() != null
                 )
-                .mapToDouble(i ->
-                        i.getPurchaseQty()
-                                * i.getProductDetail().getPurchasePrice()
+                .map(i ->
+                        i.getProductDetail().getPurchasePrice()
+                                .multiply(BigDecimal.valueOf(i.getPurchaseQty()))
                 )
-                .sum();
+                .reduce(BigDecimal.ZERO, BigDecimal::add).setScale(2, RoundingMode.HALF_UP);
     }
 
-    public Double getTotalActualPrice() {
+    public BigDecimal getTotalActualPrice() {
         return items.stream()
                 .filter(i ->
                         i.getActualQty() != null &&
                                 i.getPurchasePrice() != null
                 )
-                .mapToDouble(i ->
-                        i.getActualQty()
-                                * i.getPurchasePrice()
+                .map(i ->
+                        i.getPurchasePrice()
+                                .multiply(BigDecimal.valueOf(i.getActualQty()))
                 )
-                .sum();
+                .reduce(BigDecimal.ZERO, BigDecimal::add).setScale(2, RoundingMode.HALF_UP);
     }
 
-    public Double getTotalGiftPrice() {
+    public BigDecimal getTotalGiftOrBonusPrice() {
         return items.stream()
                 .filter(i ->
-                        i.getGiftQty() != null &&
+                        i.getGiftOrBonusQty() != null &&
                                 i.getPurchasePrice() != null
                 )
-                .mapToDouble(i ->
-                        i.getGiftQty()
-                                * i.getPurchasePrice()
+                .map(i ->
+                        i.getPurchasePrice()
+                                .multiply(BigDecimal.valueOf(i.getGiftOrBonusQty()))
                 )
-                .sum();
+                .reduce(BigDecimal.ZERO, BigDecimal::add).setScale(2, RoundingMode.HALF_UP);
     }
+
     //    Like draft=1, Submitted=2,3=Approved,4=Rejected,5=Cancelled,6=Closed(After all finally process done)
 //    private Integer requisitionStatus = 1;
 //    private String note;

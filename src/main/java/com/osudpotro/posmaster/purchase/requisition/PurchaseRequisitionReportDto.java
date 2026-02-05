@@ -4,6 +4,7 @@ import com.osudpotro.posmaster.organization.OrganizationDto;
 import com.osudpotro.posmaster.purchase.dto.BranchDto;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,12 +19,13 @@ public class PurchaseRequisitionReportDto {
     private BranchDto branch;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private Double totalPrice;
+    private BigDecimal overallDiscount;
+    private BigDecimal totalPrice;
     private Integer totalQty;
-    private Double totalActualPrice;
+    private BigDecimal totalActualPrice;
     private Integer totalActualQty;
-    private Double totalGiftPrice;
-    private Integer totalGiftQty;
+    private BigDecimal totalGiftOrBonusPrice;
+    private Integer totalGiftOrBonusQty;
     private Integer requisitionStatus;
     private String note;
     private String purchaseInvoices;

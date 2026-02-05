@@ -289,8 +289,8 @@ public class ProductService {
                 detail.setProductDetailCode(detailRq.getProductDetailCode());
                 detail.setProductDetailBarCode(detailRq.getProductDetailBarCode());
                 detail.setProductDetailSku(detailRq.getProductDetailSku());
-                detail.setRegularPrice(detailRq.getRegularPrice());
-                detail.setOldPrice(detailRq.getOldPrice());
+                detail.setSellPrice(detailRq.getSellPrice());
+                detail.setMrpPrice(detailRq.getMrpPrice());
                 VariantUnit size = variantUnitService.getVariantUnitEntity(detailRq.getSizeId());
                 detail.setSize(size);
                 if (lastProductDetail != null) {
