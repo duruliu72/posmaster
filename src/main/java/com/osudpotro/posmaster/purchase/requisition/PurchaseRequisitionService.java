@@ -322,10 +322,16 @@ public class PurchaseRequisitionService {
         prItem.setPurchaseProductUnit(product.getPurchaseProductUnit());
         prItem.setPurchaseQty(request.getPurchaseQty());
         prItem.setActualQty(request.getPurchaseQty());
-        if (prItem.getProductDetail() != null) {
+        prItem.setGiftOrBonusQty(request.getGiftOrBonusQty());
+        prItem.setPurchasePrice(request.getPurchasePrice());
+        if(request.getPurchasePrice() != null && request.getMrpPrice() != null){
+            prItem.setDiscount(request.getMrpPrice().subtract(request.getPurchasePrice()));
+        }
+        prItem.setMrpPrice(request.getMrpPrice());
+        if (prItem.getProductDetail() != null && request.getPurchasePrice() == null && request.getMrpPrice() == null) {
             prItem.setPurchasePrice(prItem.getProductDetail().getPurchasePrice());
             prItem.setMrpPrice(prItem.getProductDetail().getMrpPrice());
-            if(prItem.getProductDetail().getPurchasePrice()!=null&&prItem.getProductDetail().getMrpPrice()!=null){
+            if (prItem.getProductDetail().getPurchasePrice() != null && prItem.getProductDetail().getMrpPrice() != null) {
                 prItem.setDiscount(prItem.getProductDetail().getMrpPrice()
                         .subtract(prItem.getProductDetail().getPurchasePrice()));
             }
@@ -361,7 +367,6 @@ public class PurchaseRequisitionService {
         return priMapper.toDto(prItem);
     }
 
-//    @Transactional
     public PurchaseRequisitionItemDto CheckInvoiceAndUpdatePurchaseRequisitionItem(Long purchaseRequisitionId, Long purchaseRequisitionItemId, PurchaseRequisitionItemUpdateRequest request) {
         PurchaseRequisition pr = purchaseRequisitionRepository.findById(purchaseRequisitionId).orElse(null);
         if (pr == null) {
@@ -370,6 +375,9 @@ public class PurchaseRequisitionService {
         PurchaseRequisitionItem prItem = priRepostory.findById(purchaseRequisitionItemId).orElse(null);
         if (prItem == null) {
             throw new PurchaseRequisitionItemNotFoundException();
+        }
+        if(pr.getRequisition().getRequisitionStatus() != 3){
+            throw new RequisitionItemNotApprovedException();
         }
         prItem.setPurchaseProductUnit(prItem.getProduct().getPurchaseProductUnit());
         if (pr.getRequisition().getRequisitionStatus() == 3) {
@@ -396,6 +404,7 @@ public class PurchaseRequisitionService {
         if (request.getPurchasePrice() != null && request.getMrpPrice() != null) {
             prItem.setDiscount(request.getMrpPrice().subtract(request.getPurchasePrice()));
         }
+
         prItem.setPurchasePrice(request.getPurchasePrice());
         prItem.setMrpPrice(request.getMrpPrice());
         priRepostory.save(prItem);

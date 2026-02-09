@@ -25,39 +25,61 @@ public class CustomUserDetails implements UserDetails {
         user.getRoles().forEach(role ->
                 role.getPermissions().forEach(permission ->
                         permission.getPermissionDetails().forEach(pd ->
-                                authorities.add(new SimpleGrantedAuthority(
-                                        permission.getApiResource().getApiResourceKey() + "_" + pd.getAction().getName()
+                                        authorities.add(new SimpleGrantedAuthority(
+                                                permission.getApiResource().getApiResourceKey() + "_" + pd.getAction().getName()
 //                                        permission.getUiResource().getUiResourceKey()+"_"+pd.getApiResourceKey().getResourceKey() + "_" + pd.getAction().getName()
-                                ))
+                                        ))
                         )));
 //         Direct user permissions
         user.getPermissions().forEach(permission ->
                 permission.getPermissionDetails().forEach(pd ->
-                        authorities.add(new SimpleGrantedAuthority(
-                                permission.getApiResource().getApiResourceKey() + "_" + pd.getAction().getName()
+                                authorities.add(new SimpleGrantedAuthority(
+                                        permission.getApiResource().getApiResourceKey() + "_" + pd.getAction().getName()
 //                                permission.getUiResource().getUiResourceKey()+"_"+pd.getApiResourceKey().getResourceKey() + "_" + pd.getAction().getName()
-                        ))
+                                ))
                 ));
         return authorities;
     }
 
     @Override
-    public String getPassword() { return user.getPassword(); }
+    public String getPassword() {
+        if(user.getPassword()!=null){
+            return user.getPassword();
+        }
+        if (user.getCustomer() != null) {
+            return user.getCustomer().getPassword();
+        }
+        if (user.getVehicleDriver() != null) {
+            return user.getVehicleDriver().getPassword();
+        }
+        return user.getAdminUser().getPassword();
+    }
 
     @Override
-    public String getUsername() { return user.getEmail(); }
+    public String getUsername() {
+        return user.getEmail();
+    }
 
     @Override
-    public boolean isAccountNonExpired() { return true; }
+    public boolean isAccountNonExpired() {
+        return true;
+    }
 
     @Override
-    public boolean isAccountNonLocked() { return true; }
+    public boolean isAccountNonLocked() {
+        return true;
+    }
 
     @Override
-    public boolean isCredentialsNonExpired() { return true; }
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
 
     @Override
-    public boolean isEnabled() { return user.getStatus()==1; }
+    public boolean isEnabled() {
+        return user.getStatus() == 1;
+    }
+
     public User getUser() {
         return user;
     }

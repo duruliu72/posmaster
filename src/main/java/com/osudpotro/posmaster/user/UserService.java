@@ -1,9 +1,6 @@
 package com.osudpotro.posmaster.user;
 
 import com.osudpotro.posmaster.auth.AuthService;
-import com.osudpotro.posmaster.requisitiontype.RequisitionTypeDto;
-import com.osudpotro.posmaster.requisitiontype.RequisitionTypeFilter;
-import com.osudpotro.posmaster.requisitiontype.RequisitionTypeSpecification;
 import com.osudpotro.posmaster.role.Role;
 import com.osudpotro.posmaster.role.RoleRepository;
 import lombok.AllArgsConstructor;
@@ -47,12 +44,12 @@ public class UserService {
         }
         var authUser = authService.getCurrentUser();
         var user = userMapper.toEntity(request);
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+//        user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setCreatedBy(authUser);
         Role findAdminRole = roleRepository.findByRoleKey("ROLE_ADMIN")
                 .orElseGet(() -> {
                     Role superAdmin = new Role();
-                    superAdmin.setName("Admin");
+                    superAdmin.setName("AdminUser");
                     superAdmin.setRoleKey("ROLE_ADMIN");
                     superAdmin.setCreatedBy(authUser);
                     superAdmin.setUsers(new HashSet<>());

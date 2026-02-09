@@ -17,7 +17,7 @@ public class CustomUserMapper {
     public UserDto toDto(User user) {
         UserDto userDto = new UserDto();
         userDto.setId(user.getId());
-        userDto.setName(user.getName());
+        userDto.setName(user.getUserName());
         userDto.setEmail(user.getEmail());
         userDto.setCreatedAt(user.getCreatedAt());
         Set<RoleDto> roles = new HashSet<>();
@@ -85,7 +85,7 @@ public class CustomUserMapper {
     public UserMainDto toMainDto(User user){
         UserMainDto userMainDto = new UserMainDto();
         userMainDto.setId(user.getId());
-        userMainDto.setName(user.getName());
+        userMainDto.setName(user.getUserName());
         userMainDto.setEmail(user.getEmail());
         userMainDto.setCreatedAt(user.getCreatedAt());
         return userMainDto;

@@ -47,7 +47,7 @@ public class ApiResourceService {
         Role findSuperAdminRole = roleRepository.findByRoleKey("ROLE_SUPER_ADMIN")
                 .orElseGet(() -> {
                     Role superAdmin = new Role();
-                    superAdmin.setName("Super Admin");
+                    superAdmin.setName("Super AdminUser");
                     superAdmin.setRoleKey("ROLE_SUPER_ADMIN");
                     superAdmin.setCreatedBy(user);
                     superAdmin.setUsers(new HashSet<>());

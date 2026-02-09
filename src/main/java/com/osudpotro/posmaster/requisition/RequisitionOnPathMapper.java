@@ -63,21 +63,21 @@ public class RequisitionOnPathMapper {
         }
         UserDto userDto=new UserDto();
         userDto.setId(rop.getUser().getId());
-        userDto.setName(rop.getUser().getName());
+        userDto.setName(rop.getUser().getUserName());
         userDto.setEmail(rop.getUser().getEmail());
         ropDto.setUser(userDto);
 
         if(rop.getPrevUser()!=null){
             UserDto prevUserDto=new UserDto();
             prevUserDto.setId(rop.getPrevUser().getId());
-            prevUserDto.setName(rop.getPrevUser().getName());
+            prevUserDto.setName(rop.getPrevUser().getUserName());
             prevUserDto.setEmail(rop.getPrevUser().getEmail());
             ropDto.setPrevUser(prevUserDto);
         }
         if(rop.getNextUser()!=null){
             UserDto nextUserDto=new UserDto();
             nextUserDto.setId(rop.getNextUser().getId());
-            nextUserDto.setName(rop.getNextUser().getName());
+            nextUserDto.setName(rop.getNextUser().getUserName());
             nextUserDto.setEmail(rop.getNextUser().getEmail());
             ropDto.setNextUser(nextUserDto);
         }

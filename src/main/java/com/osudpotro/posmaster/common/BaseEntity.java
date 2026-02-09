@@ -22,7 +22,7 @@ public class BaseEntity {
     //    like ACTIVE=1, INACTIVE=2, DELETED=3
     private Integer status=1;
     @ManyToOne(fetch = FetchType.LAZY ,optional = false)
-    @JoinColumn(name = "created_by", nullable = false)
+    @JoinColumn(name = "created_by", nullable = true)
     private User createdBy;
 
     @ManyToOne(fetch = FetchType.LAZY,optional = true)

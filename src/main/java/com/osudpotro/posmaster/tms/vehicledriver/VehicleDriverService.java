@@ -1,0 +1,138 @@
+package com.osudpotro.posmaster.tms.vehicledriver;
+
+import com.osudpotro.posmaster.auth.AuthService;
+import com.osudpotro.posmaster.role.Role;
+import com.osudpotro.posmaster.role.RoleRepository;
+import com.osudpotro.posmaster.user.UserType;
+import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+@AllArgsConstructor
+@Service
+public class VehicleDriverService {
+    private final AuthService authService;
+    private final VehicleDriverRepository vehicleDriverRepository;
+    private final VehicleDriverMapper vehicleDriverMapper;
+    private final PasswordEncoder passwordEncoder;
+    private final RoleRepository roleRepository;
+
+    public List<VehicleDriverDto> gerAllVehicleDrivers() {
+        return vehicleDriverRepository.findAll(Sort.by(Sort.Direction.DESC, "id"))
+                .stream()
+                .map(vehicleDriverMapper::toDto)
+                .toList();
+    }
+
+    public Page<VehicleDriverDto> getVehicleDrivers(VehicleDriverFilter filter, Pageable pageable) {
+        return vehicleDriverRepository.findAll(VehicleDriverSpecification.filter(filter), pageable).map(vehicleDriverMapper::toDto);
+    }
+
+    public VehicleDriverDto registerVehicleDriver(VehicleDriverCreateRequest request) {
+        if (request.getEmail() != null && vehicleDriverRepository.existsByEmail(request.getEmail())) {
+            throw new DuplicateVehicleDriverException("Email already exists");
+        }
+        if (request.getPhone() != null && vehicleDriverRepository.existsByPhone(request.getPhone())) {
+            throw new DuplicateVehicleDriverException("Phone number already exists");
+        }
+        if (request.getEmail() != null && request.getPhone() != null && vehicleDriverRepository.existsByEmailOrPhone(request.getEmail(), request.getPhone())) {
+            throw new DuplicateVehicleDriverException();
+        }
+        var vehicleDriver = vehicleDriverMapper.toEntity(request);
+        vehicleDriver.setPassword(passwordEncoder.encode(vehicleDriver.getPassword()));
+        var authUser = authService.getCurrentUser();
+        vehicleDriver.setCreatedBy(authUser);
+        Role findRole = roleRepository.findByRoleKey("ROLE_VEHICLE_DRIVER")
+                .orElseGet(() -> {
+                    Role superAdmin = new Role();
+                    superAdmin.setName("VehicleDriver");
+                    superAdmin.setRoleKey("ROLE_VEHICLE_DRIVER");
+                    superAdmin.setCreatedBy(authUser);
+                    superAdmin.setUsers(new HashSet<>());
+                    superAdmin.setPermissions(new HashSet<>());
+                    return roleRepository.save(superAdmin);
+                });
+        // ===SET ROLE ADMIN USER  ===
+
+        var user = vehicleDriverMapper.toEntity(request);
+//        vehicleDriver.setRoles(Set.of(findRole));
+//        vehicleDriver.setUserType(UserType.VEHICLE_DRIVER);
+        vehicleDriverRepository.save(vehicleDriver);
+        return vehicleDriverMapper.toDto(vehicleDriver);
+    }
+    public VehicleDriverDto updateVehicleDriver(Long customerId, VehicleDriverUpdateRequest request) {
+        var vehicleDriver = vehicleDriverRepository.findById(customerId).orElseThrow(VehicleDriverNotFoundException::new);
+        if (request.getEmail() != null && vehicleDriverRepository.existsByEmail(request.getEmail())) {
+            if (!vehicleDriver.getEmail().equals(request.getEmail())) {
+                throw new DuplicateVehicleDriverException("Email already exists");
+            }
+        }
+        if (request.getPhone() != null && vehicleDriverRepository.existsByPhone(request.getPhone())) {
+            if (!vehicleDriver.getPhone().equals(request.getPhone())) {
+                throw new DuplicateVehicleDriverException("Phone number already exists");
+            }
+
+        }
+        if (request.getEmail() != null && request.getPhone() != null && vehicleDriverRepository.existsByEmailOrPhone(request.getEmail(), request.getPhone())) {
+            if (!vehicleDriver.getEmail().equals(request.getEmail()) && !vehicleDriver.getPhone().equals(request.getPhone())) {
+                throw new DuplicateVehicleDriverException();
+            }
+        }
+        vehicleDriverMapper.update(request, vehicleDriver);
+        var authUser = authService.getCurrentUser();
+        vehicleDriver.setUpdatedBy(authUser);
+        vehicleDriverRepository.save(vehicleDriver);
+        return vehicleDriverMapper.toDto(vehicleDriver);
+    }
+    public VehicleDriverDto getVehicleDriver(Long customerId) {
+        var vehicleDriver = vehicleDriverRepository.findById(customerId).orElseThrow(VehicleDriverNotFoundException::new);
+        return vehicleDriverMapper.toDto(vehicleDriver);
+    }
+
+    public VehicleDriverDto getVehicleDriverOrNull(Long customerId) {
+        var vehicleDriver = vehicleDriverRepository.findById(customerId).orElseThrow();
+        return vehicleDriverMapper.toDto(vehicleDriver);
+    }
+
+    public VehicleDriver getVehicleDriverEntity(Long customerId) {
+        return vehicleDriverRepository.findById(customerId).orElseThrow(VehicleDriverNotFoundException::new);
+    }
+
+    public VehicleDriverDto activeVehicleDriver(Long customerId) {
+        var vehicleDriver = vehicleDriverRepository.findById(customerId).orElseThrow(() -> new VehicleDriverNotFoundException("VehicleDriver not found with ID: " + customerId));
+        var authUser = authService.getCurrentUser();
+        vehicleDriver.setStatus(1);
+        vehicleDriver.setUpdatedBy(authUser);
+        vehicleDriverRepository.save(vehicleDriver);
+        return vehicleDriverMapper.toDto(vehicleDriver);
+    }
+
+    public VehicleDriverDto deactivateVehicleDriver(Long customerId) {
+        var vehicleDriver = vehicleDriverRepository.findById(customerId).orElseThrow(() -> new VehicleDriverNotFoundException("VehicleDriver not found with ID: " + customerId));
+        var authUser = authService.getCurrentUser();
+        vehicleDriver.setStatus(2);
+        vehicleDriver.setUpdatedBy(authUser);
+        vehicleDriverRepository.save(vehicleDriver);
+        return vehicleDriverMapper.toDto(vehicleDriver);
+    }
+
+    public VehicleDriverDto deleteVehicleDriver(Long customerId) {
+        var vehicleDriver = vehicleDriverRepository.findById(customerId).orElseThrow(() -> new VehicleDriverNotFoundException("VehicleDriver not found with ID: " + customerId));
+        var authUser = authService.getCurrentUser();
+        vehicleDriver.setStatus(3);
+        vehicleDriver.setUpdatedBy(authUser);
+        vehicleDriverRepository.save(vehicleDriver);
+        return vehicleDriverMapper.toDto(vehicleDriver);
+    }
+
+    public int deleteBulkVehicleDriver(List<Long> ids) {
+        return vehicleDriverRepository.deleteBulkVehicleDriver(ids, 3L);
+    }
+}

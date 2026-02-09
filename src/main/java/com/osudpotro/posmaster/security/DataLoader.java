@@ -67,12 +67,12 @@ public class DataLoader {
         Optional<User> findUser = userRepository.findByEmail("duruliu72@gmail.com");
         User superAdminUser = findUser.orElseGet(() -> {
             User u = new User();
-            u.setName("Super Admin");
+            u.setUserName("Super AdminUser");
             u.setEmail("duruliu72@gmail.com");
             u.setMobile("01700000000");
-            u.setPassword("123");
-            u.setPassword(passwordEncoder.encode("123"));
-            u.setUserType(UserType.EMPLOYEE);
+//            u.setPassword("123");
+//            u.setPassword(passwordEncoder.encode("123"));
+            u.setUserType(UserType.ADMIN);
             return userRepository.save(u);
         });
 
@@ -95,7 +95,7 @@ public class DataLoader {
         Role findSuperAdminRole = roleRepository.findByRoleKey("ROLE_SUPER_ADMIN")
                 .orElseGet(() -> {
                     Role superAdmin = new Role();
-                    superAdmin.setName("Super Admin");
+                    superAdmin.setName("Super AdminUser");
                     superAdmin.setRoleKey("ROLE_SUPER_ADMIN");
                     superAdmin.setCreatedBy(superAdminUser);
                     superAdmin.setUsers(new HashSet<>());
@@ -193,7 +193,7 @@ public class DataLoader {
             detail2.setAction(create);
             detail2.setCreatedBy(superAdminUser);
             permissionDetailRepository.saveAll(Arrays.asList(detail1, detail2));
-            System.out.println("✅ Permissions inserted for Super Admin");
+            System.out.println("✅ Permissions inserted for Super AdminUser");
         }
     }
 }

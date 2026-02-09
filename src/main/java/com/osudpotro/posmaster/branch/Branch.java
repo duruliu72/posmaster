@@ -21,9 +21,9 @@ public class Branch extends BaseEntity {
     private String address;
     private String district;
     private String country;
-    private double latitude;
-    private double longitude;
-    private double accuracy;
+    private Double latitude;
+    private Double longitude;
+    private Double accuracy;
     private String mobile;
     private String licenceNo;
     @ManyToOne(fetch = FetchType.LAZY)

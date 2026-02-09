@@ -2,7 +2,6 @@ package com.osudpotro.posmaster.user;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.osudpotro.posmaster.role.RoleDto;
-import com.osudpotro.posmaster.security.Permission;
 import com.osudpotro.posmaster.security.PermissionDto;
 import lombok.Data;
 

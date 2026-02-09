@@ -28,7 +28,7 @@ public class JwtService {
         Claims claims = Jwts.claims()
                 .subject(user.getId().toString())
                 .add("email", user.getEmail())
-                .add("name", user.getName())
+                .add("userName", user.getUserName())
 //                .add("role", user.getRoles())
                 .issuedAt(new Date())
                 .expiration(expIn)

@@ -1,6 +1,7 @@
 package com.osudpotro.posmaster.purchase.requisition;
 
 import com.osudpotro.posmaster.common.PagedResponse;
+import com.osudpotro.posmaster.requisition.RequisitionItemNotApprovedException;
 import com.osudpotro.posmaster.requisition.RequisitionUpdateException;
 import com.osudpotro.posmaster.requisition.RequsitionOnPathNotFoundException;
 import jakarta.validation.Valid;
@@ -183,6 +184,14 @@ public class PurchaseRequisitionController {
 
     @ExceptionHandler(RequisitionUpdateException.class)
     public ResponseEntity<Map<String, String>> handleRequisitionUpdateException(Exception e) {
+        return ResponseEntity.badRequest().body(
+                Map.of("error", e.getMessage())
+        );
+//        return ResponseEntity.notFound().build();
+    }
+
+    @ExceptionHandler(RequisitionItemNotApprovedException.class)
+    public ResponseEntity<Map<String, String>> handleRequisitionItemNotApprovedException(Exception e) {
         return ResponseEntity.badRequest().body(
                 Map.of("error", e.getMessage())
         );

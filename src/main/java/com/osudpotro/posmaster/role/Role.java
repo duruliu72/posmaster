@@ -16,7 +16,7 @@ import java.util.Set;
 @Table(name = "roles")
 public class Role extends BaseEntity {
     @Column(nullable = false, unique = true, length = 100)
-    private String name; // e.g., "Super Admin", "Admin", "Sales Manager"
+    private String name; // e.g., "Super AdminUser", "AdminUser", "Sales Manager"
     @Column(name = "role_key", nullable = false, unique = true, length = 50)
     private String roleKey; // e.g., ROLE_SUPER_ADMIN, ROLE_SALES
     @ManyToMany(mappedBy = "roles")

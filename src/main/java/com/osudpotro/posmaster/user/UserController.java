@@ -2,7 +2,6 @@ package com.osudpotro.posmaster.user;
 
 
 import com.osudpotro.posmaster.common.PagedResponse;
-import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisitionFilter;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
