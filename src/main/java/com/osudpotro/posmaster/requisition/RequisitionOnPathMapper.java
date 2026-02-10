@@ -63,22 +63,22 @@ public class RequisitionOnPathMapper {
         }
         UserDto userDto=new UserDto();
         userDto.setId(rop.getUser().getId());
-        userDto.setName(rop.getUser().getUserName());
-        userDto.setEmail(rop.getUser().getEmail());
+        userDto.setUserName(rop.getUser().getAdminUser().getUserName());
+        userDto.setEmail(rop.getUser().getAdminUser().getEmail());
         ropDto.setUser(userDto);
 
         if(rop.getPrevUser()!=null){
             UserDto prevUserDto=new UserDto();
             prevUserDto.setId(rop.getPrevUser().getId());
-            prevUserDto.setName(rop.getPrevUser().getUserName());
-            prevUserDto.setEmail(rop.getPrevUser().getEmail());
+            prevUserDto.setUserName(rop.getPrevUser().getAdminUser().getUserName());
+            prevUserDto.setEmail(rop.getPrevUser().getAdminUser().getEmail());
             ropDto.setPrevUser(prevUserDto);
         }
         if(rop.getNextUser()!=null){
             UserDto nextUserDto=new UserDto();
             nextUserDto.setId(rop.getNextUser().getId());
-            nextUserDto.setName(rop.getNextUser().getUserName());
-            nextUserDto.setEmail(rop.getNextUser().getEmail());
+            nextUserDto.setUserName(rop.getNextUser().getAdminUser().getUserName());
+            nextUserDto.setEmail(rop.getNextUser().getAdminUser().getEmail());
             ropDto.setNextUser(nextUserDto);
         }
         return ropDto;

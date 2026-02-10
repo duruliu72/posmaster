@@ -43,21 +43,32 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getPassword() {
-        if(user.getPassword()!=null){
-            return user.getPassword();
-        }
+        String password = "";
         if (user.getCustomer() != null) {
-            return user.getCustomer().getPassword();
+            password = user.getCustomer().getPassword();
         }
         if (user.getVehicleDriver() != null) {
-            return user.getVehicleDriver().getPassword();
+            password = user.getVehicleDriver().getPassword();
         }
-        return user.getAdminUser().getPassword();
+        if (user.getAdminUser().getPassword() != null) {
+            password = user.getAdminUser().getPassword();
+        }
+        return password;
     }
 
     @Override
     public String getUsername() {
-        return user.getEmail();
+        String email = "";
+        if (user.getCustomer() != null) {
+            email = user.getCustomer().getEmail();
+        }
+        if (user.getVehicleDriver() != null) {
+            email = user.getVehicleDriver().getEmail();
+        }
+        if (user.getAdminUser().getPassword() != null) {
+            email = user.getAdminUser().getEmail();
+        }
+        return email;
     }
 
     @Override

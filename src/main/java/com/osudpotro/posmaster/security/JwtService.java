@@ -25,10 +25,19 @@ public class JwtService {
     private Jwt generateToken(User user, long tokenExpiration) {
         var expTimeMillis = System.currentTimeMillis() + 1000 * tokenExpiration;
         var expIn = new Date(expTimeMillis);
+        String userName="";
+        String email="";
+        String mobile="";
+        if(user.getAdminUser()!=null){
+            userName=user.getAdminUser().getUserName();
+            email=user.getAdminUser().getEmail();
+            mobile=user.getAdminUser().getMobile();
+        }
         Claims claims = Jwts.claims()
                 .subject(user.getId().toString())
-                .add("email", user.getEmail())
-                .add("userName", user.getUserName())
+                .add("userName", userName)
+                .add("email", email)
+//                .add("mobile", mobile)
 //                .add("role", user.getRoles())
                 .issuedAt(new Date())
                 .expiration(expIn)

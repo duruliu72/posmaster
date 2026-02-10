@@ -11,21 +11,27 @@ public class RequisitionApproverMapper {
         requisitionApproverDto.setId(requisitionApprover.getId());
         UserDto userDto=new UserDto();
         userDto.setId(requisitionApprover.getUser().getId());
-        userDto.setName(requisitionApprover.getUser().getUserName());
-        userDto.setEmail(requisitionApprover.getUser().getEmail());
+        if (requisitionApprover.getUser().getAdminUser() != null) {
+            userDto.setUserName(requisitionApprover.getUser().getAdminUser().getUserName());
+            userDto.setEmail(requisitionApprover.getUser().getAdminUser().getEmail());
+        }
         requisitionApproverDto.setUser(userDto);
         if(requisitionApprover.getPrevUser()!=null){
             UserDto prevUserDto=new UserDto();
             prevUserDto.setId(requisitionApprover.getPrevUser().getId());
-            prevUserDto.setName(requisitionApprover.getPrevUser().getUserName());
-            prevUserDto.setEmail(requisitionApprover.getPrevUser().getEmail());
+            if(requisitionApprover.getPrevUser().getAdminUser()!=null){
+                prevUserDto.setUserName(requisitionApprover.getPrevUser().getAdminUser().getUserName());
+                prevUserDto.setEmail(requisitionApprover.getPrevUser().getAdminUser().getEmail());
+            }
             requisitionApproverDto.setPrevUser(prevUserDto);
         }
         if(requisitionApprover.getNextUser()!=null){
             UserDto nextUserDto=new UserDto();
             nextUserDto.setId(requisitionApprover.getNextUser().getId());
-            nextUserDto.setName(requisitionApprover.getNextUser().getUserName());
-            nextUserDto.setEmail(requisitionApprover.getNextUser().getEmail());
+            if(requisitionApprover.getNextUser().getAdminUser()!=null){
+                nextUserDto.setUserName(requisitionApprover.getNextUser().getAdminUser().getUserName());
+                nextUserDto.setEmail(requisitionApprover.getNextUser().getAdminUser().getEmail());
+            }
             requisitionApproverDto.setNextUser(nextUserDto);
         }
         return requisitionApproverDto;

@@ -12,10 +12,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
     private final UserRepository userRepo;
-
+//    public UserDetails loadUserByUserId(Long userId) throws UsernameNotFoundException {
+//        var user = userRepo.findById(userId)
+//                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+//        return new CustomUserDetails(user);
+//    }
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepo.findUserWithAllPermissions(email)
+        User userByEmail = userRepo.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        User user = userRepo.findUserWithAllPermissions(userByEmail.getId())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         return new CustomUserDetails(user);
     }

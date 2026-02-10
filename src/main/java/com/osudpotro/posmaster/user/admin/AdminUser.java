@@ -16,11 +16,13 @@ import lombok.Setter;
 @Entity
 @Table(name = "admin_users")
 public class AdminUser extends BaseEntity {
+    private String userName;
     private String firstName;
     private String lastName;
-    @Column(unique = true, nullable = false)
+    @Column(unique = true)
     private String email;
     private Boolean isValidEmail;
+    @Column(unique = true)
     private String mobile;
     private String password;
     private String secondaryEmail;
@@ -33,6 +35,6 @@ public class AdminUser extends BaseEntity {
     @JoinColumn(name = "multimedia_id")
     private Multimedia profilePic;
     @OneToOne
-    @JoinColumn(name = "user_id", unique = true)
+    @JoinColumn(name = "user_id", unique = true,nullable = false)
     private User user;
 }

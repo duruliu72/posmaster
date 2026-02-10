@@ -11,9 +11,12 @@ import com.osudpotro.posmaster.resource.ui.UiResourceDetailsRepository;
 import com.osudpotro.posmaster.resource.ui.UiResourceRepository;
 import com.osudpotro.posmaster.role.Role;
 import com.osudpotro.posmaster.role.RoleRepository;
+import com.osudpotro.posmaster.user.DuplicateUserException;
 import com.osudpotro.posmaster.user.User;
 import com.osudpotro.posmaster.user.UserRepository;
 import com.osudpotro.posmaster.user.UserType;
+import com.osudpotro.posmaster.user.admin.AdminUser;
+import com.osudpotro.posmaster.user.admin.AdminUserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,6 +34,7 @@ public class DataLoader {
             UiResourceRepository uiResourceRepository,
             ApiResourceRepository apiResourceRepository,
             UserRepository userRepository,
+            AdminUserRepository adminUserRepository,
             PermissionRepository permissionRepository,
             PermissionDetailRepository permissionDetailRepository,
             UiResourceDetailsRepository uiResourceDetailsRepository,
@@ -43,6 +47,7 @@ public class DataLoader {
                     uiResourceRepository,
                     apiResourceRepository,
                     userRepository,
+                    adminUserRepository,
                     permissionRepository,
                     permissionDetailRepository,
                     uiResourceDetailsRepository,
@@ -58,24 +63,34 @@ public class DataLoader {
             UiResourceRepository uiResourceRepository,
             ApiResourceRepository apiResourceRepository,
             UserRepository userRepository,
+            AdminUserRepository adminUserRepository,
             PermissionRepository permissionRepository,
             PermissionDetailRepository permissionDetailRepository,
             UiResourceDetailsRepository uiResourceDetailsRepository,
             PasswordEncoder passwordEncoder
     ) {
         // === SUPER ADMIN USER ===
-        Optional<User> findUser = userRepository.findByEmail("duruliu72@gmail.com");
+        String email="duruliu72@gmail.com";
+        String mobile="01700000000";
+        Optional<User> findUser = userRepository.findByEmail(email);
         User superAdminUser = findUser.orElseGet(() -> {
+            if (userRepository.existsByEmail(email)) {
+                throw new DuplicateUserException("Email  is already registered");
+            }
+            if (userRepository.existsByMobile(mobile)) {
+                throw new DuplicateUserException("Mobile  is already registered");
+            }
             User u = new User();
-            u.setUserName("Super AdminUser");
-            u.setEmail("duruliu72@gmail.com");
-            u.setMobile("01700000000");
-//            u.setPassword("123");
-//            u.setPassword(passwordEncoder.encode("123"));
             u.setUserType(UserType.ADMIN);
-            return userRepository.save(u);
+            AdminUser adminUser = new AdminUser();
+            adminUser.setEmail(email);
+            adminUser.setMobile(mobile);
+            adminUser.setPassword(passwordEncoder.encode("123"));
+            u=userRepository.save(u);
+            adminUser.setUser(u);
+            adminUserRepository.save(adminUser);
+            return u;
         });
-
         // === ACTIONS ===
         if (actionRepository.count() == 0) {
             Action view = new Action("READ");
@@ -110,8 +125,8 @@ public class DataLoader {
                     productUIResource.setUiResourceKey("PRODUCT");
                     productUIResource.setPageUrl("/products");
                     productUIResource.setCreatedBy(superAdminUser);
-                    Action view = actionRepository.findByName("READ").orElseThrow(()->new ActionNotFoundException());
-                    Action create = actionRepository.findByName("CREATE").orElseThrow(()->new ActionNotFoundException());
+                    Action view = actionRepository.findByName("READ").orElseThrow(() -> new ActionNotFoundException());
+                    Action create = actionRepository.findByName("CREATE").orElseThrow(() -> new ActionNotFoundException());
                     UiResourceAction uiResourceActionView = new UiResourceAction();
                     uiResourceActionView.setUiResource(productUIResource);
                     uiResourceActionView.setAction(view);
@@ -132,8 +147,8 @@ public class DataLoader {
                     userUIResource.setUiResourceKey("USER");
                     userUIResource.setPageUrl("/users");
                     userUIResource.setCreatedBy(superAdminUser);
-                    Action view = actionRepository.findByName("READ").orElseThrow(()->new ActionNotFoundException());
-                    Action create = actionRepository.findByName("CREATE").orElseThrow(()->new ActionNotFoundException());
+                    Action view = actionRepository.findByName("READ").orElseThrow(() -> new ActionNotFoundException());
+                    Action create = actionRepository.findByName("CREATE").orElseThrow(() -> new ActionNotFoundException());
                     UiResourceAction uiResourceActionView = new UiResourceAction();
                     uiResourceActionView.setUiResource(userUIResource);
                     uiResourceActionView.setAction(view);
@@ -181,8 +196,8 @@ public class DataLoader {
             permission.setCreatedBy(superAdminUser);
             permission = permissionRepository.save(permission);
             //=== ResourceRequest Details====
-            Action read = actionRepository.findByName("READ").orElseThrow(()->new ActionNotFoundException());
-            Action create = actionRepository.findByName("CREATE").orElseThrow(()->new ActionNotFoundException());
+            Action read = actionRepository.findByName("READ").orElseThrow(() -> new ActionNotFoundException());
+            Action create = actionRepository.findByName("CREATE").orElseThrow(() -> new ActionNotFoundException());
             PermissionDetail detail1 = new PermissionDetail();
             detail1.setPermission(permission);
             detail1.setAction(read);

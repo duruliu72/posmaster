@@ -18,7 +18,7 @@ public interface UserRepository extends JpaSpecificationExecutor<User>, JpaRepos
         LEFT JOIN FETCH u.permissions up
         LEFT JOIN FETCH rp.permissionDetails rpd
         LEFT JOIN FETCH up.permissionDetails upd
-        WHERE u.email = :email
+        WHERE u.id = :id
         """)
-    Optional<User> findUserWithAllPermissions(@Param("email") String email);
+    Optional<User> findUserWithAllPermissions(@Param("id") Long userId);
 }

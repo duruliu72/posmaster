@@ -8,8 +8,8 @@ import lombok.Data;
 
 @Data
 public class RegisterAdminUserRequest {
-    @NotBlank(message = "User Name is Required")
-    @Size(max = 255,message = "User Name must be less than 255 charters")
+    private String firstName;
+    private String lastName;
     private String userName;
     @NotBlank(message = "Email is Required")
     @Email(message = "Email must be valid")

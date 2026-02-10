@@ -12,8 +12,9 @@ import java.util.Set;
 @Data
 public class UserMainDto {
     private Long id;
-    private String name;
+    private String userName;
     private String email;
+    private String mobile;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 }

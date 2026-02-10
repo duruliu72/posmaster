@@ -18,10 +18,8 @@ public class AuthService {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
 //        var userDetails = (CustomUserDetails) authentication.getPrincipal();
         Object principal = authentication.getPrincipal();
-
         if (principal instanceof CustomUserDetails userDetails) {
-            User user=userRepository.findUserWithAllPermissions(userDetails.getUser().getEmail()).orElse(null);
-            return user;
+            return userRepository.findUserWithAllPermissions(userDetails.getUser().getId()).orElse(null);
         }
         throw new UnauthorizedException("Invalid authentication principal: " + principal);
     }

@@ -116,22 +116,16 @@ public class CategoryService {
         if (categoryRepository.existsByName(request.getName())) {
             throw new DuplicateCategoryException();
         }
-        if (request.getPictureId() != null) {
-            var findCat = categoryRepository.findByPictureId(request.getPictureId()).orElse(null);
-            if (findCat != null && findCat.getPicture().getId().equals(request.getPictureId())) {
-                throw new CategoryImageException();
-            }
-        }
         var category = categoryMapper.toEntity(request);
         if (request.getParent_cat_id() != null) {
             var parentCategory = categoryRepository.findById(request.getParent_cat_id()).orElseThrow(ParentCategoryNotFoundException::new);
             category.setParentCat(parentCategory);
         }
-        if (request.getPictureId() != null) {
-            Picture picture = pictureRepository.findById(request.getPictureId()).orElse(null);
-            if (picture != null) {
-                picture.setLinked(true);
-                category.setPicture(picture);
+        if (request.getMultimediaId() != null) {
+            Multimedia multimedia = multimediaRepository.findById(request.getPictureId()).orElse(null);
+            if (multimedia != null) {
+                multimedia.setLinked(true);
+                category.setMedia(multimedia);
             }
         }
         //For Alias

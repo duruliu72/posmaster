@@ -16,12 +16,12 @@ import java.util.Set;
 @Entity
 @Table(name = "users")
 public class User  extends BaseEntity {
-    private String userName;
-    @Column(unique = true)
-    private String email;
-    @Column(unique = true)
-    private String mobile;
-    private String password;
+//    private String userName;
+//    @Column(unique = true)
+//    private String email;
+//    @Column(unique = true)
+//    private String mobile;
+//    private String password;
     @Enumerated(EnumType.STRING)
     private UserType userType; // EMPLOYEE, CUSTOMER, etc.
     @ManyToMany(fetch = FetchType.LAZY)

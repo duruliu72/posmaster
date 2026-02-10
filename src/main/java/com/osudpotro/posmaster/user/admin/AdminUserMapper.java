@@ -10,6 +10,7 @@ public class AdminUserMapper {
     public AdminUserDto toDto(AdminUser adminUser) {
         AdminUserDto adminUserDto = new AdminUserDto();
         adminUserDto.setId(adminUser.getId());
+        adminUserDto.setUserName(adminUser.getUserName());
         adminUserDto.setFirstName(adminUser.getFirstName());
         adminUserDto.setLastName(adminUser.getLastName());
         adminUserDto.setEmail(adminUser.getEmail());
