@@ -39,9 +39,9 @@ public class UserService {
     }
 
     public UserDto registerUser(RegiterUserRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new DuplicateUserException("Email  is already registered");
-        }
+//        if (userRepository.existsByEmail(request.getEmail())) {
+//            throw new DuplicateUserException("Email  is already registered");
+//        }
         var authUser = authService.getCurrentUser();
         var user = userMapper.toEntity(request);
 //        user.setPassword(passwordEncoder.encode(user.getPassword()));

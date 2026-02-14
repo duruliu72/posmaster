@@ -32,10 +32,10 @@ public class CustomerService {
         if (request.getEmail() != null && customerRepository.existsByEmail(request.getEmail())) {
             throw new DuplicateCustomerException("Email already exists");
         }
-        if (request.getPhone() != null && customerRepository.existsByPhone(request.getPhone())) {
+        if (request.getMobile() != null && customerRepository.existsByMobile(request.getMobile())) {
             throw new DuplicateCustomerException("Phone number already exists");
         }
-        if (request.getEmail() != null && request.getPhone() != null && customerRepository.existsByEmailOrPhone(request.getEmail(), request.getPhone())) {
+        if (request.getEmail() != null && request.getMobile() != null && customerRepository.existsByEmailOrMobile(request.getEmail(), request.getMobile())) {
             throw new DuplicateCustomerException();
         }
         var customer = customerMapper.toEntity(request);
@@ -56,14 +56,14 @@ public class CustomerService {
                 throw new DuplicateCustomerException("Email already exists");
             }
         }
-        if (request.getPhone() != null && customerRepository.existsByPhone(request.getPhone())) {
-            if (!customer.getPhone().equals(request.getPhone())) {
+        if (request.getMobile() != null && customerRepository.existsByMobile(request.getMobile())) {
+            if (!customer.getMobile().equals(request.getMobile())) {
                 throw new DuplicateCustomerException("Phone number already exists");
             }
 
         }
-        if (request.getEmail() != null && request.getPhone() != null && customerRepository.existsByEmailOrPhone(request.getEmail(), request.getPhone())) {
-            if (!customer.getEmail().equals(request.getEmail()) && !customer.getPhone().equals(request.getPhone())) {
+        if (request.getEmail() != null && request.getMobile() != null && customerRepository.existsByEmailOrMobile(request.getEmail(), request.getMobile())) {
+            if (!customer.getEmail().equals(request.getEmail()) && !customer.getMobile().equals(request.getMobile())) {
                 throw new DuplicateCustomerException();
             }
         }

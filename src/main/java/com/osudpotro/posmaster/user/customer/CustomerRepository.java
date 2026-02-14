@@ -8,11 +8,14 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CustomerRepository extends JpaSpecificationExecutor<Customer>, JpaRepository<Customer, Long> {
-    boolean existsByEmailOrPhone(String email, String mobile);
+    Optional<Customer> findByEmail(String email);
+    Optional<Customer> findByMobile(String mobile);
+    boolean existsByEmailOrMobile(String email, String mobile);
     boolean existsByEmail(String email);
-    boolean existsByPhone(String mobile);
+    boolean existsByMobile(String mobile);
     @Transactional
     @Modifying
     @Query("update Customer c set c.status = :status where c.id in :ids")

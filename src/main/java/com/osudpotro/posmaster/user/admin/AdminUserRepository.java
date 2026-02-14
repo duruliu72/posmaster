@@ -8,4 +8,5 @@ public interface AdminUserRepository extends JpaSpecificationExecutor<AdminUser>
     Optional<AdminUser> findByMobile(String mobile);
     Optional<AdminUser> findByEmailOrMobile(String email,String mobile);
     boolean existsByEmail(String email);
+    boolean existsByMobile(String mobile);
 }

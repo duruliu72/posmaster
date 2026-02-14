@@ -25,11 +25,11 @@ public class Customer extends BaseEntity {
     @Column(unique = true, nullable = true)
     private String email;
     @Column(unique = true, nullable = true)
-    private String phone;
+    private String mobile;
     private Boolean isValidEmail = true;
     private String password;
     private String secondaryEmail;
-    private String secondaryPhone;
+    private String secondaryMobile;
     //    like Male=1, Female=2, Third=3
     private Integer gender;
     private String provider;

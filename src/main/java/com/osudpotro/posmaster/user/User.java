@@ -16,12 +16,6 @@ import java.util.Set;
 @Entity
 @Table(name = "users")
 public class User  extends BaseEntity {
-//    private String userName;
-//    @Column(unique = true)
-//    private String email;
-//    @Column(unique = true)
-//    private String mobile;
-//    private String password;
     @Enumerated(EnumType.STRING)
     private UserType userType; // EMPLOYEE, CUSTOMER, etc.
     @ManyToMany(fetch = FetchType.LAZY)
@@ -42,3 +36,11 @@ public class User  extends BaseEntity {
     @OneToOne(mappedBy = "user")
     private VehicleDriver vehicleDriver;
 }
+
+
+//ALTER TABLE users
+//DROP CONSTRAINT users_user_type_check;
+//
+//ALTER TABLE users
+//ADD CONSTRAINT users_user_type_check
+//CHECK (user_type IN ('ADMIN','CUSTOMER','STAFF','SUPER_ADMIN'));

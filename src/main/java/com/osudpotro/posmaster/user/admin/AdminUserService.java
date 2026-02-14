@@ -35,10 +35,10 @@ public class AdminUserService {
 
     @Transactional
     public AdminUserDto registerAdminUser(RegisterAdminUserRequest request) {
-        if (request.getEmail() != null && userRepository.existsByEmail(request.getEmail())) {
+        if (request.getEmail() != null && adminUserRepository.existsByEmail(request.getEmail())) {
             throw new DuplicateUserException("Email  is already registered");
         }
-        if (request.getMobile() != null && userRepository.existsByMobile(request.getMobile())) {
+        if (request.getMobile() != null && adminUserRepository.existsByMobile(request.getMobile())) {
             throw new DuplicateUserException("Mobile  is already registered");
         }
         AdminUser adminUser = new AdminUser();
@@ -100,13 +100,13 @@ public class AdminUserService {
         var user = userRepository.findById(adminUser.getUser().getId()).orElseThrow(UserNotFoundException::new);
         var authUser = authService.getCurrentUser();
         if (request.getEmail() != null) {
-            if (!request.getEmail().equalsIgnoreCase(adminUser.getEmail()) && userRepository.existsByEmail(request.getEmail())) {
+            if (!request.getEmail().equalsIgnoreCase(adminUser.getEmail()) && adminUserRepository.existsByEmail(request.getEmail())) {
                 throw new DuplicateUserException("Email  is already registered");
             }
             adminUser.setEmail(request.getEmail());
         }
         if (request.getMobile() != null) {
-            if (!request.getMobile().equalsIgnoreCase(adminUser.getMobile()) && userRepository.existsByMobile(request.getMobile())) {
+            if (!request.getMobile().equalsIgnoreCase(adminUser.getMobile()) && adminUserRepository.existsByMobile(request.getMobile())) {
                 throw new DuplicateUserException("Mobile  is already registered");
             }
             adminUser.setMobile(request.getMobile());

@@ -19,8 +19,8 @@ public class CustomerMapper {
         if (customer.getEmail() != null && !customer.getEmail().isEmpty()) {
             customerDto.setEmail(customer.getEmail());
         }
-        if (customer.getPhone() != null && !customer.getPhone().isEmpty()) {
-            customerDto.setPhone(customer.getPhone());
+        if (customer.getMobile() != null && !customer.getMobile().isEmpty()) {
+            customerDto.setMobile(customer.getMobile());
         }
         if (customer.getPassword() != null && !customer.getPassword().isEmpty()) {
             customerDto.setPassword(customer.getPassword());
@@ -28,8 +28,8 @@ public class CustomerMapper {
         if (customer.getSecondaryEmail() != null && !customer.getSecondaryEmail().isEmpty()) {
             customerDto.setSecondaryEmail(customer.getSecondaryEmail());
         }
-        if (customer.getSecondaryPhone() != null && !customer.getSecondaryPhone().isEmpty()) {
-            customerDto.setSecondaryPhone(customer.getSecondaryPhone());
+        if (customer.getSecondaryMobile() != null && !customer.getSecondaryMobile().isEmpty()) {
+            customerDto.setSecondaryMobile(customer.getSecondaryMobile());
         }
         customerDto.setGender(customer.getGender());
         customerDto.setOtpCode(customer.getOtpCode());
@@ -62,14 +62,14 @@ public class CustomerMapper {
         if (request.getPassword() != null && !request.getPassword().isEmpty()) {
             customer.setPassword(request.getPassword());
         }
-        if (request.getPhone() != null && !request.getPhone().isEmpty()) {
-            customer.setPhone(request.getPhone());
+        if (request.getMobile() != null && !request.getMobile().isEmpty()) {
+            customer.setMobile(request.getMobile());
         }
         if (request.getSecondaryEmail() != null && !request.getSecondaryEmail().isEmpty()) {
             customer.setSecondaryEmail(request.getSecondaryEmail());
         }
-        if (request.getSecondaryPhone() != null && !request.getSecondaryPhone().isEmpty()) {
-            customer.setSecondaryPhone(request.getSecondaryPhone());
+        if (request.getSecondaryMobile() != null && !request.getSecondaryMobile().isEmpty()) {
+            customer.setSecondaryMobile(request.getSecondaryMobile());
         }
         if (request.getGender() != null && !request.getGender().equals(0)) {
             customer.setGender(request.getGender());
@@ -102,14 +102,14 @@ public class CustomerMapper {
         if (request.getPassword() != null && !request.getPassword().isEmpty()) {
             customer.setPassword(request.getPassword());
         }
-        if (request.getPhone() != null && !request.getPhone().isEmpty()) {
-            customer.setPhone(request.getPhone());
+        if (request.getMobile() != null && !request.getMobile().isEmpty()) {
+            customer.setMobile(request.getMobile());
         }
         if (request.getSecondaryEmail() != null && !request.getSecondaryEmail().isEmpty()) {
             customer.setSecondaryEmail(request.getSecondaryEmail());
         }
-        if (request.getSecondaryPhone() != null && !request.getSecondaryPhone().isEmpty()) {
-            customer.setSecondaryPhone(request.getSecondaryPhone());
+        if (request.getSecondaryMobile() != null && !request.getSecondaryMobile().isEmpty()) {
+            customer.setSecondaryMobile(request.getSecondaryMobile());
         }
         if (request.getGender() != null && !request.getGender().equals(0)) {
             customer.setGender(request.getGender());

@@ -5,6 +5,9 @@ import com.osudpotro.posmaster.security.CustomUserDetails;
 import com.osudpotro.posmaster.security.JwtConfig;
 import com.osudpotro.posmaster.security.JwtService;
 import com.osudpotro.posmaster.user.*;
+import com.osudpotro.posmaster.user.admin.AdminUser;
+import com.osudpotro.posmaster.user.admin.AdminUserRepository;
+import com.osudpotro.posmaster.user.customer.CustomerRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
@@ -14,6 +17,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,6 +27,8 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final JwtService jwtService;
     private final UserRepository userRepository;
+    private final AdminUserRepository adminUserRepository;
+    private final CustomerRepository customerRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtConfig jwtConfig;
     private  final CustomUserMapper userMapper;
@@ -31,7 +37,13 @@ public class AuthController {
     public ResponseEntity<JwtResponse> login(@Validated @RequestBody LoginRequest request, HttpServletResponse response) {
         Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
         CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
-        var user = userRepository.findByEmail(request.getEmail()).orElseThrow();
+        Long userId = null;
+        AdminUser adminUser = adminUserRepository.findByEmail(request.getEmail()).orElse(null);
+        if(adminUser!=null){
+            userId=adminUser.getId();
+        }
+        User user = userRepository.findUserWithAllPermissions(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         var accessToken = jwtService.generateAccessToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
         var cookie = new Cookie("refreshToken", refreshToken.toString());
