@@ -46,6 +46,8 @@ public class SecurityConfig {
                         .requestMatchers("/public/**").permitAll()
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/admin/auth/**").permitAll()
+                        .requestMatchers("/employees/auth/**").permitAll()
+                        .requestMatchers("/vehicle-drivers/auth/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(AbstractHttpConfigurer::disable)

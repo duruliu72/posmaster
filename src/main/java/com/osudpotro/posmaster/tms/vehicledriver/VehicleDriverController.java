@@ -20,13 +20,11 @@ import java.util.Map;
 @RequestMapping("/vehicle-drivers")
 public class VehicleDriverController {
     private final VehicleDriverService vehicleDriverService;
-
     //    @PreAuthorize("hasAuthority('VEHICLE_DRIVER_READ')")
     @GetMapping
     public List<VehicleDriverDto> getAllVehicleDrivers() {
         return vehicleDriverService.gerAllVehicleDrivers();
     }
-
     @PostMapping("/filter")
     public PagedResponse<VehicleDriverDto> searchVehicleDrivers(
             @RequestBody VehicleDriverFilter filter,
@@ -35,7 +33,6 @@ public class VehicleDriverController {
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir
     ) {
-
         Sort sort = sortDir.equalsIgnoreCase("asc") ?
                 Sort.by(sortBy).ascending() :
                 Sort.by(sortBy).descending();

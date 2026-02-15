@@ -1,9 +1,10 @@
-package com.osudpotro.posmaster.user.admin;
+package com.osudpotro.posmaster.tms.vehicledriver;
 
 import com.osudpotro.posmaster.user.auth.JwtResponse;
 import com.osudpotro.posmaster.security.CustomUserDetails;
 import com.osudpotro.posmaster.security.JwtConfig;
 import com.osudpotro.posmaster.security.JwtService;
+import com.osudpotro.posmaster.user.CustomUserMapper;
 import com.osudpotro.posmaster.user.UserNotFoundException;
 import com.osudpotro.posmaster.user.UserType;
 import jakarta.servlet.http.Cookie;
@@ -21,14 +22,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/admin/auth")
-public class AdminAuthController {
+@RequestMapping("/vehicle-drivers/auth")
+public class VehicleDriverAuthController {
     private final JwtService jwtService;
-    private final AdminUserRepository adminUserRepository;
+    private final VehicleDriverRepository vehicleDriverRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtConfig jwtConfig;
+    private final CustomUserMapper userMapper;
     @PostMapping("/login")
-    public ResponseEntity<JwtResponse> login(@Validated @RequestBody AdminLoginRequest request, HttpServletResponse response) {
+    public ResponseEntity<JwtResponse> login(@Validated @RequestBody VehicleDriverLoginRequest request, HttpServletResponse response) {
         String principal;
         if (request.getEmail() != null && !request.getEmail().isEmpty()) {
             principal = request.getEmail();
@@ -37,27 +39,27 @@ public class AdminAuthController {
         } else {
             throw new IllegalArgumentException("Either email or mobile must be provided");
         }
-        String principalWithUserType=String.format("%s-%s", principal, UserType.ADMIN);
+        String principalWithUserType=String.format("%s-%s", principal, UserType.VEHICLE_DRIVER);
         Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(principalWithUserType, request.getPassword()));
         CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
-        AdminUser adminUser = null;
+        VehicleDriver vehicleDriver = null;
         if (request.getEmail() != null && !request.getEmail().trim().isEmpty()) {
             // Search by EMAIL only
-            adminUser = adminUserRepository.findByEmail(request.getEmail())
+            vehicleDriver = vehicleDriverRepository.findByEmail(request.getEmail())
                     .orElseThrow(() -> new UserNotFoundException(
                             "User not found with email: " + request.getEmail()));
         }
         if (request.getMobile() != null && !request.getMobile().trim().isEmpty()) {
             // Search by EMAIL only
-            adminUser = adminUserRepository.findByMobile(request.getMobile())
+            vehicleDriver = vehicleDriverRepository.findByMobile(request.getMobile())
                     .orElseThrow(() -> new UserNotFoundException(
                             "User not found with email: " + request.getMobile()));
         }
-        if(adminUser==null){
+        if(vehicleDriver==null){
             throw new UserNotFoundException("User not found");
         }
-        var accessToken = jwtService.generateAccessToken(adminUser.getUser());
-        var refreshToken = jwtService.generateRefreshToken(adminUser.getUser());
+        var accessToken = jwtService.generateAccessToken(vehicleDriver.getUser());
+        var refreshToken = jwtService.generateRefreshToken(vehicleDriver.getUser());
         var cookie = new Cookie("refreshToken", refreshToken.toString());
         cookie.setHttpOnly(true);
         response.addCookie(cookie);

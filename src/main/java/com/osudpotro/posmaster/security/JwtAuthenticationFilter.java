@@ -1,5 +1,4 @@
 package com.osudpotro.posmaster.security;
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,10 +29,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-        String userEmail = jwtService.getUserEmailFromToken(token);
-
-        var userDetails = userDetailsService.loadUserByUsername(userEmail);
-
+//        String userEmail = jwtService.getUserEmailFromToken(token);
+        String userId = jwtService.getUserIdFromToken(token);
+        String principalWithUserType=String.format("%s-%s", userId, "userId");
+        var userDetails = userDetailsService.loadUserByUsername(principalWithUserType);
         var authorities = userDetails.getAuthorities();
         var auth = new UsernamePasswordAuthenticationToken(
                 userDetails, null, authorities

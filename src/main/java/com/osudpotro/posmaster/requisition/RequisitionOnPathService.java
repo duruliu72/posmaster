@@ -1,6 +1,6 @@
 package com.osudpotro.posmaster.requisition;
 
-import com.osudpotro.posmaster.auth.AuthService;
+import com.osudpotro.posmaster.user.auth.AuthService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

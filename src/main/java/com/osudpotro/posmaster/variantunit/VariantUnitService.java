@@ -1,6 +1,6 @@
 package com.osudpotro.posmaster.variantunit;
 
-import com.osudpotro.posmaster.auth.AuthService;
+import com.osudpotro.posmaster.user.auth.AuthService;
 import com.osudpotro.posmaster.utility.CsvReader;
 import com.osudpotro.posmaster.varianttype.VariantType;
 import com.osudpotro.posmaster.varianttype.VariantTypeService;
@@ -12,7 +12,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @AllArgsConstructor
 @Service

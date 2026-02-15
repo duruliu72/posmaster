@@ -43,32 +43,27 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getPassword() {
-        String password = "";
-        if (user.getCustomer() != null) {
-            password = user.getCustomer().getPassword();
-        }
-        if (user.getVehicleDriver() != null) {
-            password = user.getVehicleDriver().getPassword();
-        }
-        if (user.getAdminUser().getPassword() != null) {
-            password = user.getAdminUser().getPassword();
+        String password = user.getPassword();
+        if (password == null) {
+            throw new IllegalStateException("No password found for user: " + user.getId());
         }
         return password;
     }
 
     @Override
     public String getUsername() {
-        String email = "";
-        if (user.getCustomer() != null) {
-            email = user.getCustomer().getEmail();
+        // Prefer email if available, otherwise return mobile
+        String email = user.getEmail();
+        if (email != null && !email.isEmpty()) {
+            return email;
         }
-        if (user.getVehicleDriver() != null) {
-            email = user.getVehicleDriver().getEmail();
+
+        String mobile = user.getMobile();
+        if (mobile != null && !mobile.isEmpty()) {
+            return mobile;
         }
-        if (user.getAdminUser().getPassword() != null) {
-            email = user.getAdminUser().getEmail();
-        }
-        return email;
+
+        throw new IllegalStateException("No email or mobile found for user ID: " + user.getId());
     }
 
     @Override
@@ -93,5 +88,24 @@ public class CustomUserDetails implements UserDetails {
 
     public User getUser() {
         return user;
+    }
+    public String getEmail() {
+        return user.getEmail();
+    }
+
+    public String getMobile() {
+        return user.getMobile();
+    }
+
+    public String getDisplayName() {
+        return user.getDisplayName();
+    }
+
+    public String getUserType() {
+        if (user.getAdminUser() != null) return "ADMIN";
+        if (user.getEmployee() != null) return "EMPLOYEE";
+        if (user.getCustomer() != null) return "CUSTOMER";
+        if (user.getVehicleDriver() != null) return "DRIVER";
+        return "UNKNOWN";
     }
 }

@@ -1,6 +1,6 @@
 package com.osudpotro.posmaster.varianttype;
 
-import com.osudpotro.posmaster.auth.AuthService;
+import com.osudpotro.posmaster.user.auth.AuthService;
 import com.osudpotro.posmaster.utility.CsvReader;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -10,7 +10,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @AllArgsConstructor
 @Service

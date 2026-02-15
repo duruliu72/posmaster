@@ -15,6 +15,7 @@ public class AdminUserMapper {
         adminUserDto.setLastName(adminUser.getLastName());
         adminUserDto.setEmail(adminUser.getEmail());
         adminUserDto.setMobile(adminUser.getMobile());
+        adminUserDto.setUserId(adminUser.getUser().getId());
         adminUserDto.setCreatedAt(adminUser.getCreatedAt());
         return adminUserDto;
     }

@@ -19,16 +19,17 @@ import java.util.List;
 @Entity
 @Table(name = "vehicle_drivers")
 public class VehicleDriver extends BaseEntity {
+    private String userName;
     private String firstName;
     private String lastName;
     @Column(unique = true, nullable = true)
     private String email;
     @Column(unique = true, nullable = true)
-    private String phone;
+    private String mobile;
     private Boolean isValidEmail = true;
     private String password;
     private String secondaryEmail;
-    private String secondaryPhone;
+    private String secondaryMobile;
     //    like Male=1, Female=2, Third=3
     private Integer gender;
     private String provider;

@@ -1,6 +1,6 @@
 package com.osudpotro.posmaster.action;
 
-import com.osudpotro.posmaster.auth.AuthService;
+import com.osudpotro.posmaster.user.auth.AuthService;
 import com.osudpotro.posmaster.resource.ui.UiResourceAction;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;

@@ -1,6 +1,6 @@
 package com.osudpotro.posmaster.user.customer;
 
-import com.osudpotro.posmaster.auth.AuthService;
+import com.osudpotro.posmaster.user.auth.AuthService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

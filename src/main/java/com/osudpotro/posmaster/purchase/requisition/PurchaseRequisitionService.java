@@ -1,6 +1,6 @@
 package com.osudpotro.posmaster.purchase.requisition;
 
-import com.osudpotro.posmaster.auth.AuthService;
+import com.osudpotro.posmaster.user.auth.AuthService;
 import com.osudpotro.posmaster.branch.BranchNotFoundException;
 import com.osudpotro.posmaster.branch.BranchRepository;
 import com.osudpotro.posmaster.organization.OrganizationNotFoundException;

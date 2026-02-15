@@ -1,8 +1,10 @@
 package com.osudpotro.posmaster.tms.vehicledriver;
 
-import com.osudpotro.posmaster.auth.AuthService;
+import com.osudpotro.posmaster.user.auth.AuthService;
 import com.osudpotro.posmaster.role.Role;
 import com.osudpotro.posmaster.role.RoleRepository;
+import com.osudpotro.posmaster.user.User;
+import com.osudpotro.posmaster.user.UserRepository;
 import com.osudpotro.posmaster.user.UserType;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,6 +21,7 @@ import java.util.Set;
 @Service
 public class VehicleDriverService {
     private final AuthService authService;
+    private final UserRepository userRepository;
     private final VehicleDriverRepository vehicleDriverRepository;
     private final VehicleDriverMapper vehicleDriverMapper;
     private final PasswordEncoder passwordEncoder;
@@ -39,15 +42,19 @@ public class VehicleDriverService {
         if (request.getEmail() != null && vehicleDriverRepository.existsByEmail(request.getEmail())) {
             throw new DuplicateVehicleDriverException("Email already exists");
         }
-        if (request.getPhone() != null && vehicleDriverRepository.existsByPhone(request.getPhone())) {
+        if (request.getMobile() != null && vehicleDriverRepository.existsByMobile(request.getMobile())) {
             throw new DuplicateVehicleDriverException("Phone number already exists");
         }
-        if (request.getEmail() != null && request.getPhone() != null && vehicleDriverRepository.existsByEmailOrPhone(request.getEmail(), request.getPhone())) {
+        if (request.getEmail() != null && request.getMobile() != null && vehicleDriverRepository.existsByEmailOrMobile(request.getEmail(), request.getMobile())) {
             throw new DuplicateVehicleDriverException();
         }
         var vehicleDriver = vehicleDriverMapper.toEntity(request);
         vehicleDriver.setPassword(passwordEncoder.encode(vehicleDriver.getPassword()));
         var authUser = authService.getCurrentUser();
+        //Common User Entity
+        User user = new User();
+        user.setUserType(UserType.VEHICLE_DRIVER);
+        user.setCreatedBy(authUser);
         vehicleDriver.setCreatedBy(authUser);
         Role findRole = roleRepository.findByRoleKey("ROLE_VEHICLE_DRIVER")
                 .orElseGet(() -> {
@@ -60,10 +67,10 @@ public class VehicleDriverService {
                     return roleRepository.save(superAdmin);
                 });
         // ===SET ROLE ADMIN USER  ===
-
-        var user = vehicleDriverMapper.toEntity(request);
-//        vehicleDriver.setRoles(Set.of(findRole));
-//        vehicleDriver.setUserType(UserType.VEHICLE_DRIVER);
+        user.setRoles(Set.of(findRole));
+        user = userRepository.save(user);
+        vehicleDriver.setUser(user);
+        vehicleDriver.setCreatedBy(authUser);
         vehicleDriverRepository.save(vehicleDriver);
         return vehicleDriverMapper.toDto(vehicleDriver);
     }
@@ -74,14 +81,14 @@ public class VehicleDriverService {
                 throw new DuplicateVehicleDriverException("Email already exists");
             }
         }
-        if (request.getPhone() != null && vehicleDriverRepository.existsByPhone(request.getPhone())) {
-            if (!vehicleDriver.getPhone().equals(request.getPhone())) {
+        if (request.getMobile() != null && vehicleDriverRepository.existsByMobile(request.getMobile())) {
+            if (!vehicleDriver.getMobile().equals(request.getMobile())) {
                 throw new DuplicateVehicleDriverException("Phone number already exists");
             }
 
         }
-        if (request.getEmail() != null && request.getPhone() != null && vehicleDriverRepository.existsByEmailOrPhone(request.getEmail(), request.getPhone())) {
-            if (!vehicleDriver.getEmail().equals(request.getEmail()) && !vehicleDriver.getPhone().equals(request.getPhone())) {
+        if (request.getEmail() != null && request.getMobile() != null && vehicleDriverRepository.existsByEmailOrMobile(request.getEmail(), request.getMobile())) {
+            if (!vehicleDriver.getEmail().equals(request.getEmail()) && !vehicleDriver.getMobile().equals(request.getMobile())) {
                 throw new DuplicateVehicleDriverException();
             }
         }

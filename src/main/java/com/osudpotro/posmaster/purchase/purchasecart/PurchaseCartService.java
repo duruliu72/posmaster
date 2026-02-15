@@ -1,8 +1,7 @@
 package com.osudpotro.posmaster.purchase.purchasecart;
 
-import com.osudpotro.posmaster.auth.AuthService;
+import com.osudpotro.posmaster.user.auth.AuthService;
 import com.osudpotro.posmaster.common.PagedResponse;
-import com.osudpotro.posmaster.manufacturer.ManufacturerNotFoundException;
 import com.osudpotro.posmaster.product.*;
 import com.osudpotro.posmaster.product.ProductDetailNotFoundException;
 import com.osudpotro.posmaster.product.ProductDetailRepository;

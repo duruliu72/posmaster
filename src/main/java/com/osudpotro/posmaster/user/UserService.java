@@ -1,6 +1,6 @@
 package com.osudpotro.posmaster.user;
 
-import com.osudpotro.posmaster.auth.AuthService;
+import com.osudpotro.posmaster.user.auth.AuthService;
 import com.osudpotro.posmaster.role.Role;
 import com.osudpotro.posmaster.role.RoleRepository;
 import lombok.AllArgsConstructor;

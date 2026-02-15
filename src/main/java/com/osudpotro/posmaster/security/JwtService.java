@@ -25,13 +25,23 @@ public class JwtService {
     private Jwt generateToken(User user, long tokenExpiration) {
         var expTimeMillis = System.currentTimeMillis() + 1000 * tokenExpiration;
         var expIn = new Date(expTimeMillis);
-        String userName="";
-        String email="";
-        String mobile="";
-        if(user.getAdminUser()!=null){
-            userName=user.getAdminUser().getUserName();
-            email=user.getAdminUser().getEmail();
-            mobile=user.getAdminUser().getMobile();
+        String userName = "";
+        String email = "";
+        String mobile = "";
+        if (user.getAdminUser() != null) {
+            userName = user.getAdminUser().getUserName();
+            email = user.getAdminUser().getEmail();
+            mobile = user.getAdminUser().getMobile();
+        }
+        if (user.getEmployee() != null) {
+            userName = user.getEmployee().getUserName();
+            email = user.getEmployee().getEmail();
+            mobile = user.getEmployee().getMobile();
+        }
+        if (user.getVehicleDriver() != null) {
+            userName = user.getVehicleDriver().getUserName();
+            email = user.getVehicleDriver().getEmail();
+            mobile = user.getVehicleDriver().getMobile();
         }
         Claims claims = Jwts.claims()
                 .subject(user.getId().toString())
@@ -44,6 +54,7 @@ public class JwtService {
                 .build();
         return new Jwt(claims, jwtConfig.getSecretKey());
     }
+
     public Jwt parseToken(String token) {
         try {
             var claims = getClaims(token);
@@ -52,6 +63,7 @@ public class JwtService {
             return null;
         }
     }
+
     private Claims getClaims(String token) {
         return Jwts.parser()
                 .verifyWith(jwtConfig.getSecretKey())
@@ -64,6 +76,15 @@ public class JwtService {
         try {
             var claims = getClaims(token);
             return claims.get("email").toString();
+        } catch (JwtException e) {
+            return null;
+        }
+    }
+
+    public String getUserIdFromToken(String token) {
+        try {
+            var claims = getClaims(token);
+            return claims.getSubject();
         } catch (JwtException e) {
             return null;
         }

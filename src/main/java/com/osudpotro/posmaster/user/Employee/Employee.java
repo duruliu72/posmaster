@@ -1,4 +1,4 @@
-package com.osudpotro.posmaster.user.admin;
+package com.osudpotro.posmaster.user.Employee;
 
 import com.osudpotro.posmaster.common.BaseEntity;
 import com.osudpotro.posmaster.multimedia.Multimedia;
@@ -14,12 +14,12 @@ import lombok.Setter;
 @Setter
 @Getter
 @Entity
-@Table(name = "admin_users", indexes = {
-        @Index(name = "idx_admin_user_email", columnList = "email"),
-        @Index(name = "idx_admin_user_mobile", columnList = "mobile"),
-        @Index(name = "idx_admin_user_user_id", columnList = "user_id")
+@Table(name = "employees", indexes = {
+        @Index(name = "idx_employee_email", columnList = "email"),
+        @Index(name = "idx_employee_mobile", columnList = "mobile"),
+        @Index(name = "idx_employee_user_id", columnList = "user_id")
 })
-public class AdminUser extends BaseEntity {
+public class Employee extends BaseEntity {
     private String userName;
     private String firstName;
     private String lastName;

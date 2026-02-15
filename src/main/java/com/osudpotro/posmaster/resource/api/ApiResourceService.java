@@ -4,7 +4,7 @@ package com.osudpotro.posmaster.resource.api;
 import com.osudpotro.posmaster.action.Action;
 import com.osudpotro.posmaster.action.ActionNotFoundException;
 import com.osudpotro.posmaster.action.ActionRepository;
-import com.osudpotro.posmaster.auth.AuthService;
+import com.osudpotro.posmaster.user.auth.AuthService;
 import com.osudpotro.posmaster.role.Role;
 import com.osudpotro.posmaster.role.RoleRepository;
 import com.osudpotro.posmaster.security.*;

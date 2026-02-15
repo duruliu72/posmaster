@@ -71,7 +71,7 @@ public class DataLoader {
     ) {
         // === SUPER ADMIN USER ===
         String email="duruliu72@gmail.com";
-        String mobile="01700000000";
+        String mobile="01726720772";
         AdminUser findAdminUser = adminUserRepository.findByEmail(email).orElse(null);
         Long userId = 0L;
         if(findAdminUser!=null){

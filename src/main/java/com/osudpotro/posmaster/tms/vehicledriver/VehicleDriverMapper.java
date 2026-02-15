@@ -19,17 +19,17 @@ public class VehicleDriverMapper {
         if (vehicleDriver.getEmail() != null && !vehicleDriver.getEmail().isEmpty()) {
             vehicleDriverDto.setEmail(vehicleDriver.getEmail());
         }
-        if (vehicleDriver.getPhone() != null && !vehicleDriver.getPhone().isEmpty()) {
-            vehicleDriverDto.setPhone(vehicleDriver.getPhone());
+        if (vehicleDriver.getMobile() != null && !vehicleDriver.getMobile().isEmpty()) {
+            vehicleDriverDto.setMobile(vehicleDriver.getMobile());
         }
-        if (vehicleDriver.getPassword() != null && !vehicleDriver.getPassword().isEmpty()) {
-            vehicleDriverDto.setPassword(vehicleDriver.getPassword());
-        }
+//        if (vehicleDriver.getPassword() != null && !vehicleDriver.getPassword().isEmpty()) {
+//            vehicleDriverDto.setPassword(vehicleDriver.getPassword());
+//        }
         if (vehicleDriver.getSecondaryEmail() != null && !vehicleDriver.getSecondaryEmail().isEmpty()) {
             vehicleDriverDto.setSecondaryEmail(vehicleDriver.getSecondaryEmail());
         }
-        if (vehicleDriver.getSecondaryPhone() != null && !vehicleDriver.getSecondaryPhone().isEmpty()) {
-            vehicleDriverDto.setSecondaryPhone(vehicleDriver.getSecondaryPhone());
+        if (vehicleDriver.getSecondaryMobile() != null && !vehicleDriver.getSecondaryMobile().isEmpty()) {
+            vehicleDriverDto.setSecondaryMobile(vehicleDriver.getSecondaryMobile());
         }
         vehicleDriverDto.setGender(vehicleDriver.getGender());
         vehicleDriverDto.setProvider(vehicleDriver.getProvider());
@@ -46,9 +46,13 @@ public class VehicleDriverMapper {
 
     public VehicleDriver toEntity(VehicleDriverCreateRequest request) {
         VehicleDriver vehicleDriver = new VehicleDriver();
+        if (request.getUserName() != null && !request.getUserName().isEmpty()) {
+            vehicleDriver.setUserName(request.getUserName());
+        }
         if (request.getFirstName() != null && !request.getFirstName().isEmpty()) {
             vehicleDriver.setFirstName(request.getFirstName());
         }
+
         if (request.getLastName() != null && !request.getLastName().isEmpty()) {
             vehicleDriver.setLastName(request.getLastName());
         }
@@ -61,14 +65,14 @@ public class VehicleDriverMapper {
         if (request.getPassword() != null && !request.getPassword().isEmpty()) {
             vehicleDriver.setPassword(request.getPassword());
         }
-        if (request.getPhone() != null && !request.getPhone().isEmpty()) {
-            vehicleDriver.setPhone(request.getPhone());
+        if (request.getMobile() != null && !request.getMobile().isEmpty()) {
+            vehicleDriver.setMobile(request.getMobile());
         }
         if (request.getSecondaryEmail() != null && !request.getSecondaryEmail().isEmpty()) {
             vehicleDriver.setSecondaryEmail(request.getSecondaryEmail());
         }
-        if (request.getSecondaryPhone() != null && !request.getSecondaryPhone().isEmpty()) {
-            vehicleDriver.setSecondaryPhone(request.getSecondaryPhone());
+        if (request.getSecondaryMobile() != null && !request.getSecondaryMobile().isEmpty()) {
+            vehicleDriver.setSecondaryMobile(request.getSecondaryMobile());
         }
         if (request.getGender() != null && !request.getGender().equals(0)) {
             vehicleDriver.setGender(request.getGender());
@@ -98,14 +102,14 @@ public class VehicleDriverMapper {
         if (request.getPassword() != null && !request.getPassword().isEmpty()) {
             vehicleDriver.setPassword(request.getPassword());
         }
-        if (request.getPhone() != null && !request.getPhone().isEmpty()) {
-            vehicleDriver.setPhone(request.getPhone());
+        if (request.getMobile() != null && !request.getMobile().isEmpty()) {
+            vehicleDriver.setMobile(request.getMobile());
         }
         if (request.getSecondaryEmail() != null && !request.getSecondaryEmail().isEmpty()) {
             vehicleDriver.setSecondaryEmail(request.getSecondaryEmail());
         }
-        if (request.getSecondaryPhone() != null && !request.getSecondaryPhone().isEmpty()) {
-            vehicleDriver.setSecondaryPhone(request.getSecondaryPhone());
+        if (request.getSecondaryMobile() != null && !request.getSecondaryMobile().isEmpty()) {
+            vehicleDriver.setSecondaryMobile(request.getSecondaryMobile());
         }
         if (request.getGender() != null && !request.getGender().equals(0)) {
             vehicleDriver.setGender(request.getGender());

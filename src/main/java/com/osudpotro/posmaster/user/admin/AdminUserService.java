@@ -1,6 +1,6 @@
 package com.osudpotro.posmaster.user.admin;
 
-import com.osudpotro.posmaster.auth.AuthService;
+import com.osudpotro.posmaster.user.auth.AuthService;
 import com.osudpotro.posmaster.multimedia.Multimedia;
 import com.osudpotro.posmaster.multimedia.MultimediaRepository;
 import com.osudpotro.posmaster.role.Role;

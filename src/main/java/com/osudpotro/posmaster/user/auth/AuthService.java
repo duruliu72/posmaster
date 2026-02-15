@@ -1,4 +1,4 @@
-package com.osudpotro.posmaster.auth;
+package com.osudpotro.posmaster.user.auth;
 
 import com.osudpotro.posmaster.security.CustomUserDetails;
 import com.osudpotro.posmaster.security.UnauthorizedException;

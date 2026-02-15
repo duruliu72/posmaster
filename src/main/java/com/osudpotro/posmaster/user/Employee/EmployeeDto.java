@@ -1,4 +1,4 @@
-package com.osudpotro.posmaster.user.admin;
+package com.osudpotro.posmaster.user.Employee;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
@@ -6,7 +6,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class AdminUserDto {
+public class EmployeeDto {
     private Long id;
     private String userName;
     private String firstName;

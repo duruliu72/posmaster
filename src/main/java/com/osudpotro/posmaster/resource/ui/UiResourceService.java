@@ -1,7 +1,7 @@
 package com.osudpotro.posmaster.resource.ui;
 
 import com.osudpotro.posmaster.action.ActionService;
-import com.osudpotro.posmaster.auth.AuthService;
+import com.osudpotro.posmaster.user.auth.AuthService;
 import com.osudpotro.posmaster.utility.CsvReader;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;

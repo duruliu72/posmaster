@@ -1,7 +1,6 @@
 package com.osudpotro.posmaster.requisition;
 
-import com.osudpotro.posmaster.auth.AuthService;
-import com.osudpotro.posmaster.requisitiontype.RequisitionTypeDto;
+import com.osudpotro.posmaster.user.auth.AuthService;
 import com.osudpotro.posmaster.requisitiontype.RequisitionTypeNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

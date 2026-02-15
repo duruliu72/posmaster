@@ -1,6 +1,6 @@
 package com.osudpotro.posmaster.requisitiontype;
 
-import com.osudpotro.posmaster.auth.AuthService;
+import com.osudpotro.posmaster.user.auth.AuthService;
 import com.osudpotro.posmaster.requisition.*;
 import com.osudpotro.posmaster.user.UserNotFoundException;
 import com.osudpotro.posmaster.user.UserRepository;
