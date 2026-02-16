@@ -1,4 +1,4 @@
-package com.osudpotro.posmaster.tms.vehicledriver;
+package com.osudpotro.posmaster.user.admin;
 
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
@@ -6,8 +6,8 @@ import org.springframework.data.jpa.domain.Specification;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VehicleDriverSpecification {
-    public static Specification<VehicleDriver> filter(VehicleDriverFilter filter) {
+public class AdminUserSpecification {
+    public static Specification<AdminUser> filter(AdminUserFilter filter) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             if (filter.getUserName() != null && !filter.getUserName().isEmpty()) {

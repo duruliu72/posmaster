@@ -1,6 +1,7 @@
 package com.osudpotro.posmaster.user.admin;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.osudpotro.posmaster.multimedia.MultimediaDto;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -13,7 +14,10 @@ public class AdminUserDto {
     private String lastName;
     private String email;
     private String mobile;
-    private Long userId;
+    private String secondaryEmail;
+    private String secondaryMobile;
+    private Integer gender;
+    private MultimediaDto profilePic;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
 }

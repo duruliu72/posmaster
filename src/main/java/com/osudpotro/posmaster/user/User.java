@@ -41,7 +41,6 @@ public class User extends BaseEntity {
     private Customer customer;
     @OneToOne(mappedBy = "user")
     private VehicleDriver vehicleDriver;
-
     public String getEmail() {
         if (adminUser != null) return adminUser.getEmail();
         if (employee != null) return employee.getEmail();

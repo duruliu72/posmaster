@@ -15,5 +15,5 @@ public class VehicleDriverCreateRequest {
     private Integer gender;
     private String provider;
     private String providerId;
-    private Long pictureId;
+    private Long multimediaId;
 }

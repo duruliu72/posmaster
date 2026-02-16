@@ -74,7 +74,7 @@ public class VehicleDriverService {
         vehicleDriverRepository.save(vehicleDriver);
         return vehicleDriverMapper.toDto(vehicleDriver);
     }
-    public VehicleDriverDto updateVehicleDriver(Long customerId, VehicleDriverUpdateRequest request) {
+    public VehicleDriverDto updateVehicleDriver(Long customerId, UpdateVehicleDriverRequest request) {
         var vehicleDriver = vehicleDriverRepository.findById(customerId).orElseThrow(VehicleDriverNotFoundException::new);
         if (request.getEmail() != null && vehicleDriverRepository.existsByEmail(request.getEmail())) {
             if (!vehicleDriver.getEmail().equals(request.getEmail())) {
@@ -92,7 +92,11 @@ public class VehicleDriverService {
                 throw new DuplicateVehicleDriverException();
             }
         }
+
         vehicleDriverMapper.update(request, vehicleDriver);
+        if (request.getPassword() != null && !request.getPassword().isEmpty()) {
+            vehicleDriver.setPassword(passwordEncoder.encode(vehicleDriver.getPassword()));
+        }
         var authUser = authService.getCurrentUser();
         vehicleDriver.setUpdatedBy(authUser);
         vehicleDriverRepository.save(vehicleDriver);

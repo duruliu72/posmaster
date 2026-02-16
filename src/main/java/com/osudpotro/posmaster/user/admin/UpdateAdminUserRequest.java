@@ -9,5 +9,11 @@ public class UpdateAdminUserRequest {
     private String lastName;
     private String email;
     private String mobile;
+    private String password;
+    private String secondaryEmail;
+    private String secondaryMobile;
+    private Integer gender;
+    private String provider;
+    private String providerId;
     private Long multimediaId;
 }

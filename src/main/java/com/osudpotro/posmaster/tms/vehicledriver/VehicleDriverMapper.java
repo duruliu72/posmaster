@@ -11,6 +11,7 @@ public class VehicleDriverMapper {
         }
         VehicleDriverDto vehicleDriverDto = new VehicleDriverDto();
         vehicleDriverDto.setId(vehicleDriver.getId());
+        vehicleDriverDto.setUserName(vehicleDriver.getUserName());
         vehicleDriverDto.setFirstName(vehicleDriver.getFirstName());
         vehicleDriverDto.setLastName(vehicleDriver.getLastName());
         if (vehicleDriver.getEmail() != null && !vehicleDriver.getEmail().isEmpty()) {
@@ -22,9 +23,6 @@ public class VehicleDriverMapper {
         if (vehicleDriver.getMobile() != null && !vehicleDriver.getMobile().isEmpty()) {
             vehicleDriverDto.setMobile(vehicleDriver.getMobile());
         }
-//        if (vehicleDriver.getPassword() != null && !vehicleDriver.getPassword().isEmpty()) {
-//            vehicleDriverDto.setPassword(vehicleDriver.getPassword());
-//        }
         if (vehicleDriver.getSecondaryEmail() != null && !vehicleDriver.getSecondaryEmail().isEmpty()) {
             vehicleDriverDto.setSecondaryEmail(vehicleDriver.getSecondaryEmail());
         }
@@ -32,8 +30,6 @@ public class VehicleDriverMapper {
             vehicleDriverDto.setSecondaryMobile(vehicleDriver.getSecondaryMobile());
         }
         vehicleDriverDto.setGender(vehicleDriver.getGender());
-        vehicleDriverDto.setProvider(vehicleDriver.getProvider());
-        vehicleDriverDto.setProviderId(vehicleDriverDto.getProviderId());
         if (vehicleDriver.getProfilePic() != null) {
             MultimediaDto multimediaDto = new MultimediaDto();
             multimediaDto.setId(vehicleDriver.getProfilePic().getId());
@@ -86,7 +82,7 @@ public class VehicleDriverMapper {
         return vehicleDriver;
     }
 
-    void update(VehicleDriverUpdateRequest request, VehicleDriver vehicleDriver) {
+    void update(UpdateVehicleDriverRequest request, VehicleDriver vehicleDriver) {
         if (request.getFirstName() != null && !request.getFirstName().isEmpty()) {
             vehicleDriver.setFirstName(request.getFirstName());
         }

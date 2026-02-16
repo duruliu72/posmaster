@@ -8,6 +8,8 @@ import com.osudpotro.posmaster.role.RoleRepository;
 import com.osudpotro.posmaster.user.*;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -32,25 +34,18 @@ public class AdminUserService {
                 .map(adminUserMapper::toDto)
                 .toList();
     }
-
+    public Page<AdminUserDto> filterAdminUsers(AdminUserFilter filter, Pageable pageable) {
+        return adminUserRepository.findAll(AdminUserSpecification.filter(filter), pageable).map(adminUserMapper::toDto);
+    }
     @Transactional
-    public AdminUserDto registerAdminUser(RegisterAdminUserRequest request) {
+    public AdminUserDto registerAdminUser(AdminUserCreateRequest request) {
         if (request.getEmail() != null && adminUserRepository.existsByEmail(request.getEmail())) {
             throw new DuplicateUserException("Email  is already registered");
         }
         if (request.getMobile() != null && adminUserRepository.existsByMobile(request.getMobile())) {
             throw new DuplicateUserException("Mobile  is already registered");
         }
-        AdminUser adminUser = new AdminUser();
-        if (request.getFirstName() != null) {
-            adminUser.setFirstName(request.getFirstName());
-        }
-        if (request.getLastName() != null) {
-            adminUser.setLastName(request.getLastName());
-        }
-        adminUser.setUserName(request.getUserName());
-        adminUser.setEmail(request.getEmail());
-        adminUser.setMobile(request.getMobile());
+        AdminUser adminUser = adminUserMapper.toEntity(request);
         adminUser.setPassword(passwordEncoder.encode(request.getPassword()));
         var authUser = authService.getCurrentUser();
 //        Common User Entity
@@ -79,10 +74,27 @@ public class AdminUserService {
     @Transactional
     public AdminUserDto updateAdminUser(Long adminUserId, UpdateAdminUserRequest request) {
         var adminUser = adminUserRepository.findById(adminUserId).orElseThrow(AdminUserNotFoundException::new);
-//        var user = userRepository.findById(adminUser.getUser().getId()).orElseThrow(UserNotFoundException::new);
+        if (request.getEmail() != null && adminUserRepository.existsByEmail(request.getEmail())) {
+            if (!adminUser.getEmail().equals(request.getEmail())) {
+                throw new DuplicateAdminUserException("Email already exists");
+            }
+        }
+        if (request.getMobile() != null && adminUserRepository.existsByMobile(request.getMobile())) {
+            if (!adminUser.getMobile().equals(request.getMobile())) {
+                throw new DuplicateAdminUserException("Phone number already exists");
+            }
+
+        }
+        if (request.getEmail() != null && request.getMobile() != null && adminUserRepository.existsByEmailOrMobile(request.getEmail(), request.getMobile())) {
+            if (!adminUser.getEmail().equals(request.getEmail()) && !adminUser.getMobile().equals(request.getMobile())) {
+                throw new DuplicateAdminUserException();
+            }
+        }
+        adminUserMapper.update(request, adminUser);
+        if (request.getPassword() != null && !request.getPassword().isEmpty()) {
+            adminUser.setPassword(passwordEncoder.encode(adminUser.getPassword()));
+        }
         var authUser = authService.getCurrentUser();
-        adminUser.setFirstName(request.getFirstName());
-        adminUser.setLastName(request.getLastName());
         if (request.getMultimediaId() != null) {
             Multimedia multimedia = multimediaRepository.findById(request.getMultimediaId()).orElse(null);
             if (multimedia != null) {
@@ -125,4 +137,35 @@ public class AdminUserService {
         var adminUser = adminUserRepository.findById(adminUserId).orElseThrow(() -> new AdminUserNotFoundException("Admin User not found with ID: " + adminUserId));
         return adminUserMapper.toDto(adminUser);
     }
+
+    public AdminUserDto activeAdminUser(Long customerId) {
+        var vehicleDriver = adminUserRepository.findById(customerId).orElseThrow(() -> new AdminUserNotFoundException("AdminUser not found with ID: " + customerId));
+        var authUser = authService.getCurrentUser();
+        vehicleDriver.setStatus(1);
+        vehicleDriver.setUpdatedBy(authUser);
+        adminUserRepository.save(vehicleDriver);
+        return adminUserMapper.toDto(vehicleDriver);
+    }
+
+    public AdminUserDto deactivateAdminUser(Long customerId) {
+        var vehicleDriver = adminUserRepository.findById(customerId).orElseThrow(() -> new AdminUserNotFoundException("AdminUser not found with ID: " + customerId));
+        var authUser = authService.getCurrentUser();
+        vehicleDriver.setStatus(2);
+        vehicleDriver.setUpdatedBy(authUser);
+        adminUserRepository.save(vehicleDriver);
+        return adminUserMapper.toDto(vehicleDriver);
+    }
+
+    public AdminUserDto deleteAdminUser(Long customerId) {
+        var vehicleDriver = adminUserRepository.findById(customerId).orElseThrow(() -> new AdminUserNotFoundException("AdminUser not found with ID: " + customerId));
+        var authUser = authService.getCurrentUser();
+        vehicleDriver.setStatus(3);
+        vehicleDriver.setUpdatedBy(authUser);
+        adminUserRepository.save(vehicleDriver);
+        return adminUserMapper.toDto(vehicleDriver);
+    }
+    public int deleteBulkAdminUser(List<Long> ids) {
+        return adminUserRepository.deleteBulkAdminUser(ids, 3L);
+    }
+
 }

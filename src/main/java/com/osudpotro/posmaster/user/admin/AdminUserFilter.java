@@ -1,11 +1,11 @@
-package com.osudpotro.posmaster.tms.vehicledriver;
+package com.osudpotro.posmaster.user.admin;
 
 import lombok.Data;
 
 import java.time.LocalDateTime;
 
 @Data
-public class VehicleDriverFilter {
+public class AdminUserFilter {
     private String userName;
     private String firstName;
     private String lastName;

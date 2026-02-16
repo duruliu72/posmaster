@@ -59,7 +59,7 @@ public class VehicleDriverController {
     @PutMapping("/{id}")
     public VehicleDriverDto updateVehicleDriver(
             @PathVariable(name = "id") Long id,
-            @RequestBody VehicleDriverUpdateRequest request) {
+            @RequestBody UpdateVehicleDriverRequest request) {
         return vehicleDriverService.updateVehicleDriver(id, request);
     }
 

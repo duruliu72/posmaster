@@ -3,7 +3,7 @@ package com.osudpotro.posmaster.tms.vehicledriver;
 import lombok.Data;
 
 @Data
-public class VehicleDriverUpdateRequest {
+public class UpdateVehicleDriverRequest {
     private String firstName;
     private String lastName;
     private String email;
