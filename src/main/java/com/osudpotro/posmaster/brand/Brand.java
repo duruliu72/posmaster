@@ -1,10 +1,8 @@
 package com.osudpotro.posmaster.brand;
 
 import com.osudpotro.posmaster.common.BaseEntity;
-import com.osudpotro.posmaster.picture.Picture;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.OneToOne;
+import com.osudpotro.posmaster.multimedia.Multimedia;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,6 +15,7 @@ import lombok.Setter;
 @Entity
 public class Brand extends BaseEntity {
     private String name;
-    @OneToOne(fetch = FetchType.LAZY, optional = true)
-    private Picture picture;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "multimedia_id")
+    private Multimedia picture;
 }

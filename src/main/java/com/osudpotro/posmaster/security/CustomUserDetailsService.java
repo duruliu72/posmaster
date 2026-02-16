@@ -71,7 +71,6 @@ public class CustomUserDetailsService implements UserDetailsService {
                 userId = customer.getUser().getId();
             }
         }
-
         if (userType.equalsIgnoreCase("userId")) {
             try {
                 userId = Long.parseLong(email);

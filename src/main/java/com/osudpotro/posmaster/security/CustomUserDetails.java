@@ -42,13 +42,7 @@ public class CustomUserDetails implements UserDetails {
     }
 
     @Override
-    public String getPassword() {
-        String password = user.getPassword();
-        if (password == null) {
-            throw new IllegalStateException("No password found for user: " + user.getId());
-        }
-        return password;
-    }
+    public String getPassword() { return user.getPassword(); }
 
     @Override
     public String getUsername() {
@@ -57,12 +51,10 @@ public class CustomUserDetails implements UserDetails {
         if (email != null && !email.isEmpty()) {
             return email;
         }
-
         String mobile = user.getMobile();
         if (mobile != null && !mobile.isEmpty()) {
             return mobile;
         }
-
         throw new IllegalStateException("No email or mobile found for user ID: " + user.getId());
     }
 
@@ -95,17 +87,5 @@ public class CustomUserDetails implements UserDetails {
 
     public String getMobile() {
         return user.getMobile();
-    }
-
-    public String getDisplayName() {
-        return user.getDisplayName();
-    }
-
-    public String getUserType() {
-        if (user.getAdminUser() != null) return "ADMIN";
-        if (user.getEmployee() != null) return "EMPLOYEE";
-        if (user.getCustomer() != null) return "CUSTOMER";
-        if (user.getVehicleDriver() != null) return "DRIVER";
-        return "UNKNOWN";
     }
 }

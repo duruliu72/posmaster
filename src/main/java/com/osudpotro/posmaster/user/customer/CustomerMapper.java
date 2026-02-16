@@ -1,6 +1,6 @@
 package com.osudpotro.posmaster.user.customer;
 
-import com.osudpotro.posmaster.picture.PictureDto;
+import com.osudpotro.posmaster.multimedia.Multimedia;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -35,12 +35,12 @@ public class CustomerMapper {
         customerDto.setOtpCode(customer.getOtpCode());
         customerDto.setProvider(customer.getProvider());
         customerDto.setProviderId(customerDto.getProviderId());
-        if (customer.getImage() != null) {
-            PictureDto pictureDto = new PictureDto();
-            pictureDto.setId(customer.getImage().getId());
-            pictureDto.setName(customer.getImage().getName());
-            pictureDto.setImageUrl(customer.getImage().getImageUrl());
-            customerDto.setImage(pictureDto);
+        if (customer.getProfilePic() != null) {
+            Multimedia pictureDto = new Multimedia();
+            pictureDto.setId(customer.getProfilePic().getId());
+            pictureDto.setName(customer.getProfilePic().getName());
+            pictureDto.setImageUrl(customer.getProfilePic().getImageUrl());
+            customerDto.setProfilePic(pictureDto);
         }
         return customerDto;
     }

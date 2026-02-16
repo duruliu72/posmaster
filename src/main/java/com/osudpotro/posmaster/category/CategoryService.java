@@ -1,11 +1,9 @@
 package com.osudpotro.posmaster.category;
 
+import com.osudpotro.posmaster.multimedia.MultimediaNotFoundException;
 import com.osudpotro.posmaster.user.auth.AuthService;
 import com.osudpotro.posmaster.multimedia.Multimedia;
 import com.osudpotro.posmaster.multimedia.MultimediaRepository;
-import com.osudpotro.posmaster.picture.Picture;
-import com.osudpotro.posmaster.picture.PictureNotFoundException;
-import com.osudpotro.posmaster.picture.PictureRepository;
 import com.osudpotro.posmaster.utility.CsvReader;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,7 +23,6 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
     private final CustomCategoryMapper customCategoryMapper;
-    private final PictureRepository pictureRepository;
     private final MultimediaRepository multimediaRepository;
     private final CsvReader csvReader;
 
@@ -146,27 +143,27 @@ public class CategoryService {
                 throw new DuplicateCategoryException();
             }
         }
-        Long pictureId = null;
-        if (category.getPicture() != null) {
-            pictureId = category.getPicture().getId();
+        Long multimediaId = null;
+        if (category.getMedia() != null) {
+            multimediaId = category.getMedia().getId();
         }
         if (request.getPictureId() != null) {
-            if (!Objects.equals(pictureId, request.getPictureId())) {
+            if (!Objects.equals(multimediaId, request.getPictureId())) {
                 var findCat = categoryRepository.findByPictureId(request.getPictureId()).orElse(null);
-                if (findCat != null && findCat.getPicture().getId().equals(request.getPictureId())) {
+                if (findCat != null && findCat.getMedia().getId().equals(request.getPictureId())) {
                     throw new CategoryImageException();
                 }
-                Picture picture = pictureRepository.findById(request.getPictureId()).orElseThrow(() -> new PictureNotFoundException("Picture not found with ID: " + request.getPictureId()));
+                Multimedia picture = multimediaRepository.findById(request.getPictureId()).orElseThrow(() -> new MultimediaNotFoundException("Picture not found with ID: " + request.getPictureId()));
                 picture.setLinked(true);
-                category.setPicture(picture);
+                category.setMedia(picture);
             }
         } else {
-            if (category.getPicture() != null) {
-                Picture picture = pictureRepository.findById(category.getPicture().getId()).orElseThrow(() -> new PictureNotFoundException("Picture not found with ID: " + category.getPicture().getId()));
+            if (category.getMedia() != null) {
+                Multimedia picture = multimediaRepository.findById(category.getMedia().getId()).orElseThrow(() -> new MultimediaNotFoundException("Picture not found with ID: " + category.getMedia().getId()));
                 picture.setLinked(false);
-                pictureRepository.save(picture);
+                multimediaRepository.save(picture);
             }
-            category.setPicture(null);
+            category.setMedia(null);
         }
 
         var user = authService.getCurrentUser();

@@ -1,6 +1,5 @@
 package com.osudpotro.posmaster.category;
 
-import com.osudpotro.posmaster.picture.PictureDto;
 import lombok.Data;
 
 @Data

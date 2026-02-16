@@ -87,10 +87,10 @@ public class DataLoader {
             }
             User u = new User();
             u.setUserType(UserType.ADMIN);
+            u.setEmail(email);
+            u.setMobile(mobile);
+            u.setPassword(passwordEncoder.encode("123"));
             AdminUser adminUser = new AdminUser();
-            adminUser.setEmail(email);
-            adminUser.setMobile(mobile);
-            adminUser.setPassword(passwordEncoder.encode("123"));
             u=userRepository.save(u);
             adminUser.setUser(u);
             adminUserRepository.save(adminUser);

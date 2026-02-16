@@ -114,7 +114,6 @@ public class CustomerService {
         customerRepository.save(customer);
         return customerMapper.toDto(customer);
     }
-
     public int deleteBulkCustomer(List<Long> ids) {
         return customerRepository.deleteBulkCustomer(ids, 3L);
     }

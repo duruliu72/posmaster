@@ -1,7 +1,7 @@
 package com.osudpotro.posmaster.user.customer;
 
 import com.osudpotro.posmaster.common.BaseEntity;
-import com.osudpotro.posmaster.picture.Picture;
+import com.osudpotro.posmaster.multimedia.Multimedia;
 import com.osudpotro.posmaster.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -15,7 +15,11 @@ import java.util.UUID;
 @Setter
 @Getter
 @Entity
-@Table(name = "customers")
+@Table(name = "customers",indexes = {
+        @Index(name = "idx_customer_email", columnList = "email"),
+        @Index(name = "idx_customer_mobile", columnList = "mobile"),
+        @Index(name = "idx_customer_user_id", columnList = "user_id")
+})
 public class Customer extends BaseEntity {
     public Customer() {
         this.email = this.randomEmail();
@@ -37,8 +41,9 @@ public class Customer extends BaseEntity {
     private String providerId;
     private String otpCode;
     private LocalDateTime otpRequestDateTime;
-    @OneToOne(fetch = FetchType.LAZY, optional = true)
-    private Picture image;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "multimedia_id")
+    private Multimedia profilePic;
     @OneToOne
     @JoinColumn(name = "user_id", unique = true)
     private User user;

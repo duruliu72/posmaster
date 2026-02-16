@@ -1,8 +1,6 @@
 package com.osudpotro.posmaster.category;
 
-import com.osudpotro.posmaster.multimedia.Multimedia;
 import com.osudpotro.posmaster.multimedia.MultimediaDto;
-import com.osudpotro.posmaster.picture.PictureDto;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -25,13 +23,6 @@ public class CustomCategoryMapper {
         }
         String fullPath=getFullString(category);
         categoryDto.setFullPath(fullPath);
-        if(category.getPicture()!=null&&category.getPicture().getImageUrl()!=null){
-            PictureDto aPictureDto=new PictureDto();
-            aPictureDto.setId(category.getPicture().getId());
-            aPictureDto.setName(category.getPicture().getName());
-            aPictureDto.setImageUrl(category.getPicture().getImageUrl());
-            categoryDto.setPicture(aPictureDto);
-        }
        if(category.getMedia()!=null&&category.getMedia().getImageUrl()!=null){
            MultimediaDto multimediaDto=new MultimediaDto();
            multimediaDto.setId(category.getMedia().getId());

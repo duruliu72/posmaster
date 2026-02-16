@@ -17,7 +17,11 @@ import java.util.List;
 @Setter
 @Getter
 @Entity
-@Table(name = "vehicle_drivers")
+@Table(name = "vehicle_drivers",indexes = {
+        @Index(name = "idx_vehicle_driver_email", columnList = "email"),
+        @Index(name = "idx_vehicle_driver_mobile", columnList = "mobile"),
+        @Index(name = "idx_vehicle_driver_user_id", columnList = "user_id")
+})
 public class VehicleDriver extends BaseEntity {
     private String userName;
     private String firstName;

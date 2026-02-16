@@ -1,6 +1,6 @@
 package com.osudpotro.posmaster.user.customer;
 
-import com.osudpotro.posmaster.picture.PictureDto;
+import com.osudpotro.posmaster.multimedia.Multimedia;
 import lombok.Data;
 
 @Data
@@ -17,5 +17,5 @@ public class CustomerDto {
     private String otpCode;
     private String provider;
     private String providerId;
-    private PictureDto image;
+    private Multimedia profilePic;
 }

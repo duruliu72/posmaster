@@ -3,7 +3,6 @@ package com.osudpotro.posmaster.category;
 
 import com.osudpotro.posmaster.common.BaseEntity;
 import com.osudpotro.posmaster.multimedia.Multimedia;
-import com.osudpotro.posmaster.picture.Picture;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -29,9 +28,6 @@ public class Category extends BaseEntity {
     private Category parentCat;
     @OneToMany(mappedBy = "parentCat", fetch = FetchType.LAZY)
     private List<Category> children = new ArrayList<>();
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "picture_id")
-    private Picture picture;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "multimedia_id")
     private Multimedia media;
