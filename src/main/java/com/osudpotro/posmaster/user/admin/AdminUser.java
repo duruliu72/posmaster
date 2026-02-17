@@ -14,30 +14,10 @@ import lombok.Setter;
 @Setter
 @Getter
 @Entity
-@Table(name = "admin_user", indexes = {
-        @Index(name = "idx_admin_user_email", columnList = "email"),
-        @Index(name = "idx_admin_user_mobile", columnList = "mobile"),
+@Table(name = "admin_users", indexes = {
         @Index(name = "idx_admin_user_user_id", columnList = "user_id")
 })
 public class AdminUser extends BaseEntity {
-    private String userName;
-    private String firstName;
-    private String lastName;
-    @Column(unique = true)
-    private String email;
-    private Boolean isValidEmail;
-    @Column(unique = true)
-    private String mobile;
-    private String password;
-    private String secondaryEmail;
-    private String secondaryMobile;
-    //    like Male=1, Female=2, Third=3
-    private Integer gender;
-    private String provider;
-    private String providerId;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "multimedia_id")
-    private Multimedia profilePic;
     @OneToOne
     @JoinColumn(name = "user_id", unique = true,nullable = false)
     private User user;

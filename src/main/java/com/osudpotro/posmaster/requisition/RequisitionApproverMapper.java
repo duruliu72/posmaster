@@ -12,16 +12,16 @@ public class RequisitionApproverMapper {
         UserDto userDto=new UserDto();
         userDto.setId(requisitionApprover.getUser().getId());
         if (requisitionApprover.getUser().getAdminUser() != null) {
-            userDto.setUserName(requisitionApprover.getUser().getAdminUser().getUserName());
-            userDto.setEmail(requisitionApprover.getUser().getAdminUser().getEmail());
+            userDto.setUserName(requisitionApprover.getUser().getUserName());
+            userDto.setEmail(requisitionApprover.getUser().getEmail());
         }
         requisitionApproverDto.setUser(userDto);
         if(requisitionApprover.getPrevUser()!=null){
             UserDto prevUserDto=new UserDto();
             prevUserDto.setId(requisitionApprover.getPrevUser().getId());
             if(requisitionApprover.getPrevUser().getAdminUser()!=null){
-                prevUserDto.setUserName(requisitionApprover.getPrevUser().getAdminUser().getUserName());
-                prevUserDto.setEmail(requisitionApprover.getPrevUser().getAdminUser().getEmail());
+                prevUserDto.setUserName(requisitionApprover.getPrevUser().getUserName());
+                prevUserDto.setEmail(requisitionApprover.getPrevUser().getEmail());
             }
             requisitionApproverDto.setPrevUser(prevUserDto);
         }
@@ -29,8 +29,8 @@ public class RequisitionApproverMapper {
             UserDto nextUserDto=new UserDto();
             nextUserDto.setId(requisitionApprover.getNextUser().getId());
             if(requisitionApprover.getNextUser().getAdminUser()!=null){
-                nextUserDto.setUserName(requisitionApprover.getNextUser().getAdminUser().getUserName());
-                nextUserDto.setEmail(requisitionApprover.getNextUser().getAdminUser().getEmail());
+                nextUserDto.setUserName(requisitionApprover.getNextUser().getUserName());
+                nextUserDto.setEmail(requisitionApprover.getNextUser().getEmail());
             }
             requisitionApproverDto.setNextUser(nextUserDto);
         }

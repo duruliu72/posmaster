@@ -72,17 +72,12 @@ public class DataLoader {
         // === SUPER ADMIN USER ===
         String email="duruliu72@gmail.com";
         String mobile="01726720772";
-        AdminUser findAdminUser = adminUserRepository.findByEmail(email).orElse(null);
-        Long userId = 0L;
-        if(findAdminUser!=null){
-            userId=findAdminUser.getUser().getId();
-        }
-        Optional<User> findUser = userRepository.findById(userId);
+        Optional<User> findUser = userRepository.findByEmail(email);
         User superAdminUser = findUser.orElseGet(() -> {
-            if (adminUserRepository.existsByEmail(email)) {
+            if (userRepository.existsByEmail(email)) {
                 throw new DuplicateUserException("Email  is already registered");
             }
-            if (adminUserRepository.existsByMobile(mobile)) {
+            if (userRepository.existsByMobile(mobile)) {
                 throw new DuplicateUserException("Mobile  is already registered");
             }
             User u = new User();

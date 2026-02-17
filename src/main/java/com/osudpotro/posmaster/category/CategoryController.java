@@ -1,7 +1,6 @@
 package com.osudpotro.posmaster.category;
 
 import com.osudpotro.posmaster.common.PagedResponse;
-import com.osudpotro.posmaster.picture.PictureDto;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;

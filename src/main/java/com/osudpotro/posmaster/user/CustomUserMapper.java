@@ -18,8 +18,8 @@ public class CustomUserMapper {
         UserDto userDto = new UserDto();
         userDto.setId(user.getId());
         if (user.getAdminUser() != null) {
-            userDto.setUserName(user.getAdminUser().getUserName());
-            userDto.setEmail(user.getAdminUser().getEmail());
+            userDto.setUserName(user.getUserName());
+            userDto.setEmail(user.getEmail());
         }
         userDto.setCreatedAt(user.getCreatedAt());
         Set<RoleDto> roles = new HashSet<>();
@@ -89,8 +89,8 @@ public class CustomUserMapper {
         UserMainDto userMainDto = new UserMainDto();
         userMainDto.setId(user.getId());
         if (user.getAdminUser() != null) {
-            userMainDto.setUserName(user.getAdminUser().getUserName());
-            userMainDto.setEmail(user.getAdminUser().getEmail());
+            userMainDto.setUserName(user.getUserName());
+            userMainDto.setEmail(user.getEmail());
         }
         userMainDto.setCreatedAt(user.getCreatedAt());
         return userMainDto;

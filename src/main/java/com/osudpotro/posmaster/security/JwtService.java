@@ -25,28 +25,10 @@ public class JwtService {
     private Jwt generateToken(User user, long tokenExpiration) {
         var expTimeMillis = System.currentTimeMillis() + 1000 * tokenExpiration;
         var expIn = new Date(expTimeMillis);
-        String userName = "";
-        String email = "";
-        String mobile = "";
-        if (user.getAdminUser() != null) {
-            userName = user.getAdminUser().getUserName();
-            email = user.getAdminUser().getEmail();
-            mobile = user.getAdminUser().getMobile();
-        }
-        if (user.getEmployee() != null) {
-            userName = user.getEmployee().getUserName();
-            email = user.getEmployee().getEmail();
-            mobile = user.getEmployee().getMobile();
-        }
-        if (user.getVehicleDriver() != null) {
-            userName = user.getVehicleDriver().getUserName();
-            email = user.getVehicleDriver().getEmail();
-            mobile = user.getVehicleDriver().getMobile();
-        }
         Claims claims = Jwts.claims()
                 .subject(user.getId().toString())
-                .add("userName", userName)
-                .add("email", email)
+                .add("userName", user.getUserName())
+                .add("email", user.getEmail())
 //                .add("mobile", mobile)
 //                .add("role", user.getRoles())
                 .issuedAt(new Date())

@@ -149,7 +149,7 @@ public class CategoryService {
         }
         if (request.getPictureId() != null) {
             if (!Objects.equals(multimediaId, request.getPictureId())) {
-                var findCat = categoryRepository.findByPictureId(request.getPictureId()).orElse(null);
+                var findCat = categoryRepository.findByMediaId(request.getPictureId()).orElse(null);
                 if (findCat != null && findCat.getMedia().getId().equals(request.getPictureId())) {
                     throw new CategoryImageException();
                 }

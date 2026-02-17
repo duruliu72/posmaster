@@ -33,6 +33,7 @@ public class User extends BaseEntity {
     private String password;
     private String secondaryEmail;
     private String secondaryMobile;
+    private Boolean isValidAccount;
     //like Male=1, Female=2, Third=3
     private Integer gender;
     private String provider;

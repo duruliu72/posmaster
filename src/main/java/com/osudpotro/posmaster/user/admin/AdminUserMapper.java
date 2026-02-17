@@ -1,6 +1,7 @@
 package com.osudpotro.posmaster.user.admin;
 
 import com.osudpotro.posmaster.multimedia.MultimediaDto;
+import com.osudpotro.posmaster.user.User;
 import org.springframework.stereotype.Component;
 
 
@@ -14,114 +15,113 @@ public class AdminUserMapper {
         }
         AdminUserDto adminUserDto = new AdminUserDto();
         adminUserDto.setId(adminUser.getId());
-        adminUserDto.setUserName(adminUser.getUserName());
-        adminUserDto.setUserName(adminUser.getUserName());
-        adminUserDto.setFirstName(adminUser.getFirstName());
-        adminUserDto.setLastName(adminUser.getLastName());
-        if (adminUser.getEmail() != null && !adminUser.getEmail().isEmpty()) {
-            adminUserDto.setEmail(adminUser.getEmail());
+        User user =adminUser.getUser();
+        adminUserDto.setUserName(user.getUserName());
+        adminUserDto.setUserName(user.getUserName());
+        adminUserDto.setFirstName(user.getFirstName());
+        adminUserDto.setLastName(user.getLastName());
+        if (user.getEmail() != null && !user.getEmail().isEmpty()) {
+            adminUserDto.setEmail(user.getEmail());
         }
-        if (adminUser.getEmail() != null && !adminUser.getEmail().isEmpty()) {
-            adminUserDto.setEmail(adminUser.getEmail());
+        if (user.getMobile() != null && !user.getMobile().isEmpty()) {
+            adminUserDto.setMobile(user.getMobile());
         }
-        if (adminUser.getMobile() != null && !adminUser.getMobile().isEmpty()) {
-            adminUserDto.setMobile(adminUser.getMobile());
+        if (user.getSecondaryEmail() != null && !user.getSecondaryEmail().isEmpty()) {
+            adminUserDto.setSecondaryEmail(user.getSecondaryEmail());
         }
-        if (adminUser.getSecondaryEmail() != null && !adminUser.getSecondaryEmail().isEmpty()) {
-            adminUserDto.setSecondaryEmail(adminUser.getSecondaryEmail());
+        if (user.getSecondaryMobile() != null && !user.getSecondaryMobile().isEmpty()) {
+            adminUserDto.setSecondaryMobile(user.getSecondaryMobile());
         }
-        if (adminUser.getSecondaryMobile() != null && !adminUser.getSecondaryMobile().isEmpty()) {
-            adminUserDto.setSecondaryMobile(adminUser.getSecondaryMobile());
-        }
-        adminUserDto.setGender(adminUser.getGender());
-        if (adminUser.getProfilePic() != null) {
+        adminUserDto.setGender(user.getGender());
+        if (user.getProfilePic() != null) {
             MultimediaDto multimediaDto = new MultimediaDto();
-            multimediaDto.setId(adminUser.getProfilePic().getId());
-            multimediaDto.setName(adminUser.getProfilePic().getName());
-            multimediaDto.setImageUrl(adminUser.getProfilePic().getImageUrl());
+            multimediaDto.setId(user.getProfilePic().getId());
+            multimediaDto.setName(user.getProfilePic().getName());
+            multimediaDto.setImageUrl(user.getProfilePic().getImageUrl());
             adminUserDto.setProfilePic(multimediaDto);
         }
         return adminUserDto;
     }
+    public User toUserEntity(AdminUserCreateRequest request) {
+        User user = new User();
+        if (request.getUserName() != null && !request.getUserName().isEmpty()) {
+            user.setUserName(request.getUserName());
+        }
+        if (request.getFirstName() != null && !request.getFirstName().isEmpty()) {
+            user.setFirstName(request.getFirstName());
+        }
 
+        if (request.getLastName() != null && !request.getLastName().isEmpty()) {
+            user.setLastName(request.getLastName());
+        }
+        if (request.getEmail() != null && !request.getEmail().isEmpty()) {
+            user.setEmail(request.getEmail());
+        }
+        if (request.getPassword() != null && !request.getPassword().isEmpty()) {
+            user.setPassword(request.getPassword());
+        }
+        if (request.getMobile() != null && !request.getMobile().isEmpty()) {
+            user.setMobile(request.getMobile());
+        }
+        if (request.getSecondaryEmail() != null && !request.getSecondaryEmail().isEmpty()) {
+            user.setSecondaryEmail(request.getSecondaryEmail());
+        }
+        if (request.getSecondaryMobile() != null && !request.getSecondaryMobile().isEmpty()) {
+            user.setSecondaryMobile(request.getSecondaryMobile());
+        }
+        if (request.getGender() != null && !request.getGender().equals(0)) {
+            user.setGender(request.getGender());
+        }
+        if (request.getProvider() != null && !request.getProvider().isEmpty()) {
+            user.setProvider(request.getProvider());
+        }
+        if (request.getProviderId() != null && !request.getProviderId().isEmpty()) {
+            user.setProviderId(request.getProviderId());
+        }
+        return user;
+    }
     public AdminUser toEntity(AdminUserCreateRequest request) {
-        AdminUser adminUser = new AdminUser();
+//        AdminUser adminUser = new AdminUser();
+//        return adminUser;
+        return new AdminUser();
+    }
+    void updateUser(UpdateAdminUserRequest request, User user) {
         if (request.getUserName() != null && !request.getUserName().isEmpty()) {
-            adminUser.setUserName(request.getUserName());
+            user.setUserName(request.getUserName());
         }
         if (request.getFirstName() != null && !request.getFirstName().isEmpty()) {
-            adminUser.setFirstName(request.getFirstName());
+            user.setFirstName(request.getFirstName());
         }
-
         if (request.getLastName() != null && !request.getLastName().isEmpty()) {
-            adminUser.setLastName(request.getLastName());
+            user.setLastName(request.getLastName());
         }
         if (request.getEmail() != null && !request.getEmail().isEmpty()) {
-            adminUser.setEmail(request.getEmail());
-        }
-        if (request.getEmail() == null) {
-            adminUser.setIsValidEmail(false);
+            user.setEmail(request.getEmail());
         }
         if (request.getPassword() != null && !request.getPassword().isEmpty()) {
-            adminUser.setPassword(request.getPassword());
+            user.setPassword(request.getPassword());
         }
         if (request.getMobile() != null && !request.getMobile().isEmpty()) {
-            adminUser.setMobile(request.getMobile());
+            user.setMobile(request.getMobile());
         }
         if (request.getSecondaryEmail() != null && !request.getSecondaryEmail().isEmpty()) {
-            adminUser.setSecondaryEmail(request.getSecondaryEmail());
+            user.setSecondaryEmail(request.getSecondaryEmail());
         }
         if (request.getSecondaryMobile() != null && !request.getSecondaryMobile().isEmpty()) {
-            adminUser.setSecondaryMobile(request.getSecondaryMobile());
+            user.setSecondaryMobile(request.getSecondaryMobile());
         }
         if (request.getGender() != null && !request.getGender().equals(0)) {
-            adminUser.setGender(request.getGender());
+            user.setGender(request.getGender());
         }
         if (request.getProvider() != null && !request.getProvider().isEmpty()) {
-            adminUser.setProvider(request.getProvider());
+            user.setProvider(request.getProvider());
         }
         if (request.getProviderId() != null && !request.getProviderId().isEmpty()) {
-            adminUser.setProviderId(request.getProviderId());
+            user.setProviderId(request.getProviderId());
         }
-        return adminUser;
     }
-
     void update(UpdateAdminUserRequest request, AdminUser adminUser) {
-        if (request.getUserName() != null && !request.getUserName().isEmpty()) {
-            adminUser.setUserName(request.getUserName());
-        }
-        if (request.getFirstName() != null && !request.getFirstName().isEmpty()) {
-            adminUser.setFirstName(request.getFirstName());
-        }
-        if (request.getLastName() != null && !request.getLastName().isEmpty()) {
-            adminUser.setLastName(request.getLastName());
-        }
-        if (request.getEmail() != null && !request.getEmail().isEmpty()) {
-            adminUser.setEmail(request.getEmail());
-        }
-        if (request.getEmail() == null) {
-            adminUser.setIsValidEmail(false);
-        }
-        if (request.getPassword() != null && !request.getPassword().isEmpty()) {
-            adminUser.setPassword(request.getPassword());
-        }
-        if (request.getMobile() != null && !request.getMobile().isEmpty()) {
-            adminUser.setMobile(request.getMobile());
-        }
-        if (request.getSecondaryEmail() != null && !request.getSecondaryEmail().isEmpty()) {
-            adminUser.setSecondaryEmail(request.getSecondaryEmail());
-        }
-        if (request.getSecondaryMobile() != null && !request.getSecondaryMobile().isEmpty()) {
-            adminUser.setSecondaryMobile(request.getSecondaryMobile());
-        }
-        if (request.getGender() != null && !request.getGender().equals(0)) {
-            adminUser.setGender(request.getGender());
-        }
-        if (request.getProvider() != null && !request.getProvider().isEmpty()) {
-            adminUser.setProvider(request.getProvider());
-        }
-        if (request.getProviderId() != null && !request.getProviderId().isEmpty()) {
-            adminUser.setProviderId(request.getProviderId());
-        }
+
     }
+
 }

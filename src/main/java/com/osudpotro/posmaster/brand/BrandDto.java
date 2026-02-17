@@ -1,6 +1,6 @@
 package com.osudpotro.posmaster.brand;
 
-import com.osudpotro.posmaster.picture.Picture;
+
 import lombok.Data;
 
 @Data
