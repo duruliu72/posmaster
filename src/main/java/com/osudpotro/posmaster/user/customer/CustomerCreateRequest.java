@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class CustomerCreateRequest {
+    private String userName;
     private String firstName;
     private String lastName;
     private String email;

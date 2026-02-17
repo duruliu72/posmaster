@@ -3,7 +3,9 @@ package com.osudpotro.posmaster.user.Employee;
 import com.osudpotro.posmaster.security.CustomUserDetails;
 import com.osudpotro.posmaster.security.JwtConfig;
 import com.osudpotro.posmaster.security.JwtService;
+import com.osudpotro.posmaster.user.User;
 import com.osudpotro.posmaster.user.UserNotFoundException;
+import com.osudpotro.posmaster.user.UserRepository;
 import com.osudpotro.posmaster.user.UserType;
 import com.osudpotro.posmaster.user.auth.JwtResponse;
 import jakarta.servlet.http.Cookie;
@@ -24,40 +26,30 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/employees/auth")
 public class EmployeeAuthController {
     private final JwtService jwtService;
+    private final UserRepository userRepository;
     private final EmployeeRepository employeeRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtConfig jwtConfig;
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@Validated @RequestBody EmployeeLoginRequest request, HttpServletResponse response) {
-        String principal;
-        if (request.getEmail() != null && !request.getEmail().isEmpty()) {
-            principal = request.getEmail();
-        } else if (request.getMobile() != null && !request.getMobile().isEmpty()) {
-            principal = request.getMobile();
-        } else {
-            throw new IllegalArgumentException("Either email or mobile must be provided");
-        }
-        String principalWithUserType=String.format("%s-%s", principal, UserType.EMPLOYEE);
-        Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(principalWithUserType, request.getPassword()));
-        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
-        Employee employee = null;
+        User user=null;
         if (request.getEmail() != null && !request.getEmail().trim().isEmpty()) {
-            // Search by EMAIL only
-            employee = employeeRepository.findByEmail(request.getEmail())
-                    .orElseThrow(() -> new UserNotFoundException(
-                            "User not found with email: " + request.getEmail()));
+            user= userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new UserNotFoundException(
+                    "User not found with email: " + request.getEmail()));;
         }
         if (request.getMobile() != null && !request.getMobile().trim().isEmpty()) {
             // Search by EMAIL only
-            employee = employeeRepository.findByMobile(request.getMobile())
+            user = userRepository.findByMobile(request.getMobile())
                     .orElseThrow(() -> new UserNotFoundException(
                             "User not found with email: " + request.getMobile()));
         }
-        if(employee==null){
+        if (user == null) {
             throw new UserNotFoundException("User not found");
         }
-        var accessToken = jwtService.generateAccessToken(employee.getUser());
-        var refreshToken = jwtService.generateRefreshToken(employee.getUser());
+        Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getId(), request.getPassword()));
+        CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+        var accessToken = jwtService.generateAccessToken(user);
+        var refreshToken = jwtService.generateRefreshToken(user);
         var cookie = new Cookie("refreshToken", refreshToken.toString());
         cookie.setHttpOnly(true);
         response.addCookie(cookie);

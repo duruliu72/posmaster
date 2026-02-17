@@ -1,6 +1,7 @@
 package com.osudpotro.posmaster.user.Employee;
 
 import com.osudpotro.posmaster.multimedia.MultimediaDto;
+import com.osudpotro.posmaster.user.User;
 import org.springframework.stereotype.Component;
 
 
@@ -14,114 +15,117 @@ public class EmployeeMapper {
         }
         EmployeeDto employeeDto = new EmployeeDto();
         employeeDto.setId(employee.getId());
-        employeeDto.setUserName(employee.getUserName());
-        employeeDto.setUserName(employee.getUserName());
-        employeeDto.setFirstName(employee.getFirstName());
-        employeeDto.setLastName(employee.getLastName());
-        if (employee.getEmail() != null && !employee.getEmail().isEmpty()) {
-            employeeDto.setEmail(employee.getEmail());
+        User user =employee.getUser();
+        employeeDto.setUserName(user.getUserName());
+        employeeDto.setUserName(user.getUserName());
+        employeeDto.setFirstName(user.getFirstName());
+        employeeDto.setLastName(user.getLastName());
+        if (user.getEmail() != null && !user.getEmail().isEmpty()) {
+            employeeDto.setEmail(user.getEmail());
         }
-        if (employee.getEmail() != null && !employee.getEmail().isEmpty()) {
-            employeeDto.setEmail(employee.getEmail());
+        if (user.getEmail() != null && !user.getEmail().isEmpty()) {
+            employeeDto.setEmail(user.getEmail());
         }
-        if (employee.getMobile() != null && !employee.getMobile().isEmpty()) {
-            employeeDto.setMobile(employee.getMobile());
+        if (user.getMobile() != null && !user.getMobile().isEmpty()) {
+            employeeDto.setMobile(user.getMobile());
         }
-        if (employee.getSecondaryEmail() != null && !employee.getSecondaryEmail().isEmpty()) {
-            employeeDto.setSecondaryEmail(employee.getSecondaryEmail());
+        if (user.getSecondaryEmail() != null && !user.getSecondaryEmail().isEmpty()) {
+            employeeDto.setSecondaryEmail(user.getSecondaryEmail());
         }
-        if (employee.getSecondaryMobile() != null && !employee.getSecondaryMobile().isEmpty()) {
-            employeeDto.setSecondaryMobile(employee.getSecondaryMobile());
+        if (user.getSecondaryMobile() != null && !user.getSecondaryMobile().isEmpty()) {
+            employeeDto.setSecondaryMobile(user.getSecondaryMobile());
         }
-        employeeDto.setGender(employee.getGender());
-        if (employee.getProfilePic() != null) {
+        employeeDto.setGender(user.getGender());
+        if (user.getProfilePic() != null) {
             MultimediaDto multimediaDto = new MultimediaDto();
-            multimediaDto.setId(employee.getProfilePic().getId());
-            multimediaDto.setName(employee.getProfilePic().getName());
-            multimediaDto.setImageUrl(employee.getProfilePic().getImageUrl());
+            multimediaDto.setId(user.getProfilePic().getId());
+            multimediaDto.setName(user.getProfilePic().getName());
+            multimediaDto.setImageUrl(user.getProfilePic().getImageUrl());
             employeeDto.setProfilePic(multimediaDto);
         }
         return employeeDto;
     }
 
+    public User toUserEntity(EmployeeCreateRequest request) {
+        User user = new User();
+        if (request.getUserName() != null && !request.getUserName().isEmpty()) {
+            user.setUserName(request.getUserName());
+        }
+        if (request.getFirstName() != null && !request.getFirstName().isEmpty()) {
+            user.setFirstName(request.getFirstName());
+        }
+
+        if (request.getLastName() != null && !request.getLastName().isEmpty()) {
+            user.setLastName(request.getLastName());
+        }
+        if (request.getEmail() != null && !request.getEmail().isEmpty()) {
+            user.setEmail(request.getEmail());
+        }
+        if (request.getPassword() != null && !request.getPassword().isEmpty()) {
+            user.setPassword(request.getPassword());
+        }
+        if (request.getMobile() != null && !request.getMobile().isEmpty()) {
+            user.setMobile(request.getMobile());
+        }
+        if (request.getSecondaryEmail() != null && !request.getSecondaryEmail().isEmpty()) {
+            user.setSecondaryEmail(request.getSecondaryEmail());
+        }
+        if (request.getSecondaryMobile() != null && !request.getSecondaryMobile().isEmpty()) {
+            user.setSecondaryMobile(request.getSecondaryMobile());
+        }
+        if (request.getGender() != null && !request.getGender().equals(0)) {
+            user.setGender(request.getGender());
+        }
+        if (request.getProvider() != null && !request.getProvider().isEmpty()) {
+            user.setProvider(request.getProvider());
+        }
+        if (request.getProviderId() != null && !request.getProviderId().isEmpty()) {
+            user.setProviderId(request.getProviderId());
+        }
+        return user;
+    }
     public Employee toEntity(EmployeeCreateRequest request) {
-        Employee employee = new Employee();
-        if (request.getUserName() != null && !request.getUserName().isEmpty()) {
-            employee.setUserName(request.getUserName());
-        }
-        if (request.getFirstName() != null && !request.getFirstName().isEmpty()) {
-            employee.setFirstName(request.getFirstName());
-        }
-
-        if (request.getLastName() != null && !request.getLastName().isEmpty()) {
-            employee.setLastName(request.getLastName());
-        }
-        if (request.getEmail() != null && !request.getEmail().isEmpty()) {
-            employee.setEmail(request.getEmail());
-        }
-        if (request.getEmail() == null) {
-            employee.setIsValidEmail(false);
-        }
-        if (request.getPassword() != null && !request.getPassword().isEmpty()) {
-            employee.setPassword(request.getPassword());
-        }
-        if (request.getMobile() != null && !request.getMobile().isEmpty()) {
-            employee.setMobile(request.getMobile());
-        }
-        if (request.getSecondaryEmail() != null && !request.getSecondaryEmail().isEmpty()) {
-            employee.setSecondaryEmail(request.getSecondaryEmail());
-        }
-        if (request.getSecondaryMobile() != null && !request.getSecondaryMobile().isEmpty()) {
-            employee.setSecondaryMobile(request.getSecondaryMobile());
-        }
-        if (request.getGender() != null && !request.getGender().equals(0)) {
-            employee.setGender(request.getGender());
-        }
-        if (request.getProvider() != null && !request.getProvider().isEmpty()) {
-            employee.setProvider(request.getProvider());
-        }
-        if (request.getProviderId() != null && !request.getProviderId().isEmpty()) {
-            employee.setProviderId(request.getProviderId());
-        }
-        return employee;
+//        AdminUser adminUser = new AdminUser();
+//        return adminUser;
+        return new Employee();
     }
-
     void update(UpdateEmployeeRequest request, Employee employee) {
+
+    }
+    void updateUser(UpdateEmployeeRequest request, User user) {
         if (request.getUserName() != null && !request.getUserName().isEmpty()) {
-            employee.setUserName(request.getUserName());
+            user.setUserName(request.getUserName());
         }
         if (request.getFirstName() != null && !request.getFirstName().isEmpty()) {
-            employee.setFirstName(request.getFirstName());
+            user.setFirstName(request.getFirstName());
         }
         if (request.getLastName() != null && !request.getLastName().isEmpty()) {
-            employee.setLastName(request.getLastName());
+            user.setLastName(request.getLastName());
         }
         if (request.getEmail() != null && !request.getEmail().isEmpty()) {
-            employee.setEmail(request.getEmail());
-        }
-        if (request.getEmail() == null) {
-            employee.setIsValidEmail(false);
+            user.setEmail(request.getEmail());
         }
         if (request.getPassword() != null && !request.getPassword().isEmpty()) {
-            employee.setPassword(request.getPassword());
+            user.setPassword(request.getPassword());
         }
         if (request.getMobile() != null && !request.getMobile().isEmpty()) {
-            employee.setMobile(request.getMobile());
+            user.setMobile(request.getMobile());
         }
         if (request.getSecondaryEmail() != null && !request.getSecondaryEmail().isEmpty()) {
-            employee.setSecondaryEmail(request.getSecondaryEmail());
+            user.setSecondaryEmail(request.getSecondaryEmail());
         }
         if (request.getSecondaryMobile() != null && !request.getSecondaryMobile().isEmpty()) {
-            employee.setSecondaryMobile(request.getSecondaryMobile());
+            user.setSecondaryMobile(request.getSecondaryMobile());
         }
         if (request.getGender() != null && !request.getGender().equals(0)) {
-            employee.setGender(request.getGender());
+            user.setGender(request.getGender());
         }
         if (request.getProvider() != null && !request.getProvider().isEmpty()) {
-            employee.setProvider(request.getProvider());
+            user.setProvider(request.getProvider());
         }
         if (request.getProviderId() != null && !request.getProviderId().isEmpty()) {
-            employee.setProviderId(request.getProviderId());
+            user.setProviderId(request.getProviderId());
         }
     }
+
 }

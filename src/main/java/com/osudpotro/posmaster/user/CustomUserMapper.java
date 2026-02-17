@@ -17,10 +17,9 @@ public class CustomUserMapper {
     public UserDto toDto(User user) {
         UserDto userDto = new UserDto();
         userDto.setId(user.getId());
-        if (user.getAdminUser() != null) {
-            userDto.setUserName(user.getUserName());
-            userDto.setEmail(user.getEmail());
-        }
+        userDto.setUserName(user.getUserName());
+        userDto.setEmail(user.getEmail());
+        userDto.setMobile(user.getMobile());
         userDto.setCreatedAt(user.getCreatedAt());
         Set<RoleDto> roles = new HashSet<>();
         if (user.getRoles() != null) {

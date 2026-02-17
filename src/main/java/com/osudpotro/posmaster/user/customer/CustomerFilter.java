@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class CustomerFilter {
+    private String userName;
     private String firstName;
     private String lastName;
     private String email;

@@ -1,6 +1,7 @@
 package com.osudpotro.posmaster.user.customer;
 
 import com.osudpotro.posmaster.multimedia.Multimedia;
+import com.osudpotro.posmaster.user.User;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -11,117 +12,121 @@ public class CustomerMapper {
         }
         CustomerDto customerDto = new CustomerDto();
         customerDto.setId(customer.getId());
-        customerDto.setFirstName(customer.getFirstName());
-        customerDto.setLastName(customer.getLastName());
-        if (customer.getEmail() != null && !customer.getEmail().isEmpty()) {
-            customerDto.setEmail(customer.getEmail());
+        User user = customer.getUser();
+        customerDto.setUserName(user.getUserName());
+        customerDto.setFirstName(user.getFirstName());
+        customerDto.setLastName(user.getLastName());
+        if (user.getEmail() != null && !user.getEmail().isEmpty()) {
+            customerDto.setEmail(user.getEmail());
         }
-        if (customer.getEmail() != null && !customer.getEmail().isEmpty()) {
-            customerDto.setEmail(customer.getEmail());
+        if (user.getEmail() != null && !user.getEmail().isEmpty()) {
+            customerDto.setEmail(user.getEmail());
         }
-        if (customer.getMobile() != null && !customer.getMobile().isEmpty()) {
-            customerDto.setMobile(customer.getMobile());
+        if (user.getMobile() != null && !user.getMobile().isEmpty()) {
+            customerDto.setMobile(user.getMobile());
         }
-        if (customer.getPassword() != null && !customer.getPassword().isEmpty()) {
-            customerDto.setPassword(customer.getPassword());
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+            customerDto.setPassword(user.getPassword());
         }
-        if (customer.getSecondaryEmail() != null && !customer.getSecondaryEmail().isEmpty()) {
-            customerDto.setSecondaryEmail(customer.getSecondaryEmail());
+        if (user.getSecondaryEmail() != null && !user.getSecondaryEmail().isEmpty()) {
+            customerDto.setSecondaryEmail(user.getSecondaryEmail());
         }
-        if (customer.getSecondaryMobile() != null && !customer.getSecondaryMobile().isEmpty()) {
-            customerDto.setSecondaryMobile(customer.getSecondaryMobile());
+        if (user.getSecondaryMobile() != null && !user.getSecondaryMobile().isEmpty()) {
+            customerDto.setSecondaryMobile(user.getSecondaryMobile());
         }
-        customerDto.setGender(customer.getGender());
-        customerDto.setOtpCode(customer.getOtpCode());
-        customerDto.setProvider(customer.getProvider());
+        customerDto.setGender(user.getGender());
+        customerDto.setProvider(user.getProvider());
         customerDto.setProviderId(customerDto.getProviderId());
-        if (customer.getProfilePic() != null) {
+        if (user.getProfilePic() != null) {
             Multimedia pictureDto = new Multimedia();
-            pictureDto.setId(customer.getProfilePic().getId());
-            pictureDto.setName(customer.getProfilePic().getName());
-            pictureDto.setImageUrl(customer.getProfilePic().getImageUrl());
+            pictureDto.setId(user.getProfilePic().getId());
+            pictureDto.setName(user.getProfilePic().getName());
+            pictureDto.setImageUrl(user.getProfilePic().getImageUrl());
             customerDto.setProfilePic(pictureDto);
         }
         return customerDto;
     }
 
     public Customer toEntity(CustomerCreateRequest request) {
-        Customer customer = new Customer();
-        if (request.getFirstName() != null && !request.getFirstName().isEmpty()) {
-            customer.setFirstName(request.getFirstName());
+        return new Customer();
+    }
+
+    public User toUserEntity(CustomerCreateRequest request) {
+        User user = new User();
+        if (request.getUserName() != null && !request.getUserName().isEmpty()) {
+            user.setUserName(request.getUserName());
         }
+        if (request.getFirstName() != null && !request.getFirstName().isEmpty()) {
+            user.setFirstName(request.getFirstName());
+        }
+
         if (request.getLastName() != null && !request.getLastName().isEmpty()) {
-            customer.setLastName(request.getLastName());
+            user.setLastName(request.getLastName());
         }
         if (request.getEmail() != null && !request.getEmail().isEmpty()) {
-            customer.setEmail(request.getEmail());
-        }
-        if (request.getEmail() == null) {
-            customer.setIsValidEmail(false);
+            user.setEmail(request.getEmail());
         }
         if (request.getPassword() != null && !request.getPassword().isEmpty()) {
-            customer.setPassword(request.getPassword());
+            user.setPassword(request.getPassword());
         }
         if (request.getMobile() != null && !request.getMobile().isEmpty()) {
-            customer.setMobile(request.getMobile());
+            user.setMobile(request.getMobile());
         }
         if (request.getSecondaryEmail() != null && !request.getSecondaryEmail().isEmpty()) {
-            customer.setSecondaryEmail(request.getSecondaryEmail());
+            user.setSecondaryEmail(request.getSecondaryEmail());
         }
         if (request.getSecondaryMobile() != null && !request.getSecondaryMobile().isEmpty()) {
-            customer.setSecondaryMobile(request.getSecondaryMobile());
+            user.setSecondaryMobile(request.getSecondaryMobile());
         }
         if (request.getGender() != null && !request.getGender().equals(0)) {
-            customer.setGender(request.getGender());
+            user.setGender(request.getGender());
         }
         if (request.getProvider() != null && !request.getProvider().isEmpty()) {
-            customer.setProvider(request.getProvider());
+            user.setProvider(request.getProvider());
         }
         if (request.getProviderId() != null && !request.getProviderId().isEmpty()) {
-            customer.setProviderId(request.getProviderId());
+            user.setProviderId(request.getProviderId());
         }
-        if (request.getOtpCode() != null && !request.getOtpCode().isEmpty()) {
-            customer.setOtpCode(request.getOtpCode());
-        }
-        return customer;
+        return user;
     }
 
     void update(CustomerUpdateRequest request, Customer customer) {
+
+    }
+
+    void updateUser(CustomerUpdateRequest request, User user) {
+        if (request.getUserName() != null && !request.getUserName().isEmpty()) {
+            user.setUserName(request.getUserName());
+        }
         if (request.getFirstName() != null && !request.getFirstName().isEmpty()) {
-            customer.setFirstName(request.getFirstName());
+            user.setFirstName(request.getFirstName());
         }
         if (request.getLastName() != null && !request.getLastName().isEmpty()) {
-            customer.setLastName(request.getLastName());
+            user.setLastName(request.getLastName());
         }
         if (request.getEmail() != null && !request.getEmail().isEmpty()) {
-            customer.setEmail(request.getEmail());
-        }
-        if (request.getEmail() == null) {
-            customer.setIsValidEmail(false);
+            user.setEmail(request.getEmail());
         }
         if (request.getPassword() != null && !request.getPassword().isEmpty()) {
-            customer.setPassword(request.getPassword());
+            user.setPassword(request.getPassword());
         }
         if (request.getMobile() != null && !request.getMobile().isEmpty()) {
-            customer.setMobile(request.getMobile());
+            user.setMobile(request.getMobile());
         }
         if (request.getSecondaryEmail() != null && !request.getSecondaryEmail().isEmpty()) {
-            customer.setSecondaryEmail(request.getSecondaryEmail());
+            user.setSecondaryEmail(request.getSecondaryEmail());
         }
         if (request.getSecondaryMobile() != null && !request.getSecondaryMobile().isEmpty()) {
-            customer.setSecondaryMobile(request.getSecondaryMobile());
+            user.setSecondaryMobile(request.getSecondaryMobile());
         }
         if (request.getGender() != null && !request.getGender().equals(0)) {
-            customer.setGender(request.getGender());
+            user.setGender(request.getGender());
         }
         if (request.getProvider() != null && !request.getProvider().isEmpty()) {
-            customer.setProvider(request.getProvider());
+            user.setProvider(request.getProvider());
         }
         if (request.getProviderId() != null && !request.getProviderId().isEmpty()) {
-            customer.setProviderId(request.getProviderId());
-        }
-        if (request.getOtpCode() != null && !request.getOtpCode().isEmpty()) {
-            customer.setOtpCode(request.getOtpCode());
+            user.setProviderId(request.getProviderId());
         }
     }
 }

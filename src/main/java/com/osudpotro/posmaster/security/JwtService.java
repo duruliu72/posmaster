@@ -21,7 +21,6 @@ public class JwtService {
     public Jwt generateRefreshToken(User user) {
         return generateToken(user, jwtConfig.getRefreshTokenExpiration());
     }
-
     private Jwt generateToken(User user, long tokenExpiration) {
         var expTimeMillis = System.currentTimeMillis() + 1000 * tokenExpiration;
         var expIn = new Date(expTimeMillis);

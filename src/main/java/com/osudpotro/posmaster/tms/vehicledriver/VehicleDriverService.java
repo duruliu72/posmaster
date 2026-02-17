@@ -1,5 +1,7 @@
 package com.osudpotro.posmaster.tms.vehicledriver;
 
+import com.osudpotro.posmaster.multimedia.Multimedia;
+import com.osudpotro.posmaster.multimedia.MultimediaRepository;
 import com.osudpotro.posmaster.user.auth.AuthService;
 import com.osudpotro.posmaster.role.Role;
 import com.osudpotro.posmaster.role.RoleRepository;
@@ -26,6 +28,7 @@ public class VehicleDriverService {
     private final VehicleDriverMapper vehicleDriverMapper;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
+    private final MultimediaRepository multimediaRepository;
 
     public List<VehicleDriverDto> gerAllVehicleDrivers() {
         return vehicleDriverRepository.findAll(Sort.by(Sort.Direction.DESC, "id"))
@@ -39,20 +42,20 @@ public class VehicleDriverService {
     }
 
     public VehicleDriverDto registerVehicleDriver(VehicleDriverCreateRequest request) {
-        if (request.getEmail() != null && vehicleDriverRepository.existsByEmail(request.getEmail())) {
+        if (request.getEmail() != null && userRepository.existsByEmail(request.getEmail())) {
             throw new DuplicateVehicleDriverException("Email already exists");
         }
-        if (request.getMobile() != null && vehicleDriverRepository.existsByMobile(request.getMobile())) {
+        if (request.getMobile() != null && userRepository.existsByMobile(request.getMobile())) {
             throw new DuplicateVehicleDriverException("Phone number already exists");
         }
-        if (request.getEmail() != null && request.getMobile() != null && vehicleDriverRepository.existsByEmailOrMobile(request.getEmail(), request.getMobile())) {
+        if (request.getEmail() != null && request.getMobile() != null && userRepository.existsByEmailOrMobile(request.getEmail(), request.getMobile())) {
             throw new DuplicateVehicleDriverException();
         }
         var vehicleDriver = vehicleDriverMapper.toEntity(request);
-        vehicleDriver.setPassword(passwordEncoder.encode(vehicleDriver.getPassword()));
         var authUser = authService.getCurrentUser();
         //Common User Entity
-        User user = new User();
+        User user = vehicleDriverMapper.toUserEntity(request);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setUserType(UserType.VEHICLE_DRIVER);
         user.setCreatedBy(authUser);
         vehicleDriver.setCreatedBy(authUser);
@@ -76,28 +79,38 @@ public class VehicleDriverService {
     }
     public VehicleDriverDto updateVehicleDriver(Long customerId, UpdateVehicleDriverRequest request) {
         var vehicleDriver = vehicleDriverRepository.findById(customerId).orElseThrow(VehicleDriverNotFoundException::new);
-        if (request.getEmail() != null && vehicleDriverRepository.existsByEmail(request.getEmail())) {
-            if (!vehicleDriver.getEmail().equals(request.getEmail())) {
+        var user = vehicleDriver.getUser();
+        if (request.getEmail() != null && userRepository.existsByEmail(request.getEmail())) {
+            if (!user.getEmail().equals(request.getEmail())) {
                 throw new DuplicateVehicleDriverException("Email already exists");
             }
         }
-        if (request.getMobile() != null && vehicleDriverRepository.existsByMobile(request.getMobile())) {
-            if (!vehicleDriver.getMobile().equals(request.getMobile())) {
+        if (request.getMobile() != null && userRepository.existsByMobile(request.getMobile())) {
+            if (!user.getMobile().equals(request.getMobile())) {
                 throw new DuplicateVehicleDriverException("Phone number already exists");
             }
 
         }
-        if (request.getEmail() != null && request.getMobile() != null && vehicleDriverRepository.existsByEmailOrMobile(request.getEmail(), request.getMobile())) {
-            if (!vehicleDriver.getEmail().equals(request.getEmail()) && !vehicleDriver.getMobile().equals(request.getMobile())) {
+        if (request.getEmail() != null && request.getMobile() != null && userRepository.existsByEmailOrMobile(request.getEmail(), request.getMobile())) {
+            if (!user.getEmail().equals(request.getEmail()) && !user.getMobile().equals(request.getMobile())) {
                 throw new DuplicateVehicleDriverException();
             }
         }
 
         vehicleDriverMapper.update(request, vehicleDriver);
+        vehicleDriverMapper.updateUser(request, user);
         if (request.getPassword() != null && !request.getPassword().isEmpty()) {
-            vehicleDriver.setPassword(passwordEncoder.encode(vehicleDriver.getPassword()));
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
         var authUser = authService.getCurrentUser();
+        if (request.getMultimediaId() != null) {
+            Multimedia multimedia = multimediaRepository.findById(request.getMultimediaId()).orElse(null);
+            if (multimedia != null) {
+                multimedia.setLinked(true);
+                user.setProfilePic(multimedia);
+            }
+        }
+        vehicleDriver.setUser(user);
         vehicleDriver.setUpdatedBy(authUser);
         vehicleDriverRepository.save(vehicleDriver);
         return vehicleDriverMapper.toDto(vehicleDriver);

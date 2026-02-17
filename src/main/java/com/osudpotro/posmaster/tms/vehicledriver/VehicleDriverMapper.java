@@ -1,6 +1,7 @@
 package com.osudpotro.posmaster.tms.vehicledriver;
 
 import com.osudpotro.posmaster.multimedia.MultimediaDto;
+import com.osudpotro.posmaster.user.User;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -11,110 +12,114 @@ public class VehicleDriverMapper {
         }
         VehicleDriverDto vehicleDriverDto = new VehicleDriverDto();
         vehicleDriverDto.setId(vehicleDriver.getId());
-        vehicleDriverDto.setUserName(vehicleDriver.getUserName());
-        vehicleDriverDto.setFirstName(vehicleDriver.getFirstName());
-        vehicleDriverDto.setLastName(vehicleDriver.getLastName());
-        if (vehicleDriver.getEmail() != null && !vehicleDriver.getEmail().isEmpty()) {
-            vehicleDriverDto.setEmail(vehicleDriver.getEmail());
+        User user =vehicleDriver.getUser();
+        vehicleDriverDto.setUserName(user.getUserName());
+        vehicleDriverDto.setUserName(user.getUserName());
+        vehicleDriverDto.setFirstName(user.getFirstName());
+        vehicleDriverDto.setLastName(user.getLastName());
+        if (user.getEmail() != null && !user.getEmail().isEmpty()) {
+            vehicleDriverDto.setEmail(user.getEmail());
         }
-        if (vehicleDriver.getEmail() != null && !vehicleDriver.getEmail().isEmpty()) {
-            vehicleDriverDto.setEmail(vehicleDriver.getEmail());
+        if (user.getEmail() != null && !user.getEmail().isEmpty()) {
+            vehicleDriverDto.setEmail(user.getEmail());
         }
-        if (vehicleDriver.getMobile() != null && !vehicleDriver.getMobile().isEmpty()) {
-            vehicleDriverDto.setMobile(vehicleDriver.getMobile());
+        if (user.getMobile() != null && !user.getMobile().isEmpty()) {
+            vehicleDriverDto.setMobile(user.getMobile());
         }
-        if (vehicleDriver.getSecondaryEmail() != null && !vehicleDriver.getSecondaryEmail().isEmpty()) {
-            vehicleDriverDto.setSecondaryEmail(vehicleDriver.getSecondaryEmail());
+        if (user.getSecondaryEmail() != null && !user.getSecondaryEmail().isEmpty()) {
+            vehicleDriverDto.setSecondaryEmail(user.getSecondaryEmail());
         }
-        if (vehicleDriver.getSecondaryMobile() != null && !vehicleDriver.getSecondaryMobile().isEmpty()) {
-            vehicleDriverDto.setSecondaryMobile(vehicleDriver.getSecondaryMobile());
+        if (user.getSecondaryMobile() != null && !user.getSecondaryMobile().isEmpty()) {
+            vehicleDriverDto.setSecondaryMobile(user.getSecondaryMobile());
         }
-        vehicleDriverDto.setGender(vehicleDriver.getGender());
-        if (vehicleDriver.getProfilePic() != null) {
+        vehicleDriverDto.setGender(user.getGender());
+        if (user.getProfilePic() != null) {
             MultimediaDto multimediaDto = new MultimediaDto();
-            multimediaDto.setId(vehicleDriver.getProfilePic().getId());
-            multimediaDto.setName(vehicleDriver.getProfilePic().getName());
-            multimediaDto.setImageUrl(vehicleDriver.getProfilePic().getImageUrl());
+            multimediaDto.setId(user.getProfilePic().getId());
+            multimediaDto.setName(user.getProfilePic().getName());
+            multimediaDto.setImageUrl(user.getProfilePic().getImageUrl());
             vehicleDriverDto.setProfilePic(multimediaDto);
         }
         return vehicleDriverDto;
     }
 
     public VehicleDriver toEntity(VehicleDriverCreateRequest request) {
-        VehicleDriver vehicleDriver = new VehicleDriver();
-        if (request.getUserName() != null && !request.getUserName().isEmpty()) {
-            vehicleDriver.setUserName(request.getUserName());
-        }
-        if (request.getFirstName() != null && !request.getFirstName().isEmpty()) {
-            vehicleDriver.setFirstName(request.getFirstName());
-        }
-
-        if (request.getLastName() != null && !request.getLastName().isEmpty()) {
-            vehicleDriver.setLastName(request.getLastName());
-        }
-        if (request.getEmail() != null && !request.getEmail().isEmpty()) {
-            vehicleDriver.setEmail(request.getEmail());
-        }
-        if (request.getEmail() == null) {
-            vehicleDriver.setIsValidEmail(false);
-        }
-        if (request.getPassword() != null && !request.getPassword().isEmpty()) {
-            vehicleDriver.setPassword(request.getPassword());
-        }
-        if (request.getMobile() != null && !request.getMobile().isEmpty()) {
-            vehicleDriver.setMobile(request.getMobile());
-        }
-        if (request.getSecondaryEmail() != null && !request.getSecondaryEmail().isEmpty()) {
-            vehicleDriver.setSecondaryEmail(request.getSecondaryEmail());
-        }
-        if (request.getSecondaryMobile() != null && !request.getSecondaryMobile().isEmpty()) {
-            vehicleDriver.setSecondaryMobile(request.getSecondaryMobile());
-        }
-        if (request.getGender() != null && !request.getGender().equals(0)) {
-            vehicleDriver.setGender(request.getGender());
-        }
-        if (request.getProvider() != null && !request.getProvider().isEmpty()) {
-            vehicleDriver.setProvider(request.getProvider());
-        }
-        if (request.getProviderId() != null && !request.getProviderId().isEmpty()) {
-            vehicleDriver.setProviderId(request.getProviderId());
-        }
-        return vehicleDriver;
+        return new VehicleDriver();
     }
-
-    void update(UpdateVehicleDriverRequest request, VehicleDriver vehicleDriver) {
-        if (request.getFirstName() != null && !request.getFirstName().isEmpty()) {
-            vehicleDriver.setFirstName(request.getFirstName());
+    public User toUserEntity(VehicleDriverCreateRequest request) {
+        User user = new User();
+        if (request.getUserName() != null && !request.getUserName().isEmpty()) {
+            user.setUserName(request.getUserName());
         }
+        if (request.getFirstName() != null && !request.getFirstName().isEmpty()) {
+            user.setFirstName(request.getFirstName());
+        }
+
         if (request.getLastName() != null && !request.getLastName().isEmpty()) {
-            vehicleDriver.setLastName(request.getLastName());
+            user.setLastName(request.getLastName());
         }
         if (request.getEmail() != null && !request.getEmail().isEmpty()) {
-            vehicleDriver.setEmail(request.getEmail());
-        }
-        if (request.getEmail() == null) {
-            vehicleDriver.setIsValidEmail(false);
+            user.setEmail(request.getEmail());
         }
         if (request.getPassword() != null && !request.getPassword().isEmpty()) {
-            vehicleDriver.setPassword(request.getPassword());
+            user.setPassword(request.getPassword());
         }
         if (request.getMobile() != null && !request.getMobile().isEmpty()) {
-            vehicleDriver.setMobile(request.getMobile());
+            user.setMobile(request.getMobile());
         }
         if (request.getSecondaryEmail() != null && !request.getSecondaryEmail().isEmpty()) {
-            vehicleDriver.setSecondaryEmail(request.getSecondaryEmail());
+            user.setSecondaryEmail(request.getSecondaryEmail());
         }
         if (request.getSecondaryMobile() != null && !request.getSecondaryMobile().isEmpty()) {
-            vehicleDriver.setSecondaryMobile(request.getSecondaryMobile());
+            user.setSecondaryMobile(request.getSecondaryMobile());
         }
         if (request.getGender() != null && !request.getGender().equals(0)) {
-            vehicleDriver.setGender(request.getGender());
+            user.setGender(request.getGender());
         }
         if (request.getProvider() != null && !request.getProvider().isEmpty()) {
-            vehicleDriver.setProvider(request.getProvider());
+            user.setProvider(request.getProvider());
         }
         if (request.getProviderId() != null && !request.getProviderId().isEmpty()) {
-            vehicleDriver.setProviderId(request.getProviderId());
+            user.setProviderId(request.getProviderId());
+        }
+        return user;
+    }
+    void update(UpdateVehicleDriverRequest request, VehicleDriver vehicleDriver) {
+
+    }
+    void updateUser(UpdateVehicleDriverRequest request, User user) {
+        if (request.getUserName() != null && !request.getUserName().isEmpty()) {
+            user.setUserName(request.getUserName());
+        }
+        if (request.getFirstName() != null && !request.getFirstName().isEmpty()) {
+            user.setFirstName(request.getFirstName());
+        }
+        if (request.getLastName() != null && !request.getLastName().isEmpty()) {
+            user.setLastName(request.getLastName());
+        }
+        if (request.getEmail() != null && !request.getEmail().isEmpty()) {
+            user.setEmail(request.getEmail());
+        }
+        if (request.getPassword() != null && !request.getPassword().isEmpty()) {
+            user.setPassword(request.getPassword());
+        }
+        if (request.getMobile() != null && !request.getMobile().isEmpty()) {
+            user.setMobile(request.getMobile());
+        }
+        if (request.getSecondaryEmail() != null && !request.getSecondaryEmail().isEmpty()) {
+            user.setSecondaryEmail(request.getSecondaryEmail());
+        }
+        if (request.getSecondaryMobile() != null && !request.getSecondaryMobile().isEmpty()) {
+            user.setSecondaryMobile(request.getSecondaryMobile());
+        }
+        if (request.getGender() != null && !request.getGender().equals(0)) {
+            user.setGender(request.getGender());
+        }
+        if (request.getProvider() != null && !request.getProvider().isEmpty()) {
+            user.setProvider(request.getProvider());
+        }
+        if (request.getProviderId() != null && !request.getProviderId().isEmpty()) {
+            user.setProviderId(request.getProviderId());
         }
     }
 }

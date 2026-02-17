@@ -19,27 +19,24 @@ import java.util.Map;
 @RequestMapping("/customers")
 public class CustomerController {
     private final CustomerService customerService;
-
     //    @PreAuthorize("hasAuthority('CUSTOMER_READ')")
     @GetMapping
     public List<CustomerDto> getAllCustomers() {
         return customerService.gerAllCustomers();
     }
-
     @PostMapping("/filter")
-    public PagedResponse<CustomerDto> searchCustomers(
+    public PagedResponse<CustomerDto> filterCustomers(
             @RequestBody CustomerFilter filter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir
     ) {
-
         Sort sort = sortDir.equalsIgnoreCase("asc") ?
                 Sort.by(sortBy).ascending() :
                 Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<CustomerDto> result = customerService.getCustomers(filter, pageable);
+        Page<CustomerDto> result = customerService.filterCustomers(filter, pageable);
         return new PagedResponse<>(result);
     }
 
@@ -51,12 +48,11 @@ public class CustomerController {
 
     //    @PreAuthorize("hasAuthority('CUSTOMER_CREATE')")
     @PostMapping
-    public ResponseEntity<CustomerDto> createCustomer(@Valid @RequestBody CustomerCreateRequest request, UriComponentsBuilder uriBuilder) {
-        var customerDto = customerService.CreateCustomer(request);
+    public ResponseEntity<CustomerDto> registerCustomer(@Valid @RequestBody CustomerCreateRequest request, UriComponentsBuilder uriBuilder) {
+        var customerDto = customerService.registerCustomer(request);
         var uri = uriBuilder.path("/customers/{id}").buildAndExpand(customerDto.getId()).toUri();
         return ResponseEntity.created(uri).body(customerDto);
     }
-
     //    @PreAuthorize("hasAuthority('CUSTOMER_UPDATE')")
     @PutMapping("/{id}")
     public CustomerDto updateCustomer(
@@ -64,7 +60,12 @@ public class CustomerController {
             @RequestBody CustomerUpdateRequest request) {
         return customerService.updateCustomer(id, request);
     }
-
+    @PutMapping("/{id}/user")
+    public CustomerDto updateUpdateEmailAndMobileForUser(
+            @PathVariable(name = "id") Long id,
+            @RequestBody UpdateForUserRequest request) {
+        return customerService.updateUpdateEmailAndMobileForUser(id, request);
+    }
     //    @PreAuthorize("hasAuthority('CUSTOMER_DELETE')")
     @DeleteMapping("/{id}")
     public CustomerDto deleteCustomer(
@@ -93,12 +94,14 @@ public class CustomerController {
             @PathVariable(name = "id") Long id) {
         return customerService.deactivateCustomer(id);
     }
+
     @ExceptionHandler(DuplicateCustomerException.class)
     public ResponseEntity<Map<String, String>> handleDuplicateCustomer(Exception ex) {
         return ResponseEntity.badRequest().body(
                 Map.of("error", ex.getMessage())
         );
     }
+
     @ExceptionHandler(CustomerNotFoundException.class)
     public ResponseEntity<Void> handleCustomerNotFound() {
         return ResponseEntity.notFound().build();

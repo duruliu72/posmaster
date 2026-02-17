@@ -49,6 +49,7 @@ public class AdminUserService {
         var authUser = authService.getCurrentUser();
 //        Common User Entity
         User user = adminUserMapper.toUserEntity(request);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setUserType(UserType.ADMIN);
         user.setCreatedBy(authUser);
         Role findRole = roleRepository.findByRoleKey("ROLE_ADMIN")
@@ -122,6 +123,15 @@ public class AdminUserService {
             if (!request.getMobile().equalsIgnoreCase(user.getMobile()) && userRepository.existsByMobile(request.getMobile())) {
                 throw new DuplicateUserException("Mobile  is already registered");
             }
+        }
+        if (request.getUserName() != null) {
+            user.setUserName(request.getUserName());
+        }
+        if (request.getEmail() != null) {
+            user.setEmail(request.getEmail());
+        }
+        if (request.getMobile() != null) {
+            user.setMobile(request.getMobile());
         }
         adminUser.setUpdatedBy(authUser);
         user.setUpdatedBy(authUser);

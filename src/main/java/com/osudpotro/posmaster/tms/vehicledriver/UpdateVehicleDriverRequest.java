@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class UpdateVehicleDriverRequest {
+    private String userName;
     private String firstName;
     private String lastName;
     private String email;
@@ -14,5 +15,5 @@ public class UpdateVehicleDriverRequest {
     private Integer gender;
     private String provider;
     private String providerId;
-    private Long pictureId;
+    private Long multimediaId;
 }

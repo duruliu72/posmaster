@@ -38,23 +38,19 @@ public class EmployeeService {
     public Page<EmployeeDto> filterEmployees(EmployeeFilter filter, Pageable pageable) {
         return employeeRepository.findAll(EmployeeSpecification.filter(filter), pageable).map(employeeMapper::toDto);
     }
-
     @Transactional
     public EmployeeDto registerEmployee(EmployeeCreateRequest request) {
-        if (request.getEmail() != null && employeeRepository.existsByEmail(request.getEmail())) {
+        if (request.getEmail() != null && userRepository.existsByEmail(request.getEmail())) {
             throw new DuplicateUserException("Email  is already registered");
         }
-        if (request.getMobile() != null && employeeRepository.existsByMobile(request.getMobile())) {
+        if (request.getMobile() != null && userRepository.existsByMobile(request.getMobile())) {
             throw new DuplicateUserException("Mobile  is already registered");
         }
         Employee employee = employeeMapper.toEntity(request);
-        if (request.getPassword() != null && !request.getPassword().isEmpty()) {
-            employee.setPassword(employee.getPassword());
-        }
-        employee.setPassword(passwordEncoder.encode(request.getPassword()));
         var authUser = authService.getCurrentUser();
 //        Common User Entity
-        User user = new User();
+        User user = employeeMapper.toUserEntity(request);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setUserType(UserType.EMPLOYEE);
         user.setCreatedBy(authUser);
         Role findRole = roleRepository.findByRoleKey("ROLE_EMPLOYEE")
@@ -79,36 +75,37 @@ public class EmployeeService {
     @Transactional
     public EmployeeDto updateEmployee(Long employeeId, UpdateEmployeeRequest request) {
         var employee = employeeRepository.findById(employeeId).orElseThrow(EmployeeNotFoundException::new);
-        if (request.getEmail() != null && employeeRepository.existsByEmail(request.getEmail())) {
-            if (!employee.getEmail().equals(request.getEmail())) {
+        var user = employee.getUser();
+        if (request.getEmail() != null && userRepository.existsByEmail(request.getEmail())) {
+            if (!user.getEmail().equals(request.getEmail())) {
                 throw new DuplicateUserException("Email already exists");
             }
         }
-        if (request.getMobile() != null && employeeRepository.existsByMobile(request.getMobile())) {
-            if (!employee.getMobile().equals(request.getMobile())) {
+        if (request.getMobile() != null && userRepository.existsByMobile(request.getMobile())) {
+            if (!user.getMobile().equals(request.getMobile())) {
                 throw new DuplicateUserException("Phone number already exists");
             }
 
         }
-        if (request.getEmail() != null && request.getMobile() != null && employeeRepository.existsByEmailOrMobile(request.getEmail(), request.getMobile())) {
-            if (!employee.getEmail().equals(request.getEmail()) && !employee.getMobile().equals(request.getMobile())) {
+        if (request.getEmail() != null && request.getMobile() != null && userRepository.existsByEmailOrMobile(request.getEmail(), request.getMobile())) {
+            if (!user.getEmail().equals(request.getEmail()) && !user.getMobile().equals(request.getMobile())) {
                 throw new DuplicateUserException();
             }
         }
         employeeMapper.update(request, employee);
+        employeeMapper.updateUser(request, user);
         if (request.getPassword() != null && !request.getPassword().isEmpty()) {
-            employee.setPassword(passwordEncoder.encode(employee.getPassword()));
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
         var authUser = authService.getCurrentUser();
-        employee.setFirstName(request.getFirstName());
-        employee.setLastName(request.getLastName());
         if (request.getMultimediaId() != null) {
             Multimedia multimedia = multimediaRepository.findById(request.getMultimediaId()).orElse(null);
             if (multimedia != null) {
                 multimedia.setLinked(true);
-                employee.setProfilePic(multimedia);
+                user.setProfilePic(multimedia);
             }
         }
+        employee.setUser(user);
         employee.setUpdatedBy(authUser);
         employeeRepository.save(employee);
         return employeeMapper.toDto(employee);
@@ -119,23 +116,27 @@ public class EmployeeService {
         var user = userRepository.findById(employee.getUser().getId()).orElseThrow(UserNotFoundException::new);
         var authUser = authService.getCurrentUser();
         if (request.getEmail() != null) {
-            if (!request.getEmail().equalsIgnoreCase(employee.getEmail()) && employeeRepository.existsByEmail(request.getEmail())) {
+            if (!request.getEmail().equalsIgnoreCase(user.getEmail()) && userRepository.existsByEmail(request.getEmail())) {
                 throw new DuplicateUserException("Email  is already registered");
             }
-            employee.setEmail(request.getEmail());
         }
         if (request.getMobile() != null) {
-            if (!request.getMobile().equalsIgnoreCase(employee.getMobile()) && employeeRepository.existsByMobile(request.getMobile())) {
+            if (!request.getMobile().equalsIgnoreCase(user.getMobile()) && userRepository.existsByMobile(request.getMobile())) {
                 throw new DuplicateUserException("Mobile  is already registered");
             }
-            employee.setMobile(request.getMobile());
         }
         if (request.getUserName() != null) {
-            employee.setUserName(request.getUserName());
+            user.setUserName(request.getUserName());
+        }
+        if (request.getEmail() != null) {
+            user.setEmail(request.getEmail());
+        }
+        if (request.getMobile() != null) {
+            user.setMobile(request.getMobile());
         }
         employee.setUpdatedBy(authUser);
         user.setUpdatedBy(authUser);
-        userRepository.save(user);
+        employee.setUser(user);
         employeeRepository.save(employee);
         return employeeMapper.toDto(employee);
     }
@@ -144,6 +145,7 @@ public class EmployeeService {
         var employee = employeeRepository.findById(employeeId).orElseThrow(() -> new EmployeeNotFoundException("Employee User not found with ID: " + employeeId));
         return employeeMapper.toDto(employee);
     }
+
     public EmployeeDto activeEmployee(Long customerId) {
         var vehicleDriver = employeeRepository.findById(customerId).orElseThrow(() -> new EmployeeNotFoundException("Employee not found with ID: " + customerId));
         var authUser = authService.getCurrentUser();
@@ -170,6 +172,7 @@ public class EmployeeService {
         employeeRepository.save(vehicleDriver);
         return employeeMapper.toDto(vehicleDriver);
     }
+
     public int deleteBulkEmployee(List<Long> ids) {
         return employeeRepository.deleteBulkEmployee(ids, 3L);
     }

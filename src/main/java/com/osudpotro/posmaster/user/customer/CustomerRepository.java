@@ -11,11 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CustomerRepository extends JpaSpecificationExecutor<Customer>, JpaRepository<Customer, Long> {
-    Optional<Customer> findByEmail(String email);
-    Optional<Customer> findByMobile(String mobile);
-    boolean existsByEmailOrMobile(String email, String mobile);
-    boolean existsByEmail(String email);
-    boolean existsByMobile(String mobile);
+    Optional<Customer> findByOtpCode(String otpCode);
     @Transactional
     @Modifying
     @Query("update Customer c set c.status = :status where c.id in :ids")
