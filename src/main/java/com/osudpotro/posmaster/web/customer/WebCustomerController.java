@@ -105,17 +105,25 @@ public class WebCustomerController {
         if (request.getMobile() != null && !request.getMobile().trim().isEmpty() && request.getOtpCode() != null && !request.getOtpCode().trim().isEmpty()) {
 //            Otp Based Mobile
             user = userRepository.findByMobile(request.getMobile()).orElse(null);
-            if(user!=null){
+            if (user != null) {
                 var customer = user.getCustomer();
-                customer.getOtpRequestDateTime();
+                if ((customer.getOtpCode() == null && customer.getOtpRequestDateTime() == null) || (customer.getOtpCode() != null && !customer.getOtpCode().trim().isEmpty() && !customer.getOtpCode().equals(request.getOtpCode()))) {
+                    throw new UnauthorizedException("Invalid Otp");
+                }
+                if (customer.getOtpRequestDateTime().isBefore(LocalDateTime.now())) {
+                    throw new UnauthorizedException("Time Over");
+                }
+                customer.setOtpCode(null);
+                customer.setOtpRequestDateTime(null);
+                customerRepository.save(customer);
             }
         }
         if (request.getProvider() != null && !request.getProvider().trim().isEmpty() && request.getProviderId() != null && !request.getProviderId().trim().isEmpty()) {
 //            Provider Auth
         }
-        if ((request.getEmail() != null && !request.getEmail().trim().isEmpty() || request.getMobile() != null && !request.getMobile().trim().isEmpty()) && request.getPassword() == null) {
-            throw new UnauthorizedException("Credential mismatch");
-        }
+//        if ((request.getEmail() != null && !request.getEmail().trim().isEmpty() || request.getMobile() != null && !request.getMobile().trim().isEmpty()) && request.getPassword() == null) {
+//            throw new UnauthorizedException("Credential mismatch");
+//        }
         var accessToken = jwtService.generateAccessToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
         var cookie = new Cookie("refreshToken", refreshToken.toString());
@@ -175,6 +183,7 @@ public class WebCustomerController {
                 Customer newCustomer = new Customer();
                 newCustomer.setUser(newUser);
                 customerRepository.save(newCustomer);
+                newUser.setCustomer(newCustomer);
                 user = newUser;
             }
         }
