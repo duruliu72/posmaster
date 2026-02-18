@@ -1,6 +1,7 @@
 package com.osudpotro.posmaster.web.customer;
 
 
+import com.osudpotro.posmaster.common.SendSms;
 import com.osudpotro.posmaster.role.Role;
 import com.osudpotro.posmaster.role.RoleRepository;
 import com.osudpotro.posmaster.security.JwtConfig;
@@ -42,7 +43,7 @@ public class WebCustomerController {
     private final CustomerRepository customerRepository;
     private final PasswordEncoder passwordEncoder;
     private final Random random = new Random();
-
+    private final SendSms sendSms;
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@Validated @RequestBody WebCustomerLoginRequest request, HttpServletResponse response) {
         User user = null;
@@ -100,7 +101,19 @@ public class WebCustomerController {
         }
         if (request.getEmail() != null && !request.getEmail().trim().isEmpty() && request.getOtpCode() != null && !request.getOtpCode().trim().isEmpty()) {
 //            OTP Based
-
+            user = userRepository.findByEmail(request.getEmail()).orElse(null);
+            if (user != null) {
+                var customer = user.getCustomer();
+                if ((customer.getOtpCode() == null && customer.getOtpRequestDateTime() == null) || (customer.getOtpCode() != null && !customer.getOtpCode().trim().isEmpty() && !customer.getOtpCode().equals(request.getOtpCode()))) {
+                    throw new UnauthorizedException("Invalid Otp");
+                }
+                if (customer.getOtpRequestDateTime().isBefore(LocalDateTime.now())) {
+                    throw new UnauthorizedException("Time Over");
+                }
+                customer.setOtpCode(null);
+                customer.setOtpRequestDateTime(null);
+                customerRepository.save(customer);
+            }
         }
         if (request.getMobile() != null && !request.getMobile().trim().isEmpty() && request.getOtpCode() != null && !request.getOtpCode().trim().isEmpty()) {
 //            Otp Based Mobile
@@ -193,6 +206,9 @@ public class WebCustomerController {
             Customer customer = user.getCustomer();
             customer.setOtpCode(otpCode);
             customer.setOtpRequestDateTime(LocalDateTime.now().plusMinutes(5));
+//            Send Sms
+            String mobileSms="Your  OTP:"+otpCode;
+//            sendSms.sendSms(request.getMobile(),mobileSms);
             customerRepository.save(customer);
         }
         return ResponseEntity.ok(new OtpResponse(otpCode));
@@ -201,4 +217,5 @@ public class WebCustomerController {
     private String generateOtp() {
         return String.format("%06d", random.nextInt(999999));
     }
+
 }
