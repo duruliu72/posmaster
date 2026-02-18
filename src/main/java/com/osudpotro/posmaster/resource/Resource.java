@@ -1,4 +1,4 @@
-package com.osudpotro.posmaster.resource.ui;
+package com.osudpotro.posmaster.resource;
 
 import com.osudpotro.posmaster.common.BaseEntity;
 import jakarta.persistence.*;
@@ -15,19 +15,21 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "ui_resources")
-public class UiResource extends BaseEntity {
+@Table(name = "resources")
+public class Resource extends BaseEntity {
     private String name;
-    @Column(name = "ui_resource_key", nullable = true, unique = true, length = 50)
-    private String uiResourceKey;
-    @Column(name = "ui_url")
-    private String pageUrl;
+    @Column(name = "resource_key", nullable = true, unique = true, length = 50)
+    private String resourceKey;
+    @Column(name = "url")
+    private String url;
     private String icon;
+//    1=Dashboard , 2=Web App
+    private Integer resourceType;
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "parent_id", nullable = true)
-    private UiResource parentUiResource;
+    private Resource parentResource;
     private Integer orderNo;
     private boolean isSideLoc=true;
-    @OneToMany(mappedBy = "uiResource", cascade = CascadeType.ALL,orphanRemoval = true)
-    private List<UiResourceAction> uiResourceActions = new ArrayList<>();
+    @OneToMany(mappedBy = "resource", cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<ResourceAction> resourceActions = new ArrayList<>();
 }

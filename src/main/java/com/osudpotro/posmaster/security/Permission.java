@@ -1,7 +1,7 @@
 package com.osudpotro.posmaster.security;
 
 import com.osudpotro.posmaster.common.BaseEntity;
-import com.osudpotro.posmaster.resource.api.ApiResource;
+import com.osudpotro.posmaster.resource.Resource;
 import com.osudpotro.posmaster.role.Role;
 import com.osudpotro.posmaster.user.User;
 import jakarta.persistence.*;
@@ -27,8 +27,8 @@ public class Permission extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
     @ManyToOne
-    @JoinColumn(name = "api_resource_id")
-    private ApiResource apiResource;
+    @JoinColumn(name = "resource_id")
+    private Resource resource;
     @JoinColumn(name = "is_resource_checked")
     private boolean isResourceChecked=false;
     @Enumerated(EnumType.STRING)

@@ -8,7 +8,7 @@ import java.util.Set;
 
 @Data
 public class ResourceRequest {
-    private Long api_resource_id;
+    private Long resourceId;
     @JsonProperty("isResourceChecked")
     private boolean isResourceChecked;
     private Set<ActionRequest> actions=new HashSet<>();

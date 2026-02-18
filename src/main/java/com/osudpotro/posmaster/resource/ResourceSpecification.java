@@ -1,4 +1,4 @@
-package com.osudpotro.posmaster.resource.ui;
+package com.osudpotro.posmaster.resource;
 
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
@@ -6,21 +6,21 @@ import org.springframework.data.jpa.domain.Specification;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UiResourceSpecification {
-    public static Specification<UiResource> filter(UiResourceFilter filter) {
+public class ResourceSpecification {
+    public static Specification<Resource> filter(ResourceFilter filter) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             if (filter.getName() != null && !filter.getName().isEmpty()) {
                 predicates.add(cb.like(cb.lower(root.get("name")),
                         "%" + filter.getName().toLowerCase() + "%"));
             }
-            if (filter.getUiResourceKey() != null && !filter.getUiResourceKey().isEmpty()) {
+            if (filter.getResourceKey() != null && !filter.getResourceKey().isEmpty()) {
                 predicates.add(cb.like(cb.lower(root.get("uiResourceKey")),
-                        "%" + filter.getUiResourceKey().toLowerCase() + "%"));
+                        "%" + filter.getResourceKey().toLowerCase() + "%"));
             }
-            if (filter.getPageUrl() != null && !filter.getPageUrl().isEmpty()) {
+            if (filter.getUrl() != null && !filter.getUrl().isEmpty()) {
                 predicates.add(cb.like(cb.lower(root.get("pageUrl")),
-                        "%" + filter.getPageUrl().toLowerCase() + "%"));
+                        "%" + filter.getUrl().toLowerCase() + "%"));
             }
             if (filter.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status"), filter.getStatus()));

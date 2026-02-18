@@ -3,12 +3,10 @@ package com.osudpotro.posmaster.security;
 import com.osudpotro.posmaster.action.Action;
 import com.osudpotro.posmaster.action.ActionNotFoundException;
 import com.osudpotro.posmaster.action.ActionRepository;
-import com.osudpotro.posmaster.resource.api.ApiResource;
-import com.osudpotro.posmaster.resource.api.ApiResourceRepository;
-import com.osudpotro.posmaster.resource.ui.UiResource;
-import com.osudpotro.posmaster.resource.ui.UiResourceAction;
-import com.osudpotro.posmaster.resource.ui.UiResourceDetailsRepository;
-import com.osudpotro.posmaster.resource.ui.UiResourceRepository;
+import com.osudpotro.posmaster.resource.Resource;
+import com.osudpotro.posmaster.resource.ResourceAction;
+import com.osudpotro.posmaster.resource.ResourceDetailsRepository;
+import com.osudpotro.posmaster.resource.ResourceRepository;
 import com.osudpotro.posmaster.role.Role;
 import com.osudpotro.posmaster.role.RoleRepository;
 import com.osudpotro.posmaster.user.DuplicateUserException;
@@ -31,26 +29,24 @@ public class DataLoader {
     CommandLineRunner initData(
             ActionRepository actionRepository,
             RoleRepository roleRepository,
-            UiResourceRepository uiResourceRepository,
-            ApiResourceRepository apiResourceRepository,
+            ResourceRepository resourceRepository,
             UserRepository userRepository,
             AdminUserRepository adminUserRepository,
             PermissionRepository permissionRepository,
             PermissionDetailRepository permissionDetailRepository,
-            UiResourceDetailsRepository uiResourceDetailsRepository,
+            ResourceDetailsRepository resourceDetailsRepository,
             PasswordEncoder passwordEncoder
     ) {
         return args -> {
             loadInitialData(
                     actionRepository,
                     roleRepository,
-                    uiResourceRepository,
-                    apiResourceRepository,
+                    resourceRepository,
                     userRepository,
                     adminUserRepository,
                     permissionRepository,
                     permissionDetailRepository,
-                    uiResourceDetailsRepository,
+                    resourceDetailsRepository,
                     passwordEncoder
             );
         };
@@ -60,18 +56,17 @@ public class DataLoader {
     public void loadInitialData(
             ActionRepository actionRepository,
             RoleRepository roleRepository,
-            UiResourceRepository uiResourceRepository,
-            ApiResourceRepository apiResourceRepository,
+            ResourceRepository resourceRepository,
             UserRepository userRepository,
             AdminUserRepository adminUserRepository,
             PermissionRepository permissionRepository,
             PermissionDetailRepository permissionDetailRepository,
-            UiResourceDetailsRepository uiResourceDetailsRepository,
+            ResourceDetailsRepository resourceDetailsRepository,
             PasswordEncoder passwordEncoder
     ) {
         // === SUPER ADMIN USER ===
-        String email="duruliu72@gmail.com";
-        String mobile="01726720772";
+        String email = "duruliu72@gmail.com";
+        String mobile = "01726720772";
         Optional<User> findUser = userRepository.findByEmail(email);
         User superAdminUser = findUser.orElseGet(() -> {
             if (userRepository.existsByEmail(email)) {
@@ -86,7 +81,7 @@ public class DataLoader {
             u.setMobile(mobile);
             u.setPassword(passwordEncoder.encode("123"));
             AdminUser adminUser = new AdminUser();
-            u=userRepository.save(u);
+            u = userRepository.save(u);
             adminUser.setUser(u);
             adminUserRepository.save(adminUser);
             return u;
@@ -117,71 +112,50 @@ public class DataLoader {
                     superAdmin.setPermissions(new HashSet<>());
                     return roleRepository.save(superAdmin);
                 });
-        // === UiRESOURCES ===
-        UiResource findProductUIResource = uiResourceRepository.findByName("Product")
+        // === RESOURCES ===
+        Resource findProductResource = resourceRepository.findByName("Product")
                 .orElseGet(() -> {
-                    UiResource productUIResource = new UiResource();
-                    productUIResource.setName("Product");
-                    productUIResource.setUiResourceKey("PRODUCT");
-                    productUIResource.setPageUrl("/products");
-                    productUIResource.setCreatedBy(superAdminUser);
+                    Resource productResource = new Resource();
+                    productResource.setName("Product");
+                    productResource.setResourceKey("PRODUCT");
+                    productResource.setUrl("/products");
+                    productResource.setCreatedBy(superAdminUser);
                     Action view = actionRepository.findByName("READ").orElseThrow(() -> new ActionNotFoundException());
                     Action create = actionRepository.findByName("CREATE").orElseThrow(() -> new ActionNotFoundException());
-                    UiResourceAction uiResourceActionView = new UiResourceAction();
-                    uiResourceActionView.setUiResource(productUIResource);
-                    uiResourceActionView.setAction(view);
-                    uiResourceActionView.setChecked(true);
-                    uiResourceActionView.setCreatedBy(superAdminUser);
-                    UiResourceAction uiResourceActionCreate = new UiResourceAction();
-                    uiResourceActionCreate.setUiResource(productUIResource);
-                    uiResourceActionCreate.setAction(create);
-                    uiResourceActionCreate.setChecked(true);
-                    uiResourceActionCreate.setCreatedBy(superAdminUser);
-                    productUIResource.setUiResourceActions(Arrays.asList(uiResourceActionView, uiResourceActionCreate));
-                    return uiResourceRepository.save(productUIResource);
+                    ResourceAction resourceActionView = new ResourceAction();
+                    resourceActionView.setResource(productResource);
+                    resourceActionView.setAction(view);
+                    resourceActionView.setChecked(true);
+                    resourceActionView.setCreatedBy(superAdminUser);
+                    ResourceAction resourceActionCreate = new ResourceAction();
+                    resourceActionCreate.setResource(productResource);
+                    resourceActionCreate.setAction(create);
+                    resourceActionCreate.setChecked(true);
+                    resourceActionCreate.setCreatedBy(superAdminUser);
+                    productResource.setResourceActions(Arrays.asList(resourceActionView, resourceActionCreate));
+                    return resourceRepository.save(productResource);
                 });
-        UiResource findUserUiResource = uiResourceRepository.findByName("User")
+        Resource findUserResource = resourceRepository.findByName("User")
                 .orElseGet(() -> {
-                    UiResource userUIResource = new UiResource();
+                    Resource userUIResource = new Resource();
                     userUIResource.setName("User");
-                    userUIResource.setUiResourceKey("USER");
-                    userUIResource.setPageUrl("/users");
+                    userUIResource.setResourceKey("USER");
+                    userUIResource.setUrl("/users");
                     userUIResource.setCreatedBy(superAdminUser);
                     Action view = actionRepository.findByName("READ").orElseThrow(() -> new ActionNotFoundException());
                     Action create = actionRepository.findByName("CREATE").orElseThrow(() -> new ActionNotFoundException());
-                    UiResourceAction uiResourceActionView = new UiResourceAction();
-                    uiResourceActionView.setUiResource(userUIResource);
-                    uiResourceActionView.setAction(view);
-                    uiResourceActionView.setChecked(true);
-                    uiResourceActionView.setCreatedBy(superAdminUser);
-                    UiResourceAction uiResourceActionCreate = new UiResourceAction();
-                    uiResourceActionCreate.setUiResource(userUIResource);
-                    uiResourceActionCreate.setAction(create);
-                    uiResourceActionCreate.setChecked(true);
-                    uiResourceActionCreate.setCreatedBy(superAdminUser);
-                    userUIResource.setUiResourceActions(Arrays.asList(uiResourceActionView, uiResourceActionCreate));
-                    return uiResourceRepository.save(userUIResource);
-                });
-
-        // === API RESOURCES ===
-        ApiResource findApiResourceApi = apiResourceRepository.findByApiUrl("/api/api-resources")
-                .orElseGet(() -> {
-                    ApiResource productApiResource = new ApiResource();
-                    productApiResource.setName("Resource API");
-                    productApiResource.setApiResourceKey("RESOURCE");
-                    productApiResource.setApiUrl("/api/api-resources");
-                    productApiResource.setCreatedBy(superAdminUser);
-                    return apiResourceRepository.save(productApiResource);
-                });
-
-        ApiResource findUserApi = apiResourceRepository.findByApiUrl("/api/users")
-                .orElseGet(() -> {
-                    ApiResource userApiResource = new ApiResource();
-                    userApiResource.setName("User API");
-                    userApiResource.setApiResourceKey("USER");
-                    userApiResource.setApiUrl("/api/users");
-                    userApiResource.setCreatedBy(superAdminUser);
-                    return apiResourceRepository.save(userApiResource);
+                    ResourceAction resourceActionView = new ResourceAction();
+                    resourceActionView.setResource(userUIResource);
+                    resourceActionView.setAction(view);
+                    resourceActionView.setChecked(true);
+                    resourceActionView.setCreatedBy(superAdminUser);
+                    ResourceAction resourceActionCreate = new ResourceAction();
+                    resourceActionCreate.setResource(userUIResource);
+                    resourceActionCreate.setAction(create);
+                    resourceActionCreate.setChecked(true);
+                    resourceActionCreate.setCreatedBy(superAdminUser);
+                    userUIResource.setResourceActions(Arrays.asList(resourceActionView, resourceActionCreate));
+                    return resourceRepository.save(userUIResource);
                 });
         // ===SET ROLE SUPER ADMIN USER  ===
         superAdminUser.setRoles(Set.of(findSuperAdminRole));
@@ -190,7 +164,7 @@ public class DataLoader {
         if (permissionRepository.count() == 0) {
             Permission permission = new Permission();
             permission.setRole(findSuperAdminRole);
-            permission.setApiResource(findApiResourceApi);
+            permission.setResource(findProductResource);
             permission.setPermissionType(PermissionType.ROLE);
             permission.setEnable(true);
             permission.setCreatedBy(superAdminUser);

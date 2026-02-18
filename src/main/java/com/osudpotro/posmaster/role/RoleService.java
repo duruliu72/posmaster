@@ -3,9 +3,9 @@ package com.osudpotro.posmaster.role;
 import com.osudpotro.posmaster.action.Action;
 import com.osudpotro.posmaster.action.ActionNotFoundException;
 import com.osudpotro.posmaster.action.ActionRepository;
+import com.osudpotro.posmaster.resource.Resource;
+import com.osudpotro.posmaster.resource.ResourceRepository;
 import com.osudpotro.posmaster.user.auth.AuthService;
-import com.osudpotro.posmaster.resource.api.ApiResource;
-import com.osudpotro.posmaster.resource.api.ApiResourceRepository;
 import com.osudpotro.posmaster.security.*;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,7 @@ import java.util.Set;
 public class RoleService {
     private final AuthService authService;
     private final RoleRepository roleRepository;
-    private final ApiResourceRepository apiResourceRepository;
+    private final ResourceRepository resourceRepository;
     private final ActionRepository actionRepository;
     private final RoleMapper roleMapper;
     private final PermissionRepository permissionRepository;
@@ -42,8 +42,8 @@ public class RoleService {
         Set<Permission> permissions = new HashSet<>();
         request.getResources().forEach(r -> {
             Permission permission = new Permission();
-            ApiResource apiResource = apiResourceRepository.findById(r.getApi_resource_id()).orElseThrow();
-            permission.setApiResource(apiResource);
+            Resource resource = resourceRepository.findById(r.getResourceId()).orElseThrow();
+            permission.setResource(resource);
             permission.setPermissionType(PermissionType.ROLE);
             permission.setEnable(true);
             permission.setRole(role);
@@ -72,7 +72,7 @@ public class RoleService {
         var role = roleRepository.findById(roleId).orElseThrow(RoleNotFoundException::new);
         var user = authService.getCurrentUser();
 //      Reset permission and permission details
-        var resourceIds = request.getResources().stream().map(ResourceRequest::getApi_resource_id).toList();
+        var resourceIds = request.getResources().stream().map(ResourceRequest::getResourceId).toList();
         permissionRepository.updatePermissionByRoleAndResources(false, resourceIds, roleId);
         var permissions = permissionRepository.findPermissionByRoleAndResources(resourceIds, roleId);
         var permissionIds = permissions.stream().map(Permission::getId).toList();
@@ -84,13 +84,13 @@ public class RoleService {
         Set<Permission> permissionList = role.getPermissions();
         for (ResourceRequest r : request.getResources()) {
             Permission findPermission = permissionList.stream()
-                    .filter(p -> p.getApiResource().getId().equals(r.getApi_resource_id()) && p.getRole().getId().equals(roleId))
+                    .filter(p -> p.getResource().getId().equals(r.getResourceId()) && p.getRole().getId().equals(roleId))
                     .findFirst().orElse(null);
 
             if (findPermission == null) {
                 Permission permission = new Permission();
-                ApiResource apiResource = apiResourceRepository.findById(r.getApi_resource_id()).orElseThrow();
-                permission.setApiResource(apiResource);
+                Resource apiResource = resourceRepository.findById(r.getResourceId()).orElseThrow();
+                permission.setResource(apiResource);
                 permission.setPermissionType(PermissionType.ROLE);
                 permission.setEnable(true);
                 permission.setResourceChecked(r.isResourceChecked());
@@ -127,7 +127,7 @@ public class RoleService {
                         newDetail.setActionChecked(a.isActionChecked());
                         newDetail.setCreatedBy(user);
                         permissionDetails.add(newDetail);
-                    }else {
+                    } else {
                         findPermissionDetail.setActionChecked(a.isActionChecked());
                         findPermissionDetail.setUpdatedBy(user);
                     }

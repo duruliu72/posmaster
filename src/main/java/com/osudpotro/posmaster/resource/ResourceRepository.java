@@ -1,4 +1,4 @@
-package com.osudpotro.posmaster.resource.ui;
+package com.osudpotro.posmaster.resource;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -10,17 +10,17 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
-public interface UiResourceRepository extends JpaSpecificationExecutor<UiResource>, JpaRepository<UiResource, Long> {
+public interface ResourceRepository extends JpaSpecificationExecutor<Resource>, JpaRepository<Resource, Long> {
     boolean existsByName(String name);
 
-    boolean existsByUiResourceKey(String uiResourceKey);
+    boolean existsByResourceKey(String resourceKey);
 
-    boolean existsByPageUrl(String pageUrl);
+    boolean existsByUrl(String url);
 
-    Optional<UiResource> findByName(String name);
+    Optional<Resource> findByName(String name);
 
     @Transactional
     @Modifying
-    @Query("update UiResource uir set uir.status = :status where uir.id in :ids")
-    int deleteBulkUiResource(@Param("ids") List<Long> ids, @Param("status") Long status);
+    @Query("update Resource uir set uir.status = :status where uir.id in :ids")
+    int deleteBulkResource(@Param("ids") List<Long> ids, @Param("status") Long status);
 }

@@ -1,4 +1,4 @@
-package com.osudpotro.posmaster.resource.ui;
+package com.osudpotro.posmaster.resource;
 
 import com.osudpotro.posmaster.common.PagedResponse;
 import jakarta.validation.Valid;
@@ -14,21 +14,22 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 import java.util.Map;
+
 @AllArgsConstructor
 @RestController
-@RequestMapping("/ui-resources")
-public class UiResourceController {
-    private final UiResourceService uiResourceService;
+@RequestMapping("/resources")
+public class ResourceController {
+    private final ResourceService resourceService;
 
     //    @PreAuthorize("hasAuthority('CUSTOMER_READ')")
     @GetMapping
-    public List<UiResourceDto> getAllUiResources() {
-        return uiResourceService.gerAllUiResources();
+    public List<ResourceDto> getAllResources() {
+        return resourceService.gerAllResources();
     }
 
     @PostMapping("/filter")
-    public PagedResponse<UiResourceDto> searchUiResources(
-            @RequestBody UiResourceFilter filter,
+    public PagedResponse<ResourceDto> filterResources(
+            @RequestBody ResourceFilter filter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
@@ -39,46 +40,46 @@ public class UiResourceController {
                 Sort.by(sortBy).ascending() :
                 Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<UiResourceDto> result = uiResourceService.getUiResources(filter, pageable);
+        Page<ResourceDto> result = resourceService.filterResources(filter, pageable);
         return new PagedResponse<>(result);
     }
     @PostMapping("/upload_csv")
     public int uploadCsvFile(@RequestParam("filepond") MultipartFile file) {
-        return uiResourceService.importUiResources(file);
+        return resourceService.importResources(file);
     }
 
     //    @PreAuthorize("hasAuthority('CUSTOMER_READ')")
     @GetMapping("/{id}")
-    public UiResourceDto getUiResource(@PathVariable Long id) {
-        return uiResourceService.getUiResource(id);
+    public ResourceDto getResource(@PathVariable Long id) {
+        return resourceService.getResource(id);
     }
 
     //    @PreAuthorize("hasAuthority('CUSTOMER_CREATE')")
     @PostMapping
-    public ResponseEntity<UiResourceDto> createUiResource(@Valid @RequestBody UiResourceCreateRequest request, UriComponentsBuilder uriBuilder) {
-        var customerDto = uiResourceService.CreateUiResource(request);
+    public ResponseEntity<ResourceDto> createResource(@Valid @RequestBody ResourceCreateRequest request, UriComponentsBuilder uriBuilder) {
+        var customerDto = resourceService.createResource(request);
         var uri = uriBuilder.path("/ui-resources/{id}").buildAndExpand(customerDto.getId()).toUri();
         return ResponseEntity.created(uri).body(customerDto);
     }
 
     //    @PreAuthorize("hasAuthority('CUSTOMER_UPDATE')")
     @PutMapping("/{id}")
-    public UiResourceDto updateUiResource(
+    public ResourceDto updateResource(
             @PathVariable(name = "id") Long id,
-            @RequestBody UiResourceUpdateRequest request) {
-        return uiResourceService.updateUiResource(id, request);
+            @RequestBody ResourceUpdateRequest request) {
+        return resourceService.updateResource(id, request);
     }
 
     //    @PreAuthorize("hasAuthority('CUSTOMER_DELETE')")
     @DeleteMapping("/{id}")
-    public UiResourceDto deleteUiResource(
+    public ResourceDto deleteResource(
             @PathVariable(name = "id") Long id) {
-        return uiResourceService.deleteUiResource(id);
+        return resourceService.deleteResource(id);
     }
 
     @PostMapping("/delete-bulk")
-    public ResponseEntity<Map<String, Integer>> deleteBulkUiResource(@RequestBody UiResourceBulkUpdateRequest request) {
-        int count = uiResourceService.deleteBulkUiResource(request.getUiResourceIds());
+    public ResponseEntity<Map<String, Integer>> deleteBulkResource(@RequestBody ResourceBulkUpdateRequest request) {
+        int count = resourceService.deleteBulkResource(request.getResourceIds());
         return ResponseEntity.ok().body(
                 Map.of("count", count)
         );
@@ -86,25 +87,25 @@ public class UiResourceController {
 
     //    @PreAuthorize("hasAuthority('CUSTOMER_DELETE')")
     @GetMapping("/{id}/activate")
-    public UiResourceDto activateUiResource(
+    public ResourceDto activateResource(
             @PathVariable(name = "id") Long id) {
-        return uiResourceService.activeUiResource(id);
+        return resourceService.activeResource(id);
     }
 
     //    @PreAuthorize("hasAuthority('CUSTOMER_DELETE')")
     @GetMapping("/{id}/deactivate")
-    public UiResourceDto deactivateUiResource(
+    public ResourceDto deactivateResource(
             @PathVariable(name = "id") Long id) {
-        return uiResourceService.deactivateUiResource(id);
+        return resourceService.deactivateResource(id);
     }
-    @ExceptionHandler(DuplicateUiResourceException.class)
+    @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<Map<String, String>> handleDuplicateUiResource(Exception ex) {
         return ResponseEntity.badRequest().body(
                 Map.of("error", ex.getMessage())
         );
     }
-    @ExceptionHandler(UiResourceNotFoundException.class)
-    public ResponseEntity<Void> handleUiResourceNotFound() {
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Void> handleResourceNotFound() {
         return ResponseEntity.notFound().build();
     }
 }

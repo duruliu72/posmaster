@@ -13,11 +13,11 @@ public interface ActionRepository extends JpaRepository<Action, Long> {
     boolean existsByName(String name);
 
     @Query("""
-                SELECT a, ura
+                SELECT a, ra
                 FROM Action a
-                LEFT JOIN UiResourceAction ura
-                    ON ura.action.id = a.id
-                    AND ura.uiResource.id = :resourceId order by a.id ASC
+                LEFT JOIN ResourceAction ra
+                    ON ra.action.id = a.id
+                    AND ra.resource.id = :resourceId order by a.id ASC
             """)
     List<Object[]> findActionsWithUiResourceChecked(
             @Param("resourceId") Long resourceId);

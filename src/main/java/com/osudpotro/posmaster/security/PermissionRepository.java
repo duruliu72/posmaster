@@ -16,8 +16,8 @@ public interface PermissionRepository extends JpaRepository<Permission, Long> {
     List<Permission> findByRoleInOrUser(Set<Role> roles, User user);
     @Transactional
     @Modifying
-    @Query("UPDATE Permission p SET p.isResourceChecked = :isResourceChecked WHERE p.apiResource.id NOT IN :ids AND p.role.id= :roleId")
+    @Query("UPDATE Permission p SET p.isResourceChecked = :isResourceChecked WHERE p.resource.id NOT IN :ids AND p.role.id= :roleId")
     void updatePermissionByRoleAndResources(@Param("isResourceChecked") boolean isResourceChecked, @Param("ids") List<Long> ids, @Param("roleId") Long roleId);
-    @Query("SELECT p FROM Permission p WHERE p.apiResource.id NOT IN :ids AND p.role.id= :roleId")
+    @Query("SELECT p FROM Permission p WHERE p.resource.id NOT IN :ids AND p.role.id= :roleId")
     List<Permission> findPermissionByRoleAndResources(@Param("ids") List<Long> ids, @Param("roleId") Long roleId);
 }

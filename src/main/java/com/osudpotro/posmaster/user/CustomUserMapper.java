@@ -1,7 +1,7 @@
 package com.osudpotro.posmaster.user;
 
 import com.osudpotro.posmaster.action.ActionDto;
-import com.osudpotro.posmaster.resource.api.ApiResourceDto;
+import com.osudpotro.posmaster.resource.ResourceDto;
 import com.osudpotro.posmaster.role.RoleDto;
 import com.osudpotro.posmaster.security.PermissionDetailDto;
 import com.osudpotro.posmaster.security.PermissionDto;
@@ -32,12 +32,12 @@ public class CustomUserMapper {
                 Set<PermissionDto> permissions = new HashSet<>();
                 role.getPermissions().forEach(permission -> {
                     PermissionDto permissionDto = new PermissionDto();
-                    ApiResourceDto apiResourceDto = new ApiResourceDto();
-                    apiResourceDto.setId(permission.getApiResource().getId());
-                    apiResourceDto.setName(permission.getApiResource().getName());
-                    apiResourceDto.setApiResourceKey(permission.getApiResource().getApiResourceKey());
-                    apiResourceDto.setApiUrl(permission.getApiResource().getApiUrl());
-                    permissionDto.setApiResource(apiResourceDto);
+                    ResourceDto resourceDto = new ResourceDto();
+                    resourceDto.setId(permission.getResource().getId());
+                    resourceDto.setName(permission.getResource().getName());
+                    resourceDto.setResourceKey(permission.getResource().getResourceKey());
+                    resourceDto.setUrl(permission.getResource().getUrl());
+                    permissionDto.setResource(resourceDto);
                     permissionDto.setPermissionType(permission.getPermissionType());
                     Set<PermissionDetailDto> permissionDetails = new HashSet<>();
                     permission.getPermissionDetails().forEach(pd -> {
@@ -60,12 +60,12 @@ public class CustomUserMapper {
         if (user.getPermissions() != null) {
             PermissionDto permissionDto = new PermissionDto();
             user.getPermissions().forEach(permission -> {
-                ApiResourceDto apiResourceDto = new ApiResourceDto();
-                apiResourceDto.setId(permission.getApiResource().getId());
-                apiResourceDto.setName(permission.getApiResource().getName());
-                apiResourceDto.setApiResourceKey(permission.getApiResource().getApiResourceKey());
-                apiResourceDto.setApiUrl(permission.getApiResource().getApiUrl());
-                permissionDto.setApiResource(apiResourceDto);
+                ResourceDto resourceDto = new ResourceDto();
+                resourceDto.setId(permission.getResource().getId());
+                resourceDto.setName(permission.getResource().getName());
+                resourceDto.setResourceKey(permission.getResource().getResourceKey());
+                resourceDto.setUrl(permission.getResource().getUrl());
+                permissionDto.setResource(resourceDto);
                 permissionDto.setPermissionType(permission.getPermissionType());
                 Set<PermissionDetailDto> permissionDetails = new HashSet<>();
                 permission.getPermissionDetails().forEach(pd -> {

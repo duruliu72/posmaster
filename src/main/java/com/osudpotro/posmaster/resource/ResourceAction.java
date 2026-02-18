@@ -1,4 +1,4 @@
-package com.osudpotro.posmaster.resource.ui;
+package com.osudpotro.posmaster.resource;
 import com.osudpotro.posmaster.action.Action;
 import com.osudpotro.posmaster.common.BaseEntity;
 import jakarta.persistence.*;
@@ -12,14 +12,13 @@ import lombok.Setter;
 @Setter
 @Getter
 @Entity
-@Table(name = "ui_resource_actions")
-public class UiResourceAction extends BaseEntity {
+@Table(name = "resource_actions")
+public class ResourceAction extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ui_resource_id")
-    private UiResource uiResource;
+    @JoinColumn(name = "resource_id")
+    private Resource resource;
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "action_id")
     private Action action;
     private Boolean checked;
-
 }

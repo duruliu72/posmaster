@@ -1,7 +1,7 @@
 package com.osudpotro.posmaster.action;
 
+import com.osudpotro.posmaster.resource.ResourceAction;
 import com.osudpotro.posmaster.user.auth.AuthService;
-import com.osudpotro.posmaster.resource.ui.UiResourceAction;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,11 +26,11 @@ public class ActionService {
                 .stream()
                 .map((row) -> {
                     Action a = (Action) row[0];
-                    UiResourceAction ura = (UiResourceAction) row[1];
+                    ResourceAction ra = (ResourceAction) row[1];
                     ActionsWithUiResource dto = new ActionsWithUiResource();
                     dto.setActionId(a.getId());
                     dto.setName(a.getName());
-                    dto.setChecked(ura != null ? ura.getChecked() : false);
+                    dto.setChecked(ra != null ? ra.getChecked() : false);
                     return dto;
                 })
                 .toList();
