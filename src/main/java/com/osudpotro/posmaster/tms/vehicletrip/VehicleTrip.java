@@ -4,7 +4,7 @@ import com.osudpotro.posmaster.common.BaseEntity;
 import com.osudpotro.posmaster.common.Location;
 import com.osudpotro.posmaster.tms.goodsonvechile.GoodsOnTrip;
 import com.osudpotro.posmaster.tms.vechile.Vehicle;
-import com.osudpotro.posmaster.tms.vehicledriver.VehicleDriver;
+import com.osudpotro.posmaster.tms.driver.Driver;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -29,7 +29,7 @@ public class VehicleTrip extends BaseEntity {
     private Vehicle vehicle;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vehicle_driver_id")
-    private VehicleDriver vehicleDriver;
+    private Driver driver;
     @Column(nullable = false, length = 500)
     private String sourceAddress;
     @Embedded

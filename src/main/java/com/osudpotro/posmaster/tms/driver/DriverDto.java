@@ -1,10 +1,10 @@
-package com.osudpotro.posmaster.tms.vehicledriver;
+package com.osudpotro.posmaster.tms.driver;
 
 import com.osudpotro.posmaster.multimedia.MultimediaDto;
 import lombok.Data;
 
 @Data
-public class VehicleDriverDto {
+public class DriverDto {
     private Long id;
     private String userName;
     private String firstName;

@@ -1,9 +1,9 @@
-package com.osudpotro.posmaster.tms.vehicledriver;
+package com.osudpotro.posmaster.tms.driver;
 
 import lombok.Data;
 
 @Data
-public class VehicleDriverCreateRequest {
+public class DriverCreateRequest {
     private String userName;
     private String firstName;
     private String lastName;

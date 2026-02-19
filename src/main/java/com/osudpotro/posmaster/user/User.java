@@ -1,13 +1,13 @@
 package com.osudpotro.posmaster.user;
 
 import com.osudpotro.posmaster.multimedia.Multimedia;
+import com.osudpotro.posmaster.tms.driver.Driver;
 import com.osudpotro.posmaster.user.Employee.Employee;
 import com.osudpotro.posmaster.user.admin.AdminUser;
 import com.osudpotro.posmaster.common.BaseEntity;
 import com.osudpotro.posmaster.user.customer.Customer;
 import com.osudpotro.posmaster.security.Permission;
 import com.osudpotro.posmaster.role.Role;
-import com.osudpotro.posmaster.tms.vehicledriver.VehicleDriver;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.HashSet;
@@ -60,5 +60,5 @@ public class User extends BaseEntity {
     @OneToOne(mappedBy = "user")
     private Customer customer;
     @OneToOne(mappedBy = "user")
-    private VehicleDriver vehicleDriver;
+    private Driver driver;
 }

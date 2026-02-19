@@ -1,4 +1,4 @@
-package com.osudpotro.posmaster.tms.vehicledriver;
+package com.osudpotro.posmaster.tms.driver;
 
 import com.osudpotro.posmaster.user.User;
 import jakarta.persistence.criteria.Join;
@@ -9,11 +9,11 @@ import org.springframework.data.jpa.domain.Specification;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VehicleDriverSpecification {
-    public static Specification<VehicleDriver> filter(VehicleDriverFilter filter) {
+public class DriverSpecification {
+    public static Specification<Driver> filter(DriverFilter filter) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
-            Join<VehicleDriver, User> user = root.join("user", JoinType.INNER);
+            Join<Driver, User> user = root.join("user", JoinType.INNER);
             if (filter.getUserName() != null && !filter.getUserName().isEmpty()) {
                 predicates.add(cb.like(cb.lower(user.get("userName")),
                         "%" + filter.getUserName().toLowerCase() + "%"));

@@ -1,52 +1,52 @@
-package com.osudpotro.posmaster.tms.vehicledriver;
+package com.osudpotro.posmaster.tms.driver;
 
 import com.osudpotro.posmaster.multimedia.MultimediaDto;
 import com.osudpotro.posmaster.user.User;
 import org.springframework.stereotype.Component;
 
 @Component
-public class VehicleDriverMapper {
-    public VehicleDriverDto toDto(VehicleDriver vehicleDriver) {
-        if (vehicleDriver == null) {
+public class DriverMapper {
+    public DriverDto toDto(Driver driver) {
+        if (driver == null) {
             return null;
         }
-        VehicleDriverDto vehicleDriverDto = new VehicleDriverDto();
-        vehicleDriverDto.setId(vehicleDriver.getId());
-        User user =vehicleDriver.getUser();
-        vehicleDriverDto.setUserName(user.getUserName());
-        vehicleDriverDto.setUserName(user.getUserName());
-        vehicleDriverDto.setFirstName(user.getFirstName());
-        vehicleDriverDto.setLastName(user.getLastName());
+        DriverDto driverDto = new DriverDto();
+        driverDto.setId(driver.getId());
+        User user = driver.getUser();
+        driverDto.setUserName(user.getUserName());
+        driverDto.setUserName(user.getUserName());
+        driverDto.setFirstName(user.getFirstName());
+        driverDto.setLastName(user.getLastName());
         if (user.getEmail() != null && !user.getEmail().isEmpty()) {
-            vehicleDriverDto.setEmail(user.getEmail());
+            driverDto.setEmail(user.getEmail());
         }
         if (user.getEmail() != null && !user.getEmail().isEmpty()) {
-            vehicleDriverDto.setEmail(user.getEmail());
+            driverDto.setEmail(user.getEmail());
         }
         if (user.getMobile() != null && !user.getMobile().isEmpty()) {
-            vehicleDriverDto.setMobile(user.getMobile());
+            driverDto.setMobile(user.getMobile());
         }
         if (user.getSecondaryEmail() != null && !user.getSecondaryEmail().isEmpty()) {
-            vehicleDriverDto.setSecondaryEmail(user.getSecondaryEmail());
+            driverDto.setSecondaryEmail(user.getSecondaryEmail());
         }
         if (user.getSecondaryMobile() != null && !user.getSecondaryMobile().isEmpty()) {
-            vehicleDriverDto.setSecondaryMobile(user.getSecondaryMobile());
+            driverDto.setSecondaryMobile(user.getSecondaryMobile());
         }
-        vehicleDriverDto.setGender(user.getGender());
+        driverDto.setGender(user.getGender());
         if (user.getProfilePic() != null) {
             MultimediaDto multimediaDto = new MultimediaDto();
             multimediaDto.setId(user.getProfilePic().getId());
             multimediaDto.setName(user.getProfilePic().getName());
             multimediaDto.setImageUrl(user.getProfilePic().getImageUrl());
-            vehicleDriverDto.setProfilePic(multimediaDto);
+            driverDto.setProfilePic(multimediaDto);
         }
-        return vehicleDriverDto;
+        return driverDto;
     }
 
-    public VehicleDriver toEntity(VehicleDriverCreateRequest request) {
-        return new VehicleDriver();
+    public Driver toEntity(DriverCreateRequest request) {
+        return new Driver();
     }
-    public User toUserEntity(VehicleDriverCreateRequest request) {
+    public User toUserEntity(DriverCreateRequest request) {
         User user = new User();
         if (request.getUserName() != null && !request.getUserName().isEmpty()) {
             user.setUserName(request.getUserName());
@@ -84,10 +84,10 @@ public class VehicleDriverMapper {
         }
         return user;
     }
-    void update(UpdateVehicleDriverRequest request, VehicleDriver vehicleDriver) {
+    void update(UpdateDriverRequest request, Driver driver) {
 
     }
-    void updateUser(UpdateVehicleDriverRequest request, User user) {
+    void updateUser(UpdateDriverRequest request, User user) {
         if (request.getUserName() != null && !request.getUserName().isEmpty()) {
             user.setUserName(request.getUserName());
         }

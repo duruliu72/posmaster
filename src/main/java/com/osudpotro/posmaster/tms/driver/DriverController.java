@@ -1,4 +1,4 @@
-package com.osudpotro.posmaster.tms.vehicledriver;
+package com.osudpotro.posmaster.tms.driver;
 
 
 import com.osudpotro.posmaster.common.PagedResponse;
@@ -17,17 +17,17 @@ import java.util.Map;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/vehicle-drivers")
-public class VehicleDriverController {
-    private final VehicleDriverService vehicleDriverService;
+@RequestMapping("/drivers")
+public class DriverController {
+    private final DriverService driverService;
     //    @PreAuthorize("hasAuthority('VEHICLE_DRIVER_READ')")
     @GetMapping
-    public List<VehicleDriverDto> getAllVehicleDrivers() {
-        return vehicleDriverService.gerAllVehicleDrivers();
+    public List<DriverDto> getAllVehicleDrivers() {
+        return driverService.gerAllVehicleDrivers();
     }
     @PostMapping("/filter")
-    public PagedResponse<VehicleDriverDto> searchVehicleDrivers(
-            @RequestBody VehicleDriverFilter filter,
+    public PagedResponse<DriverDto> searchVehicleDrivers(
+            @RequestBody DriverFilter filter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
@@ -37,42 +37,42 @@ public class VehicleDriverController {
                 Sort.by(sortBy).ascending() :
                 Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<VehicleDriverDto> result = vehicleDriverService.getVehicleDrivers(filter, pageable);
+        Page<DriverDto> result = driverService.getVehicleDrivers(filter, pageable);
         return new PagedResponse<>(result);
     }
 
     //    @PreAuthorize("hasAuthority('VEHICLE_DRIVER_READ')")
     @GetMapping("/{id}")
-    public VehicleDriverDto getVehicleDriver(@PathVariable Long id) {
-        return vehicleDriverService.getVehicleDriver(id);
+    public DriverDto getVehicleDriver(@PathVariable Long id) {
+        return driverService.getVehicleDriver(id);
     }
 
     //    @PreAuthorize("hasAuthority('VEHICLE_DRIVER_CREATE')")
     @PostMapping
-    public ResponseEntity<VehicleDriverDto> createVehicleDriver(@Valid @RequestBody VehicleDriverCreateRequest request, UriComponentsBuilder uriBuilder) {
-        var customerDto = vehicleDriverService.registerVehicleDriver(request);
+    public ResponseEntity<DriverDto> createVehicleDriver(@Valid @RequestBody DriverCreateRequest request, UriComponentsBuilder uriBuilder) {
+        var customerDto = driverService.registerVehicleDriver(request);
         var uri = uriBuilder.path("/customers/{id}").buildAndExpand(customerDto.getId()).toUri();
         return ResponseEntity.created(uri).body(customerDto);
     }
 
     //@PreAuthorize("hasAuthority('VEHICLE_DRIVER_UPDATE')")
     @PutMapping("/{id}")
-    public VehicleDriverDto updateVehicleDriver(
+    public DriverDto updateVehicleDriver(
             @PathVariable(name = "id") Long id,
-            @RequestBody UpdateVehicleDriverRequest request) {
-        return vehicleDriverService.updateVehicleDriver(id, request);
+            @RequestBody UpdateDriverRequest request) {
+        return driverService.updateVehicleDriver(id, request);
     }
 
     //@PreAuthorize("hasAuthority('VEHICLE_DRIVER_DELETE')")
     @DeleteMapping("/{id}")
-    public VehicleDriverDto deleteVehicleDriver(
+    public DriverDto deleteVehicleDriver(
             @PathVariable(name = "id") Long id) {
-        return vehicleDriverService.deleteVehicleDriver(id);
+        return driverService.deleteVehicleDriver(id);
     }
 
     @PostMapping("/delete-bulk")
-    public ResponseEntity<Map<String, Integer>> deleteBulkVehicleDriver(@RequestBody VehicleDriverBulkUpdateRequest request) {
-        int count = vehicleDriverService.deleteBulkVehicleDriver(request.getVehicleDriverIds());
+    public ResponseEntity<Map<String, Integer>> deleteBulkVehicle(@RequestBody DriverBulkUpdateRequest request) {
+        int count = driverService.deleteBulkVehicle(request.getDriverIds());
         return ResponseEntity.ok().body(
                 Map.of("count", count)
         );
@@ -80,26 +80,26 @@ public class VehicleDriverController {
 
     //    @PreAuthorize("hasAuthority('VEHICLE_DRIVER_DELETE')")
     @GetMapping("/{id}/activate")
-    public VehicleDriverDto activateVehicleDriver(
+    public DriverDto activateVehicleDriver(
             @PathVariable(name = "id") Long id) {
-        return vehicleDriverService.activeVehicleDriver(id);
+        return driverService.activeVehicleDriver(id);
     }
 
     //    @PreAuthorize("hasAuthority('VEHICLE_DRIVER_DELETE')")
     @GetMapping("/{id}/deactivate")
-    public VehicleDriverDto deactivateVehicleDriver(
+    public DriverDto deactivateVehicleDriver(
             @PathVariable(name = "id") Long id) {
-        return vehicleDriverService.deactivateVehicleDriver(id);
+        return driverService.deactivateVehicleDriver(id);
     }
 
-    @ExceptionHandler(DuplicateVehicleDriverException.class)
+    @ExceptionHandler(DuplicateDriverException.class)
     public ResponseEntity<Map<String, String>> handleDuplicateVehicleDriver(Exception ex) {
         return ResponseEntity.badRequest().body(
                 Map.of("error", ex.getMessage())
         );
     }
 
-    @ExceptionHandler(VehicleDriverNotFoundException.class)
+    @ExceptionHandler(DriverNotFoundException.class)
     public ResponseEntity<Void> handleVehicleDriverNotFound() {
         return ResponseEntity.notFound().build();
     }

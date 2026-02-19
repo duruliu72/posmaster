@@ -1,4 +1,4 @@
-package com.osudpotro.posmaster.tms.vehicledriver;
+package com.osudpotro.posmaster.tms.driver;
 
 import com.osudpotro.posmaster.user.*;
 import com.osudpotro.posmaster.user.auth.JwtResponse;
@@ -21,15 +21,15 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 @RestController
 @RequestMapping("/vehicle-drivers/auth")
-public class VehicleDriverAuthController {
+public class DriverAuthController {
     private final JwtService jwtService;
     private final UserRepository userRepository;
-    private final VehicleDriverRepository vehicleDriverRepository;
+    private final DriverRepository driverRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtConfig jwtConfig;
     private final CustomUserMapper userMapper;
     @PostMapping("/login")
-    public ResponseEntity<JwtResponse> login(@Validated @RequestBody VehicleDriverLoginRequest request, HttpServletResponse response) {
+    public ResponseEntity<JwtResponse> login(@Validated @RequestBody DriverLoginRequest request, HttpServletResponse response) {
         User user=null;
         if (request.getEmail() != null && !request.getEmail().trim().isEmpty()) {
             user= userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new UserNotFoundException(

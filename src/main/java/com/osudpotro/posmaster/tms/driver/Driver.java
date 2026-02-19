@@ -1,4 +1,4 @@
-package com.osudpotro.posmaster.tms.vehicledriver;
+package com.osudpotro.posmaster.tms.driver;
 import com.osudpotro.posmaster.common.BaseEntity;
 import com.osudpotro.posmaster.tms.vechile.Vehicle;
 import com.osudpotro.posmaster.user.User;
@@ -16,13 +16,18 @@ import java.util.List;
 @Setter
 @Getter
 @Entity
-@Table(name = "vehicle_drivers",indexes = {
-        @Index(name = "idx_vehicle_driver_user_id", columnList = "user_id")
+@Table(name = "tbl_drivers",indexes = {
+        @Index(name = "idx_driver_user_id", columnList = "user_id")
 })
-public class VehicleDriver extends BaseEntity {
+public class Driver extends BaseEntity {
     @OneToOne
     @JoinColumn(name = "user_id", unique = true)
     private User user;
-    @OneToMany(mappedBy = "vehicleDriver", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "tbl_driver_vehicles",
+            joinColumns = @JoinColumn(name = "driver_id"),
+            inverseJoinColumns = @JoinColumn(name = "vehicle_id")
+    )
     private List<Vehicle> vehicles = new ArrayList<>();
 }

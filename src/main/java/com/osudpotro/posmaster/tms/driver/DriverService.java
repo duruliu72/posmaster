@@ -1,4 +1,4 @@
-package com.osudpotro.posmaster.tms.vehicledriver;
+package com.osudpotro.posmaster.tms.driver;
 
 import com.osudpotro.posmaster.multimedia.Multimedia;
 import com.osudpotro.posmaster.multimedia.MultimediaRepository;
@@ -21,49 +21,49 @@ import java.util.Set;
 
 @AllArgsConstructor
 @Service
-public class VehicleDriverService {
+public class DriverService {
     private final AuthService authService;
     private final UserRepository userRepository;
-    private final VehicleDriverRepository vehicleDriverRepository;
-    private final VehicleDriverMapper vehicleDriverMapper;
+    private final DriverRepository driverRepository;
+    private final DriverMapper driverMapper;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
     private final MultimediaRepository multimediaRepository;
 
-    public List<VehicleDriverDto> gerAllVehicleDrivers() {
-        return vehicleDriverRepository.findAll(Sort.by(Sort.Direction.DESC, "id"))
+    public List<DriverDto> gerAllVehicleDrivers() {
+        return driverRepository.findAll(Sort.by(Sort.Direction.DESC, "id"))
                 .stream()
-                .map(vehicleDriverMapper::toDto)
+                .map(driverMapper::toDto)
                 .toList();
     }
 
-    public Page<VehicleDriverDto> getVehicleDrivers(VehicleDriverFilter filter, Pageable pageable) {
-        return vehicleDriverRepository.findAll(VehicleDriverSpecification.filter(filter), pageable).map(vehicleDriverMapper::toDto);
+    public Page<DriverDto> getVehicleDrivers(DriverFilter filter, Pageable pageable) {
+        return driverRepository.findAll(DriverSpecification.filter(filter), pageable).map(driverMapper::toDto);
     }
 
-    public VehicleDriverDto registerVehicleDriver(VehicleDriverCreateRequest request) {
+    public DriverDto registerVehicleDriver(DriverCreateRequest request) {
         if (request.getEmail() != null && userRepository.existsByEmail(request.getEmail())) {
-            throw new DuplicateVehicleDriverException("Email already exists");
+            throw new DuplicateDriverException("Email already exists");
         }
         if (request.getMobile() != null && userRepository.existsByMobile(request.getMobile())) {
-            throw new DuplicateVehicleDriverException("Phone number already exists");
+            throw new DuplicateDriverException("Phone number already exists");
         }
         if (request.getEmail() != null && request.getMobile() != null && userRepository.existsByEmailOrMobile(request.getEmail(), request.getMobile())) {
-            throw new DuplicateVehicleDriverException();
+            throw new DuplicateDriverException();
         }
-        var vehicleDriver = vehicleDriverMapper.toEntity(request);
+        var vehicleDriver = driverMapper.toEntity(request);
         var authUser = authService.getCurrentUser();
         //Common User Entity
-        User user = vehicleDriverMapper.toUserEntity(request);
+        User user = driverMapper.toUserEntity(request);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setUserType(UserType.VEHICLE_DRIVER);
         user.setCreatedBy(authUser);
         vehicleDriver.setCreatedBy(authUser);
-        Role findRole = roleRepository.findByRoleKey("ROLE_VEHICLE_DRIVER")
+        Role findRole = roleRepository.findByRoleKey("ROLE_DRIVER")
                 .orElseGet(() -> {
                     Role superAdmin = new Role();
-                    superAdmin.setName("VehicleDriver");
-                    superAdmin.setRoleKey("ROLE_VEHICLE_DRIVER");
+                    superAdmin.setName("Driver");
+                    superAdmin.setRoleKey("ROLE_DRIVER");
                     superAdmin.setCreatedBy(authUser);
                     superAdmin.setUsers(new HashSet<>());
                     superAdmin.setPermissions(new HashSet<>());
@@ -74,31 +74,31 @@ public class VehicleDriverService {
         user = userRepository.save(user);
         vehicleDriver.setUser(user);
         vehicleDriver.setCreatedBy(authUser);
-        vehicleDriverRepository.save(vehicleDriver);
-        return vehicleDriverMapper.toDto(vehicleDriver);
+        driverRepository.save(vehicleDriver);
+        return driverMapper.toDto(vehicleDriver);
     }
-    public VehicleDriverDto updateVehicleDriver(Long customerId, UpdateVehicleDriverRequest request) {
-        var vehicleDriver = vehicleDriverRepository.findById(customerId).orElseThrow(VehicleDriverNotFoundException::new);
+    public DriverDto updateVehicleDriver(Long customerId, UpdateDriverRequest request) {
+        var vehicleDriver = driverRepository.findById(customerId).orElseThrow(DriverNotFoundException::new);
         var user = vehicleDriver.getUser();
         if (request.getEmail() != null && userRepository.existsByEmail(request.getEmail())) {
             if (!user.getEmail().equals(request.getEmail())) {
-                throw new DuplicateVehicleDriverException("Email already exists");
+                throw new DuplicateDriverException("Email already exists");
             }
         }
         if (request.getMobile() != null && userRepository.existsByMobile(request.getMobile())) {
             if (!user.getMobile().equals(request.getMobile())) {
-                throw new DuplicateVehicleDriverException("Phone number already exists");
+                throw new DuplicateDriverException("Phone number already exists");
             }
 
         }
         if (request.getEmail() != null && request.getMobile() != null && userRepository.existsByEmailOrMobile(request.getEmail(), request.getMobile())) {
             if (!user.getEmail().equals(request.getEmail()) && !user.getMobile().equals(request.getMobile())) {
-                throw new DuplicateVehicleDriverException();
+                throw new DuplicateDriverException();
             }
         }
 
-        vehicleDriverMapper.update(request, vehicleDriver);
-        vehicleDriverMapper.updateUser(request, user);
+        driverMapper.update(request, vehicleDriver);
+        driverMapper.updateUser(request, user);
         if (request.getPassword() != null && !request.getPassword().isEmpty()) {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
         }
@@ -112,51 +112,51 @@ public class VehicleDriverService {
         }
         vehicleDriver.setUser(user);
         vehicleDriver.setUpdatedBy(authUser);
-        vehicleDriverRepository.save(vehicleDriver);
-        return vehicleDriverMapper.toDto(vehicleDriver);
+        driverRepository.save(vehicleDriver);
+        return driverMapper.toDto(vehicleDriver);
     }
-    public VehicleDriverDto getVehicleDriver(Long customerId) {
-        var vehicleDriver = vehicleDriverRepository.findById(customerId).orElseThrow(VehicleDriverNotFoundException::new);
-        return vehicleDriverMapper.toDto(vehicleDriver);
-    }
-
-    public VehicleDriverDto getVehicleDriverOrNull(Long customerId) {
-        var vehicleDriver = vehicleDriverRepository.findById(customerId).orElseThrow();
-        return vehicleDriverMapper.toDto(vehicleDriver);
+    public DriverDto getVehicleDriver(Long customerId) {
+        var vehicleDriver = driverRepository.findById(customerId).orElseThrow(DriverNotFoundException::new);
+        return driverMapper.toDto(vehicleDriver);
     }
 
-    public VehicleDriver getVehicleDriverEntity(Long customerId) {
-        return vehicleDriverRepository.findById(customerId).orElseThrow(VehicleDriverNotFoundException::new);
+    public DriverDto getVehicleDriverOrNull(Long customerId) {
+        var vehicleDriver = driverRepository.findById(customerId).orElseThrow();
+        return driverMapper.toDto(vehicleDriver);
     }
 
-    public VehicleDriverDto activeVehicleDriver(Long customerId) {
-        var vehicleDriver = vehicleDriverRepository.findById(customerId).orElseThrow(() -> new VehicleDriverNotFoundException("VehicleDriver not found with ID: " + customerId));
+    public Driver getVehicleDriverEntity(Long customerId) {
+        return driverRepository.findById(customerId).orElseThrow(DriverNotFoundException::new);
+    }
+
+    public DriverDto activeVehicleDriver(Long customerId) {
+        var vehicleDriver = driverRepository.findById(customerId).orElseThrow(() -> new DriverNotFoundException("Driver not found with ID: " + customerId));
         var authUser = authService.getCurrentUser();
         vehicleDriver.setStatus(1);
         vehicleDriver.setUpdatedBy(authUser);
-        vehicleDriverRepository.save(vehicleDriver);
-        return vehicleDriverMapper.toDto(vehicleDriver);
+        driverRepository.save(vehicleDriver);
+        return driverMapper.toDto(vehicleDriver);
     }
 
-    public VehicleDriverDto deactivateVehicleDriver(Long customerId) {
-        var vehicleDriver = vehicleDriverRepository.findById(customerId).orElseThrow(() -> new VehicleDriverNotFoundException("VehicleDriver not found with ID: " + customerId));
+    public DriverDto deactivateVehicleDriver(Long customerId) {
+        var vehicleDriver = driverRepository.findById(customerId).orElseThrow(() -> new DriverNotFoundException("Driver not found with ID: " + customerId));
         var authUser = authService.getCurrentUser();
         vehicleDriver.setStatus(2);
         vehicleDriver.setUpdatedBy(authUser);
-        vehicleDriverRepository.save(vehicleDriver);
-        return vehicleDriverMapper.toDto(vehicleDriver);
+        driverRepository.save(vehicleDriver);
+        return driverMapper.toDto(vehicleDriver);
     }
 
-    public VehicleDriverDto deleteVehicleDriver(Long customerId) {
-        var vehicleDriver = vehicleDriverRepository.findById(customerId).orElseThrow(() -> new VehicleDriverNotFoundException("VehicleDriver not found with ID: " + customerId));
+    public DriverDto deleteVehicleDriver(Long customerId) {
+        var vehicleDriver = driverRepository.findById(customerId).orElseThrow(() -> new DriverNotFoundException("Driver not found with ID: " + customerId));
         var authUser = authService.getCurrentUser();
         vehicleDriver.setStatus(3);
         vehicleDriver.setUpdatedBy(authUser);
-        vehicleDriverRepository.save(vehicleDriver);
-        return vehicleDriverMapper.toDto(vehicleDriver);
+        driverRepository.save(vehicleDriver);
+        return driverMapper.toDto(vehicleDriver);
     }
 
-    public int deleteBulkVehicleDriver(List<Long> ids) {
-        return vehicleDriverRepository.deleteBulkVehicleDriver(ids, 3L);
+    public int deleteBulkVehicle(List<Long> ids) {
+        return driverRepository.deleteBulkDriver(ids, 3L);
     }
 }

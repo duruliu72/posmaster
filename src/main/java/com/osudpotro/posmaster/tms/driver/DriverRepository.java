@@ -1,4 +1,4 @@
-package com.osudpotro.posmaster.tms.vehicledriver;
+package com.osudpotro.posmaster.tms.driver;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -8,11 +8,10 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
-public interface VehicleDriverRepository extends JpaSpecificationExecutor<VehicleDriver>, JpaRepository<VehicleDriver, Long> {
+public interface DriverRepository extends JpaSpecificationExecutor<Driver>, JpaRepository<Driver, Long> {
     @Transactional
     @Modifying
-    @Query("update VehicleDriver c set c.status = :status where c.id in :ids")
-    int deleteBulkVehicleDriver(@Param("ids") List<Long> ids, @Param("status") Long status);
+    @Query("update Driver c set c.status = :status where c.id in :ids")
+    int deleteBulkDriver(@Param("ids") List<Long> ids, @Param("status") Long status);
 }
