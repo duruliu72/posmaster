@@ -41,7 +41,7 @@ public class DriverService {
         return driverRepository.findAll(DriverSpecification.filter(filter), pageable).map(driverMapper::toDto);
     }
 
-    public DriverDto registerVehicleDriver(DriverCreateRequest request) {
+    public DriverDto registerDriver(DriverCreateRequest request) {
         if (request.getEmail() != null && userRepository.existsByEmail(request.getEmail())) {
             throw new DuplicateDriverException("Email already exists");
         }
@@ -77,7 +77,7 @@ public class DriverService {
         driverRepository.save(vehicleDriver);
         return driverMapper.toDto(vehicleDriver);
     }
-    public DriverDto updateVehicleDriver(Long customerId, UpdateDriverRequest request) {
+    public DriverDto updateDriver(Long customerId, UpdateDriverRequest request) {
         var vehicleDriver = driverRepository.findById(customerId).orElseThrow(DriverNotFoundException::new);
         var user = vehicleDriver.getUser();
         if (request.getEmail() != null && userRepository.existsByEmail(request.getEmail())) {
@@ -129,7 +129,7 @@ public class DriverService {
         return driverRepository.findById(customerId).orElseThrow(DriverNotFoundException::new);
     }
 
-    public DriverDto activeVehicleDriver(Long customerId) {
+    public DriverDto activeDriver(Long customerId) {
         var vehicleDriver = driverRepository.findById(customerId).orElseThrow(() -> new DriverNotFoundException("Driver not found with ID: " + customerId));
         var authUser = authService.getCurrentUser();
         vehicleDriver.setStatus(1);
@@ -138,7 +138,7 @@ public class DriverService {
         return driverMapper.toDto(vehicleDriver);
     }
 
-    public DriverDto deactivateVehicleDriver(Long customerId) {
+    public DriverDto deactivateDriver(Long customerId) {
         var vehicleDriver = driverRepository.findById(customerId).orElseThrow(() -> new DriverNotFoundException("Driver not found with ID: " + customerId));
         var authUser = authService.getCurrentUser();
         vehicleDriver.setStatus(2);
@@ -147,7 +147,7 @@ public class DriverService {
         return driverMapper.toDto(vehicleDriver);
     }
 
-    public DriverDto deleteVehicleDriver(Long customerId) {
+    public DriverDto deleteDriver(Long customerId) {
         var vehicleDriver = driverRepository.findById(customerId).orElseThrow(() -> new DriverNotFoundException("Driver not found with ID: " + customerId));
         var authUser = authService.getCurrentUser();
         vehicleDriver.setStatus(3);

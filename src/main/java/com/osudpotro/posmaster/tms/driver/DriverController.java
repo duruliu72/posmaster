@@ -20,7 +20,7 @@ import java.util.Map;
 @RequestMapping("/drivers")
 public class DriverController {
     private final DriverService driverService;
-    //    @PreAuthorize("hasAuthority('VEHICLE_DRIVER_READ')")
+    //    @PreAuthorize("hasAuthority('DRIVER_READ')")
     @GetMapping
     public List<DriverDto> getAllVehicleDrivers() {
         return driverService.gerAllVehicleDrivers();
@@ -41,33 +41,33 @@ public class DriverController {
         return new PagedResponse<>(result);
     }
 
-    //    @PreAuthorize("hasAuthority('VEHICLE_DRIVER_READ')")
+    //    @PreAuthorize("hasAuthority('DRIVER_READ')")
     @GetMapping("/{id}")
     public DriverDto getVehicleDriver(@PathVariable Long id) {
         return driverService.getVehicleDriver(id);
     }
 
-    //    @PreAuthorize("hasAuthority('VEHICLE_DRIVER_CREATE')")
+    //    @PreAuthorize("hasAuthority('DRIVER_CREATE')")
     @PostMapping
     public ResponseEntity<DriverDto> createVehicleDriver(@Valid @RequestBody DriverCreateRequest request, UriComponentsBuilder uriBuilder) {
-        var customerDto = driverService.registerVehicleDriver(request);
+        var customerDto = driverService.registerDriver(request);
         var uri = uriBuilder.path("/customers/{id}").buildAndExpand(customerDto.getId()).toUri();
         return ResponseEntity.created(uri).body(customerDto);
     }
 
-    //@PreAuthorize("hasAuthority('VEHICLE_DRIVER_UPDATE')")
+    //@PreAuthorize("hasAuthority('DRIVER_UPDATE')")
     @PutMapping("/{id}")
-    public DriverDto updateVehicleDriver(
+    public DriverDto updateDriver(
             @PathVariable(name = "id") Long id,
             @RequestBody UpdateDriverRequest request) {
-        return driverService.updateVehicleDriver(id, request);
+        return driverService.updateDriver(id, request);
     }
 
-    //@PreAuthorize("hasAuthority('VEHICLE_DRIVER_DELETE')")
+    //@PreAuthorize("hasAuthority('DRIVER_DELETE')")
     @DeleteMapping("/{id}")
-    public DriverDto deleteVehicleDriver(
+    public DriverDto deleteDriver(
             @PathVariable(name = "id") Long id) {
-        return driverService.deleteVehicleDriver(id);
+        return driverService.deleteDriver(id);
     }
 
     @PostMapping("/delete-bulk")
@@ -78,29 +78,29 @@ public class DriverController {
         );
     }
 
-    //    @PreAuthorize("hasAuthority('VEHICLE_DRIVER_DELETE')")
+    //    @PreAuthorize("hasAuthority('DRIVER_DELETE')")
     @GetMapping("/{id}/activate")
-    public DriverDto activateVehicleDriver(
+    public DriverDto activeDriver(
             @PathVariable(name = "id") Long id) {
-        return driverService.activeVehicleDriver(id);
+        return driverService.activeDriver(id);
     }
 
     //    @PreAuthorize("hasAuthority('VEHICLE_DRIVER_DELETE')")
     @GetMapping("/{id}/deactivate")
-    public DriverDto deactivateVehicleDriver(
+    public DriverDto deactivateDriver(
             @PathVariable(name = "id") Long id) {
-        return driverService.deactivateVehicleDriver(id);
+        return driverService.deactivateDriver(id);
     }
 
     @ExceptionHandler(DuplicateDriverException.class)
-    public ResponseEntity<Map<String, String>> handleDuplicateVehicleDriver(Exception ex) {
+    public ResponseEntity<Map<String, String>> handleDuplicateDriver(Exception ex) {
         return ResponseEntity.badRequest().body(
                 Map.of("error", ex.getMessage())
         );
     }
 
     @ExceptionHandler(DriverNotFoundException.class)
-    public ResponseEntity<Void> handleVehicleDriverNotFound() {
+    public ResponseEntity<Void> handleDriverNotFound() {
         return ResponseEntity.notFound().build();
     }
 }
