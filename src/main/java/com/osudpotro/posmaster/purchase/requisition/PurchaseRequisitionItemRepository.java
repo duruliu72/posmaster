@@ -51,7 +51,13 @@ public interface PurchaseRequisitionItemRepository extends JpaSpecificationExecu
                   AND (:productName IS NULL OR pri.product.productName LIKE %:productName%)
             """)
     Page<PurchaseRequisitionItem> findPurchaseRequisitionItems(@Param("purchaseRequisitionId") Long purchaseRequisitionId, @Param("productName") String productName, Pageable pageable);
-
+    @Query("""
+                SELECT pri FROM PurchaseRequisitionItem pri
+                WHERE pri.purchaseRequisition.id = :purchaseRequisitionId
+                  AND (:productName IS NULL OR pri.product.productName LIKE %:productName%)
+                  AND pri.addableStatus=2
+            """)
+    Page<PurchaseRequisitionItem> filterAddablePurchaseRequisitionItems(@Param("purchaseRequisitionId") Long purchaseRequisitionId, @Param("productName") String productName, Pageable pageable);
     @Transactional
     @Modifying
     @Query("""

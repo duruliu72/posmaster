@@ -12,6 +12,7 @@ import java.util.Optional;
 
 public interface PurchaseRequisitionRepository extends JpaSpecificationExecutor<PurchaseRequisition>, JpaRepository<PurchaseRequisition, Long> {
     boolean existsByRequsitionRef(String requsitionRef);
+    boolean existsByPurchaseInvoices(String purchaseInvoices);
     @Transactional
     @Modifying
     @Query("update PurchaseRequisition pr set pr.status = :status where pr.id in :ids")
@@ -19,4 +20,7 @@ public interface PurchaseRequisitionRepository extends JpaSpecificationExecutor<
     PurchaseRequisition findTopByOrderByCreatedAtDesc();
     @Query("SELECT pr FROM PurchaseRequisition pr WHERE pr.id = :id")
     Optional<PurchaseRequisition> findPurchaseRequisitionById(@Param("id") Long id);
+
+    @Query(value = "SELECT * FROM purchase_requisitions WHERE purchase_invoices LIKE CONCAT('%', :purchase_invoices, '%') AND id !=:id limit 1",nativeQuery = true)
+    Optional<PurchaseRequisition> findPurchaseRequisitionByInvoice(@Param("id") Long id,@Param("purchase_invoices") String purchaseInvoices);
 }

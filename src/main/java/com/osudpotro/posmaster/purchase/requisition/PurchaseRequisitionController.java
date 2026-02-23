@@ -44,7 +44,34 @@ public class PurchaseRequisitionController {
         Page<PurchaseRequisitionDto> result = purchaseRequisitionService.getPurchaseRequisitions(filter, pageable);
         return new PagedResponse<>(result);
     }
-
+    //  For  Purchase Requisition item
+    @PostMapping("/{id}/filter")
+    public PurchaseRequisitionWithItemPageResponse getPurchaseRequisitionWithItemPagination(@PathVariable Long id,
+                                                                                            @RequestBody PurchaseRequisitionItemFilter filter,
+                                                                                            @RequestParam(defaultValue = "0") int page,
+                                                                                            @RequestParam(defaultValue = "10") int size,
+                                                                                            @RequestParam(defaultValue = "id") String sortBy,
+                                                                                            @RequestParam(defaultValue = "desc") String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase("asc") ?
+                Sort.by(sortBy).ascending() :
+                Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return purchaseRequisitionService.getPurchaseRequisitionWithItemPagination(id, pageable, filter);
+    }
+    //  For  Purchase Requisition item
+    @PostMapping("/{id}/filter-for-assign-to-vehicle")
+    public PurchaseRequisitionWithItemPageResponse filterAddablePurchaseRequisitionItems(@PathVariable Long id,
+                                                                                            @RequestBody PurchaseRequisitionItemFilter filter,
+                                                                                            @RequestParam(defaultValue = "0") int page,
+                                                                                            @RequestParam(defaultValue = "10") int size,
+                                                                                            @RequestParam(defaultValue = "id") String sortBy,
+                                                                                            @RequestParam(defaultValue = "desc") String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase("asc") ?
+                Sort.by(sortBy).ascending() :
+                Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return purchaseRequisitionService.filterAddablePurchaseRequisitionItems(id, pageable, filter);
+    }
     @GetMapping("/{id}")
     public PurchaseRequisitionDto getPurchaseRequisition(@PathVariable Long id) {
         return purchaseRequisitionService.getPurchaseRequisition(id);
@@ -102,20 +129,7 @@ public class PurchaseRequisitionController {
         return purchaseRequisitionService.deactivatePurchaseRequisition(id);
     }
 
-    //  For  Purchase Requisition item
-    @PostMapping("/{id}/filter")
-    public PurchaseRequisitionWithItemPageResponse getPurchaseRequisitionWithItemPagination(@PathVariable Long id,
-                                                                                            @RequestBody PurchaseRequisitionItemFilter filter,
-                                                                                            @RequestParam(defaultValue = "0") int page,
-                                                                                            @RequestParam(defaultValue = "10") int size,
-                                                                                            @RequestParam(defaultValue = "id") String sortBy,
-                                                                                            @RequestParam(defaultValue = "desc") String sortDir) {
-        Sort sort = sortDir.equalsIgnoreCase("asc") ?
-                Sort.by(sortBy).ascending() :
-                Sort.by(sortBy).descending();
-        Pageable pageable = PageRequest.of(page, size, sort);
-        return purchaseRequisitionService.getPurchaseRequisitionWithItemPagination(id, pageable, filter);
-    }
+
 
     @PostMapping("/{id}/add-item")
     public PurchaseRequisitionItemDto addPurchaseCartItem(
@@ -165,7 +179,7 @@ public class PurchaseRequisitionController {
     @ExceptionHandler(DuplicatePurchaseRequisitionException.class)
     public ResponseEntity<Map<String, String>> handleDuplicatePurchaseRequisition(Exception ex) {
         return ResponseEntity.badRequest().body(
-                Map.of("name", "Name is already exist.")
+                Map.of("error", ex.getMessage())
         );
     }
 

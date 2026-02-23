@@ -28,28 +28,12 @@ public class VehicleTrip extends BaseEntity {
     @JoinColumn(name = "vehicle_id")
     private Vehicle vehicle;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "vehicle_driver_id")
+    @JoinColumn(name = "driver_id")
     private Driver driver;
-    @Column(nullable = false, length = 500)
-    private String sourceAddress;
-    @Embedded
-    @AttributeOverrides({
-            @AttributeOverride(name = "latitude", column = @Column(name = "source_latitude")),
-            @AttributeOverride(name = "longitude", column = @Column(name = "source_longitude")),
-            @AttributeOverride(name = "accuracy", column = @Column(name = "source_accuracy"))
-    })
-    private Location source;
-    @Column(nullable = false, length = 500)
-    private String destAddress;
-    @Embedded
-    @AttributeOverrides({
-            @AttributeOverride(name = "latitude", column = @Column(name = "dest_latitude")),
-            @AttributeOverride(name = "longitude", column = @Column(name = "dest_longitude")),
-            @AttributeOverride(name = "accuracy", column = @Column(name = "dest_accuracy"))
-    })
-    private Location destination;
     private LocalDateTime tripStartTime;
     private LocalDateTime tripEndTime;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private TripStatus tripStatus=TripStatus.SCHEDULED;
     @OneToMany(mappedBy = "vehicleTrip", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<GoodsOnTrip> goodsItems = new ArrayList<>();

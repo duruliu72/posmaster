@@ -15,4 +15,5 @@ public class DriverDto {
     private String secondaryMobile;
     private Integer gender;
     private MultimediaDto profilePic;
+    private Long userId;
 }

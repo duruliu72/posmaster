@@ -19,6 +19,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -225,6 +227,25 @@ public class PurchaseRequisitionService {
         if (pr.getTotalItems() == 0) {
             throw new PurchaseRequisitionEmptyException();
         }
+        boolean hasInvoice=false;
+//        && purchaseRequisitionRepository.existsByPurchaseInvoices(request.getPurchaseInvoices())
+        if (request.getPurchaseInvoices() != null ) {
+            String[] reqInvoices=request.getPurchaseInvoices().split(",");
+            for (String invoice:reqInvoices){
+                if(!hasInvoice){
+                    var findPr=purchaseRequisitionRepository.findPurchaseRequisitionByInvoice(purchaseRequisitionId,invoice).orElse(null);
+                    if(findPr!=null &&findPr.getPurchaseInvoices()!=null){
+                        String [] prevInvoices=findPr.getPurchaseInvoices().split(",");
+                        if(Arrays.asList(prevInvoices).contains(invoice)){
+                            hasInvoice=true;
+                        }
+                    }
+                }
+            }
+            if (hasInvoice) {
+                throw new DuplicatePurchaseRequisitionException("Duplicate Purchase Invoice Found");
+            }
+        }
         var authUser = authService.getCurrentUser();
         pr.setUpdatedBy(authUser);
         if (request.getIsFinal() != null && request.getIsFinal()) {
@@ -297,7 +318,14 @@ public class PurchaseRequisitionService {
         Page<PurchaseRequisitionItemDto> result = priRepostory.findPurchaseRequisitionItems(purchaseRequisitionId, filter.getName(), pageable).map(priMapper::toDto);
         return purchaseRequisitionMapper.toMinDto(pr, result);
     }
-
+    //    For Purchase Requisition Item
+    public PurchaseRequisitionWithItemPageResponse filterAddablePurchaseRequisitionItems(Long purchaseRequisitionId, Pageable pageable, PurchaseRequisitionItemFilter filter) {
+        PurchaseRequisition pr = purchaseRequisitionRepository.findPurchaseRequisitionById(purchaseRequisitionId).orElseThrow(PurchaseRequisitionNotFoundException::new);
+        Page<PurchaseRequisitionItem> resultBase=priRepostory.filterAddablePurchaseRequisitionItems(purchaseRequisitionId, filter.getName(), pageable);
+        Page<PurchaseRequisitionItemDto> result = resultBase.map(priMapper::toDto);
+        pr.setItems(resultBase.getContent());
+        return purchaseRequisitionMapper.toMinDto(pr, result);
+    }
     public PurchaseRequisitionItemDto addPurchaseRequisitionItem(Long purchaseRequisitionId, PurchaseRequisitionItemAddRequest request) {
         PurchaseRequisition pr = purchaseRequisitionRepository.findById(purchaseRequisitionId).orElse(null);
         if (pr == null) {

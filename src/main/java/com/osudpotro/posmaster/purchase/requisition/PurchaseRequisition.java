@@ -71,7 +71,6 @@ public class PurchaseRequisition extends BaseEntity {
                 .mapToInt(PurchaseRequisitionItem::getActualQty)
                 .sum();
     }
-
     public int getTotalGiftOrBonusQty() {
         return items.stream()
                 .filter(i ->

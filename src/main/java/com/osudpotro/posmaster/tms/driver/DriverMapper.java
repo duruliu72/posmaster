@@ -17,6 +17,7 @@ public class DriverMapper {
         driverDto.setUserName(user.getUserName());
         driverDto.setFirstName(user.getFirstName());
         driverDto.setLastName(user.getLastName());
+        driverDto.setUserId(user.getId());
         if (user.getEmail() != null && !user.getEmail().isEmpty()) {
             driverDto.setEmail(user.getEmail());
         }

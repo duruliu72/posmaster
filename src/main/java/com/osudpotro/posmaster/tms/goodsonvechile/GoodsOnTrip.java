@@ -1,6 +1,7 @@
 package com.osudpotro.posmaster.tms.goodsonvechile;
 
 import com.osudpotro.posmaster.common.BaseEntity;
+import com.osudpotro.posmaster.common.Location;
 import com.osudpotro.posmaster.tms.vehicletrip.VehicleTrip;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -30,6 +31,26 @@ public class GoodsOnTrip extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private GoodsStatus goodsStatus = GoodsStatus.LOADED;
+    @Column(nullable = false, length = 500)
+    private String sourceAddress;
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "latitude", column = @Column(name = "source_latitude")),
+            @AttributeOverride(name = "longitude", column = @Column(name = "source_longitude")),
+            @AttributeOverride(name = "accuracy", column = @Column(name = "source_accuracy"))
+    })
+    private Location source;
+    @Column(nullable = false, length = 500)
+    private String destAddress;
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "latitude", column = @Column(name = "dest_latitude")),
+            @AttributeOverride(name = "longitude", column = @Column(name = "dest_longitude")),
+            @AttributeOverride(name = "accuracy", column = @Column(name = "dest_accuracy"))
+    })
+    private Location destination;
+    private LocalDateTime loadedTime;
+    private LocalDateTime unloadedTime;
     @Column(length = 500)
     private String receivedBy;
     private String signaturePath;
