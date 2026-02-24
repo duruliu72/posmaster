@@ -1,7 +1,9 @@
 package com.osudpotro.posmaster.tms.goodsonvechile;
 
+import com.osudpotro.posmaster.branch.Branch;
 import com.osudpotro.posmaster.common.BaseEntity;
 import com.osudpotro.posmaster.common.Location;
+import com.osudpotro.posmaster.requisition.Requisition;
 import com.osudpotro.posmaster.tms.vehicletrip.VehicleTrip;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -11,6 +13,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,6 +27,8 @@ public class GoodsOnTrip extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vehicle_trip_id", nullable = false)
     private VehicleTrip vehicleTrip;
+    @Column(nullable = false, unique = true, length = 50)
+    private String goodsRef;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private GoodsType goodsType = GoodsType.INVOICE;
@@ -31,8 +37,14 @@ public class GoodsOnTrip extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private GoodsStatus goodsStatus = GoodsStatus.LOADED;
+    @OneToMany(mappedBy = "goodsOnTrip", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Requisition> requisitions=new ArrayList<>();
     @Column(nullable = false, length = 500)
     private String sourceAddress;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Branch sourceBranch;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Branch destBranch;
     @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "latitude", column = @Column(name = "source_latitude")),
