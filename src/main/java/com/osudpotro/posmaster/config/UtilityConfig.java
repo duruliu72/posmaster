@@ -11,4 +11,5 @@ public class UtilityConfig {
     private String twilioAccountSID;
     private String twilioAuthToken;
     private String twilioPhoneNumber;
+    private String googleApiKey;
 }
