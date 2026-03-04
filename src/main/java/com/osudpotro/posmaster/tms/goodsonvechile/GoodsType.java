@@ -1,6 +1,6 @@
 package com.osudpotro.posmaster.tms.goodsonvechile;
 
-enum GoodsType {
+public enum GoodsType {
     INVOICE,        // Commercial invoice
     GRN,            // Goods Receipt Note
     DELIVERY_NOTE,  // Delivery Note

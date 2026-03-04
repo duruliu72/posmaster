@@ -5,6 +5,7 @@ import com.osudpotro.posmaster.common.BaseEntity;
 import com.osudpotro.posmaster.common.Location;
 import com.osudpotro.posmaster.requisition.Requisition;
 import com.osudpotro.posmaster.tms.vehicletrip.VehicleTrip;
+import com.osudpotro.posmaster.user.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -12,9 +13,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Date;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -37,8 +38,15 @@ public class GoodsOnTrip extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private GoodsStatus goodsStatus = GoodsStatus.LOADED;
-    @OneToMany(mappedBy = "goodsOnTrip", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Requisition> requisitions=new ArrayList<>();
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "assign_by")
+    private User assignBy;
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "received_by")
+    private User receivedBy;
+    @ManyToOne
+    @JoinColumn(name = "requisition_id")
+    private Requisition requisition;
     @Column(nullable = false, length = 500)
     private String sourceAddress;
     @ManyToOne(fetch = FetchType.LAZY)
@@ -61,10 +69,6 @@ public class GoodsOnTrip extends BaseEntity {
             @AttributeOverride(name = "accuracy", column = @Column(name = "dest_accuracy"))
     })
     private Location destination;
-    private LocalDateTime loadedTime;
-    private LocalDateTime unloadedTime;
-    @Column(length = 500)
-    private String receivedBy;
     private String signaturePath;
     @Column(length = 2000)
     private String remarks;
@@ -90,9 +94,26 @@ public class GoodsOnTrip extends BaseEntity {
     }
     public void markAsDelivered(String receivedByPerson, String signaturePath) {
         this.unloadedAt = LocalDateTime.now();
-        this.receivedBy = receivedByPerson;
         this.signaturePath = signaturePath;
         this.goodsStatus = GoodsStatus.DELIVERED;
         this.unloadedBy = "Driver"; // Or capture from context
+    }
+    public String getGeneratedGoodsRef() {
+        String tripPrefix="SL";
+        String datePart = new SimpleDateFormat("yyyyMMdd").format(new Date());
+        long nextSeq = 1;
+        if (this.getGoodsRef() != null) {
+            String lastTripRef = this.getGoodsRef();
+            String lastPart = lastTripRef.length() > 8 ? lastTripRef.substring(lastTripRef.length() - 9) : lastTripRef;
+            if (!lastPart.isEmpty()) {
+                try {
+                    nextSeq = Long.parseLong(lastPart) + 1;
+                } catch (Exception e) {
+                    System.out.println(e);
+                }
+            }
+        }
+        //Format String
+        return String.format("%s-%s-%09d",tripPrefix, datePart, nextSeq);
     }
 }

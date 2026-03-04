@@ -36,7 +36,8 @@ public class VehicleTripService {
     }
 
     public VehicleTripDto createVehicleTrip(VehicleTripCreateRequest request) {
-        if (request.getTripRef() != null && vehicleTripRepository.existsByTripRef(request.getTripRef())) {
+        String tripRef=generateTripRef();
+        if (vehicleTripRepository.existsByTripRef(tripRef)) {
             throw new DuplicateVehicleException("Vehicle Trip already exists");
         }
         var vehicle = vehicleRepository.findById(request.getVehicleId()).orElseThrow(VehicleNotFoundException::new);
@@ -106,22 +107,10 @@ public class VehicleTripService {
         return vehicleTripRepository.deleteBulkVehicleTrip(ids, 3L);
     }
     public String generateTripRef() {
-        String tripPrefix="TRIP";
-        String datePart = new SimpleDateFormat("yyyyMMdd").format(new Date());
-        VehicleTrip vehicleTrip= vehicleTripRepository.findTopByOrderByCreatedAtDesc();
-        long nextSeq = 1;
-        if (vehicleTrip != null && vehicleTrip.getTripRef() != null) {
-            String lastTripRef = vehicleTrip.getTripRef();
-            String lastPart = lastTripRef.length() > 8 ? lastTripRef.substring(lastTripRef.length() - 9) : lastTripRef;
-            if (!lastPart.isEmpty()) {
-                try {
-                    nextSeq = Long.parseLong(lastPart) + 1;
-                } catch (Exception e) {
-                    System.out.println(e);
-                }
-            }
+        VehicleTrip vehicleTrip = vehicleTripRepository.findTopByOrderByCreatedAtDesc();
+        if (vehicleTrip == null) {
+            vehicleTrip = new VehicleTrip();
         }
-        //Format String
-        return String.format("%s-%09d", datePart, nextSeq);
+        return vehicleTrip.getGeneratedTripRef();
     }
 }

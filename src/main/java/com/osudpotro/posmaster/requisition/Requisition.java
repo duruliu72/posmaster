@@ -4,7 +4,6 @@ import com.osudpotro.posmaster.common.BaseEntity;
 import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisition;
 import com.osudpotro.posmaster.requisitiontype.RequisitionType;
 import com.osudpotro.posmaster.tms.goodsonvechile.GoodsOnTrip;
-import com.osudpotro.posmaster.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,38 +25,10 @@ public class Requisition extends BaseEntity {
     private List<RequisitionOnPath> requisitionOnPaths = new ArrayList<>();
     //    Like draft=1, Submitted=2,3=Approved,4=Rejected,5=Review,6=Cancelled,7=Closed(After all finally process done)
     private Integer requisitionStatus = 1;
-    //1=Pending ,2=On the way,3=Arrived,4=Received
-    private Integer deliveryStatus = 1;
-    @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "received_by")
-    private User receivedBy;
     private String note;
-    @ManyToOne
-    private GoodsOnTrip goodsOnTrip;
-    public boolean isPending() {
-        return deliveryStatus==null||deliveryStatus == 1;
-    }
-
-    public boolean isOnTheWay() {
-        return deliveryStatus == 2;
-    }
-
-    public boolean isArrived() {
-        return deliveryStatus == 3;
-    }
-
-    public boolean isReceived() {
-        return deliveryStatus == 4;
-    }
-    public String getDeliveryStatusText() {
-        return switch (deliveryStatus) {
-            case 1 -> "Pending";
-            case 2 -> "On the way";
-            case 3 -> "Arrived";
-            case 4 -> "Received";
-            default -> "Unknown";
-        };
-    }
+    //    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @OneToMany(mappedBy = "requisition", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<GoodsOnTrip> goodsOnTrips = new ArrayList<>();
     public int getTotalPaths() {
         return requisitionOnPaths.size();
     }

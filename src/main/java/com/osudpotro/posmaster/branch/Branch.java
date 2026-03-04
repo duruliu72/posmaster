@@ -17,10 +17,11 @@ import lombok.Setter;
 @Table(name = "branches")
 public class Branch extends BaseEntity {
     private String name;
-    private String location;
     private String address;
     private String district;
     private String country;
+    private String locationName;
+    private String placeId;
     private Double latitude;
     private Double longitude;
     private Double accuracy;
@@ -31,4 +32,5 @@ public class Branch extends BaseEntity {
     private Multimedia media;
     @ManyToOne(fetch = FetchType.LAZY)
     private Organization organization;
+    private Boolean isMain=false;
 }

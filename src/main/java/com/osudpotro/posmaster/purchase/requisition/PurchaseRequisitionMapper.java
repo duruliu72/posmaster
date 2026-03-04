@@ -2,6 +2,7 @@ package com.osudpotro.posmaster.purchase.requisition;
 
 import com.osudpotro.posmaster.organization.OrganizationDto;
 import com.osudpotro.posmaster.purchase.dto.BranchDto;
+import lombok.Data;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
@@ -29,6 +30,7 @@ public class PurchaseRequisitionMapper {
         if(pr.getRequisition()!=null){
             prDto.setRequisitionStatus(pr.getRequisition().getRequisitionStatus());
             prDto.setNote(pr.getRequisition().getNote());
+            prDto.setRequisitionId(pr.getRequisition().getId());
         }
         prDto.setOverallDiscount(prDto.getOverallDiscount());
         prDto.setTotalPrice(pr.getTotalPrice());
@@ -64,6 +66,7 @@ public class PurchaseRequisitionMapper {
         if(pr.getRequisition()!=null){
             pageResponse.setRequisitionStatus(pr.getRequisition().getRequisitionStatus());
             pageResponse.setNote(pr.getRequisition().getNote());
+            pageResponse.setRequisitionId(pr.getRequisition().getId());
         }
         pageResponse.setOverallDiscount(pr.getOverallDiscount());
         pageResponse.setTotalPrice(pr.getTotalPrice());
@@ -119,5 +122,14 @@ public class PurchaseRequisitionMapper {
         prDto.setOverallDiscount(prDto.getOverallDiscount());
         prDto.setIsFinal(pr.getIsFinal());
         return prDto;
+    }
+
+    @Data
+    public static class AssignToVehicleRequest {
+        private String tripRef;
+        private Long driverId;
+        private Long vehicleId;
+        private String sourceAddress;
+        private String destAddress;
     }
 }

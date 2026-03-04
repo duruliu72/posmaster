@@ -34,7 +34,7 @@ public class PurchaseRequisition extends BaseEntity {
     private String purchaseInvoiceDocs;
     private String orderRefs;
     private Boolean isFinal = false;
-    //    @ManyToOne(fetch = FetchType.LAZY)
+    //  @ManyToOne(fetch = FetchType.LAZY)
 //    private Warehouse warehouse;
 //    @ManyToOne(fetch = FetchType.LAZY)
 //    private Supplier supplier;

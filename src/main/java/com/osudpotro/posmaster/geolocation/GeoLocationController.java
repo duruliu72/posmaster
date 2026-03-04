@@ -1,4 +1,4 @@
-package com.osudpotro.posmaster.googleapi;
+package com.osudpotro.posmaster.geolocation;
 
 
 import lombok.AllArgsConstructor;
@@ -12,14 +12,26 @@ import java.util.Map;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/google-api/places")
-public class GoogleApiController {
-    private final GoogleApiService googleApiService;
+@RequestMapping("/geo-location")
+public class GeoLocationController {
+    private final GeoLocationService geoLocationService;
     @GetMapping("/autocomplete")
     public ResponseEntity<?> autocomplete(@RequestParam String searchKey) {
         try {
-            var predictions = googleApiService.autocomplete(searchKey);
-            return ResponseEntity.ok(predictions);
+            var geoLocations = geoLocationService.autocomplete(searchKey);
+            return ResponseEntity.ok(geoLocations);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of(
+                    "error", e.getMessage(),
+                    "status", "ERROR"
+            ));
+        }
+    }
+    @GetMapping("/reverse")
+    public ResponseEntity<?> getLocationFromLatLng(@RequestParam double lat,@RequestParam double lon) {
+        try {
+            var geoLocation = geoLocationService.getLocationFromLatLng(lat,lon);
+            return ResponseEntity.ok(geoLocation);
         } catch (Exception e) {
             return ResponseEntity.status(500).body(Map.of(
                     "error", e.getMessage(),

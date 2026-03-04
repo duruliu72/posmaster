@@ -9,15 +9,18 @@ import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
 @AllArgsConstructor
 @RestController
 @RequestMapping("/requisitions")
 public class RequisitionController {
     private final RequisitionService requisitionService;
+
     @GetMapping
-    public List<RequisitionDto> getAllRequisitions(){
+    public List<RequisitionDto> getAllRequisitions() {
         return requisitionService.getAllRequisitions();
     }
+
     @PostMapping("/filter")
     public PagedResponse<RequisitionDto> filterRequisitions(
             @RequestBody RequisitionFilter filter,
@@ -33,6 +36,7 @@ public class RequisitionController {
         Page<RequisitionDto> result = requisitionService.filterRequisitions(filter, pageable);
         return new PagedResponse<>(result);
     }
+
     @GetMapping("/{id}")
     public RequisitionDto getRequisition(@PathVariable Long id) {
         return requisitionService.getRequisition(id);
