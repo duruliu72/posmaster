@@ -29,6 +29,10 @@ public class PurchaseRequisitionDto {
     private String purchaseInvoices;
     private String purchaseInvoiceDocs;
     private String orderRefs;
+    private BigDecimal tempOverallDiscount;
+    private String tempPurchaseInvoices;
+    private String tempPurchaseInvoiceDocs;
+    private String tempOrderRefs;
     private Boolean isFinal;
     private List<PurchaseRequisitionItemDto> items = new ArrayList<>();
 //    Requsition Field

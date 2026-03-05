@@ -21,6 +21,10 @@ public interface PurchaseRequisitionRepository extends JpaSpecificationExecutor<
     @Query("SELECT pr FROM PurchaseRequisition pr WHERE pr.id = :id")
     Optional<PurchaseRequisition> findPurchaseRequisitionById(@Param("id") Long id);
 
-    @Query(value = "SELECT * FROM purchase_requisitions WHERE purchase_invoices LIKE CONCAT('%', :purchase_invoices, '%') AND id !=:id limit 1",nativeQuery = true)
+//    @Query(value = "SELECT * FROM purchase_requisitions WHERE purchase_invoices LIKE CONCAT('%', :purchase_invoices, '%') AND id !=:id limit 1",nativeQuery = true)
+    @Query(value = "SELECT * FROM purchase_requisitions WHERE " +
+            "(purchase_invoices LIKE CONCAT('%', :purchase_invoices, '%') OR " +
+            "temp_purchase_invoices LIKE CONCAT('%', :purchase_invoices, '%')) " +
+            "AND id != :id LIMIT 1", nativeQuery = true)
     Optional<PurchaseRequisition> findPurchaseRequisitionByInvoice(@Param("id") Long id,@Param("purchase_invoices") String purchaseInvoices);
 }

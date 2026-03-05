@@ -3,7 +3,7 @@ package com.osudpotro.posmaster.requisition;
 import com.osudpotro.posmaster.common.BaseEntity;
 import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisition;
 import com.osudpotro.posmaster.requisitiontype.RequisitionType;
-import com.osudpotro.posmaster.tms.goodsonvechile.GoodsOnTrip;
+import com.osudpotro.posmaster.tms.goodsontrip.GoodsOnTrip;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

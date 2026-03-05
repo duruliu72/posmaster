@@ -1,8 +1,7 @@
 package com.osudpotro.posmaster.tms.vehicletrip;
 
 import com.osudpotro.posmaster.common.BaseEntity;
-import com.osudpotro.posmaster.common.Location;
-import com.osudpotro.posmaster.tms.goodsonvechile.GoodsOnTrip;
+import com.osudpotro.posmaster.tms.goodsontrip.GoodsOnTrip;
 import com.osudpotro.posmaster.tms.vechile.Vehicle;
 import com.osudpotro.posmaster.tms.driver.Driver;
 import jakarta.persistence.*;

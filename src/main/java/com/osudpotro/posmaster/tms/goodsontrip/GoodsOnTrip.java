@@ -1,4 +1,4 @@
-package com.osudpotro.posmaster.tms.goodsonvechile;
+package com.osudpotro.posmaster.tms.goodsontrip;
 
 import com.osudpotro.posmaster.branch.Branch;
 import com.osudpotro.posmaster.common.BaseEntity;

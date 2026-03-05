@@ -1,6 +1,6 @@
 package com.osudpotro.posmaster.tms.vehicletrip;
 import com.osudpotro.posmaster.tms.driver.DriverDto;
-import com.osudpotro.posmaster.tms.goodsonvechile.GoodsOnTrip;
+import com.osudpotro.posmaster.tms.goodsontrip.GoodsOnTrip;
 import com.osudpotro.posmaster.tms.vechile.VehicleDto;
 import lombok.Data;
 

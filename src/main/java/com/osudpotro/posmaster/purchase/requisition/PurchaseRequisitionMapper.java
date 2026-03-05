@@ -42,6 +42,10 @@ public class PurchaseRequisitionMapper {
         prDto.setPurchaseInvoices(pr.getPurchaseInvoices());
         prDto.setPurchaseInvoiceDocs(pr.getPurchaseInvoiceDocs());
         prDto.setOrderRefs(pr.getOrderRefs());
+        prDto.setTempPurchaseInvoices(pr.getTempPurchaseInvoices());
+        prDto.setTempPurchaseInvoiceDocs(pr.getTempPurchaseInvoiceDocs());
+        prDto.setTempOrderRefs(pr.getTempOrderRefs());
+        prDto.setTempOverallDiscount(pr.getTempOverallDiscount());
         prDto.setIsFinal(pr.getIsFinal());
         return prDto;
     }
@@ -78,6 +82,10 @@ public class PurchaseRequisitionMapper {
         pageResponse.setPurchaseInvoices(pr.getPurchaseInvoices());
         pageResponse.setPurchaseInvoiceDocs(pr.getPurchaseInvoiceDocs());
         pageResponse.setOrderRefs(pr.getOrderRefs());
+        pageResponse.setTempPurchaseInvoices(pr.getTempPurchaseInvoices());
+        pageResponse.setTempPurchaseInvoiceDocs(pr.getTempPurchaseInvoiceDocs());
+        pageResponse.setTempOrderRefs(pr.getTempOrderRefs());
+        pageResponse.setTempOverallDiscount(pr.getTempOverallDiscount());
         pageResponse.setIsFinal(pr.getIsFinal());
 
         //For Item Pagination
