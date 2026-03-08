@@ -44,6 +44,7 @@ public class SecurityConfig {
                         .requestMatchers("/public/**").permitAll()
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/web/customers/**").permitAll()
+                        .requestMatchers("/web/customers/logout**").permitAll()
                         .requestMatchers("/admin/auth/**").permitAll()
                         .requestMatchers("/employees/auth/**").permitAll()
                         .requestMatchers("/vehicle-drivers/auth/**").permitAll()

@@ -1,6 +1,4 @@
 package com.osudpotro.posmaster.web.customer;
-
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
@@ -25,7 +23,9 @@ import com.osudpotro.posmaster.user.customer.Customer;
 import com.osudpotro.posmaster.user.customer.CustomerCreateRequest;
 import com.osudpotro.posmaster.user.customer.CustomerMapper;
 import com.osudpotro.posmaster.user.customer.CustomerRepository;
+import com.osudpotro.posmaster.user.loginrecords.LoginRecordRepository;
 import com.osudpotro.posmaster.user.loginrecords.LoginRecordService;
+import com.osudpotro.posmaster.utility.DeviceDetectionUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -38,17 +38,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
-
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
+
 @Data
 @Slf4j
 @AllArgsConstructor
@@ -67,6 +61,8 @@ public class WebCustomerController {
     private final UtilityConfig utilityConfig;
     private final EmailService emailService;
     private final LoginRecordService loginRecordService;
+    private final LoginRecordRepository loginRecordRepository;
+    private final DeviceDetectionUtil deviceDetectionUtil;
     private final Random random = new Random();
     private final SmsNetBdService sendSms;
 
@@ -439,22 +435,19 @@ public class WebCustomerController {
 
         }
 
+        // At the end of your login method, after user is authenticated:
         if (user != null) {
-            // Determine login method
             String loginMethod = "UNKNOWN";
             if (request.getPassword() != null && !request.getPassword().isEmpty()) {
                 loginMethod = "PASSWORD";
             } else if (request.getOtpCode() != null && !request.getOtpCode().isEmpty()) {
                 loginMethod = "OTP";
             } else if (request.getProvider() != null && !request.getProvider().isEmpty()) {
-                loginMethod = request.getProvider(); // GOOGLE, FACEBOOK
+                loginMethod = request.getProvider();
             }
 
-            // ✅ RECORD THE LOGIN
             loginRecordService.recordLogin(user, httpRequest, loginMethod);
         }
-
-
 
         var accessToken = jwtService.generateAccessToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
@@ -591,9 +584,114 @@ public class WebCustomerController {
     }
 
 
+
     private String generateOtp() {
         return String.format("%06d", random.nextInt(999999));
     }
 
+
+
+    @GetMapping("/profile")
+    public ResponseEntity<?> redirectToProfile() {
+        return ResponseEntity.ok(Map.of(
+                "message", "Please use /web/customers/profile/me endpoint",
+                "newEndpoint", "/web/customers/profile/me"  // ← Fixed to plural
+        ));
+    }
+
+
+    @PostMapping("/logout")
+    public ResponseEntity<Map<String, Object>> logout(@RequestBody(required = false) Map<String, String> requestBody,
+                                                      @RequestParam(required = false) String email,
+                                                      @RequestParam(required = false) String mobile,
+                                                      @RequestParam(required = false) Long userId,
+                                                      @RequestHeader(value = "Authorization", required = false) String token) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            log.info("========== LOGOUT REQUEST ==========");
+            log.info("Body: {}, Email Param: {}, Mobile Param: {}, UserId Param: {}, Token: {}",
+                    requestBody, email, mobile, userId, token != null ? "present" : "null");
+
+            User user = null;
+            String foundBy = "";
+
+            // METHOD 1: Check request parameters first
+            if (email != null && !email.isEmpty()) {
+                user = userRepository.findByEmail(email).orElse(null);
+                foundBy = "email parameter";
+            }
+            else if (mobile != null && !mobile.isEmpty()) {
+                user = userRepository.findByMobile(mobile).orElse(null);
+                foundBy = "mobile parameter";
+            }
+            else if (userId != null) {
+                user = userRepository.findById(userId).orElse(null);
+                foundBy = "userId parameter";
+            }
+
+            // METHOD 2: Check request body
+            if (user == null && requestBody != null) {
+                if (requestBody.containsKey("email")) {
+                    user = userRepository.findByEmail(requestBody.get("email")).orElse(null);
+                    foundBy = "email in body";
+                }
+                else if (requestBody.containsKey("mobile")) {
+                    user = userRepository.findByMobile(requestBody.get("mobile")).orElse(null);
+                    foundBy = "mobile in body";
+                }
+                else if (requestBody.containsKey("userId")) {
+                    try {
+                        Long id = Long.parseLong(requestBody.get("userId"));
+                        user = userRepository.findById(id).orElse(null);
+                        foundBy = "userId in body";
+                    } catch (Exception e) {
+                        log.warn("Invalid userId in body");
+                    }
+                }
+            }
+
+            // METHOD 3: Try token as last resort
+            if (user == null && token != null && token.startsWith("Bearer ")) {
+                try {
+                    String cleanToken = token.replace("Bearer ", "").trim();
+                    String tokenEmail = jwtService.getUserEmailFromToken(cleanToken);
+                    if (tokenEmail != null) {
+                        user = userRepository.findByEmail(tokenEmail).orElse(null);
+                        foundBy = "token";
+                    }
+                } catch (Exception e) {
+                    log.warn("Token invalid/expired");
+                }
+            }
+            if (user == null) {
+                log.error(" COULD NOT IDENTIFY USER");
+                response.put("success", false);
+                response.put("message", "Please provide email, mobile, or userId as parameter or in body");
+                response.put("example", "/logout?email=user@example.com OR /logout with body {\"email\":\"...\"}");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            log.info(" User identified via {}: ID={}, Email={}", foundBy, user.getId(), user.getEmail());
+
+            // Record logout
+            boolean dbUpdated = loginRecordService.recordLogout(user);
+
+            response.put("success", true);
+            response.put("message", "Logout successful");
+            response.put("userId", user.getId());
+            response.put("foundBy", foundBy);
+            response.put("databaseUpdated", dbUpdated);
+
+            log.info(" Logout complete for user: {}", user.getId());
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            log.error("Logout error", e);
+            response.put("success", false);
+            response.put("message", "Logout failed");
+            return ResponseEntity.status(500).body(response);
+        }
+    }
 
 }
