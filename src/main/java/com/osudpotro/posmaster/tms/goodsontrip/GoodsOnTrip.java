@@ -3,7 +3,7 @@ package com.osudpotro.posmaster.tms.goodsontrip;
 import com.osudpotro.posmaster.branch.Branch;
 import com.osudpotro.posmaster.common.BaseEntity;
 import com.osudpotro.posmaster.common.Location;
-import com.osudpotro.posmaster.requisition.Requisition;
+import com.osudpotro.posmaster.purchase.transfer.PurchaseRequisitionTransfer;
 import com.osudpotro.posmaster.tms.vehicletrip.VehicleTrip;
 import com.osudpotro.posmaster.user.User;
 import jakarta.persistence.*;
@@ -44,9 +44,8 @@ public class GoodsOnTrip extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "received_by")
     private User receivedBy;
-    @ManyToOne
-    @JoinColumn(name = "requisition_id")
-    private Requisition requisition;
+    @OneToOne(mappedBy= "goodsOnTrip", cascade = CascadeType.ALL, orphanRemoval = true)
+    private PurchaseRequisitionTransfer purchaseRequisitionTransfer;
     @Column(nullable = false, length = 500)
     private String sourceAddress;
     @ManyToOne(fetch = FetchType.LAZY)

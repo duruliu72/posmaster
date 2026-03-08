@@ -1,4 +1,4 @@
-package com.osudpotro.posmaster.purchase.check;
+package com.osudpotro.posmaster.purchase.transfer;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.osudpotro.posmaster.branch.Branch;
@@ -6,6 +6,7 @@ import com.osudpotro.posmaster.common.BaseEntity;
 import com.osudpotro.posmaster.organization.Organization;
 import com.osudpotro.posmaster.purchase.PurchaseType;
 import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisition;
+import com.osudpotro.posmaster.tms.goodsontrip.GoodsOnTrip;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,8 +19,8 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-@Table(name = "final_purchase_requisitions")
-public class FinalPurchaseRequisition extends BaseEntity {
+@Table(name = "purchase_requisition_transfers")
+public class PurchaseRequisitionTransfer extends BaseEntity {
     private String requsitionRef;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "purchase_requisition_id")
@@ -36,29 +37,40 @@ public class FinalPurchaseRequisition extends BaseEntity {
     private String purchaseInvoiceDocs;
     private String orderRefs;
     //1 or Null=Not DELIVERED,2=DELIVERED Via Transport
-    private Integer transferStatus=1;
+    private Integer transferStatus = 1;
+    @OneToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(
+            name = "goods_on_trip_id",
+            nullable = true,
+            unique = true
+    )
+    private GoodsOnTrip goodsOnTrip;
     @JsonIgnore
-    @OneToMany(mappedBy = "finalPurchaseRequisition", cascade = CascadeType.MERGE, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<FinalPurchaseRequisitionItem> items = new ArrayList<>();
+    @OneToMany(mappedBy = "purchaseRequisitionTransfer", cascade = CascadeType.MERGE, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<PurchaseRequisitionItemTransfer> items = new ArrayList<>();
+
     public int getTotalItems() {
         return items.size();
     }
+
     public int getTotalQty() {
         return items.stream()
                 .filter(i ->
                         i.getPurchaseQty() != null
                 )
-                .mapToInt(FinalPurchaseRequisitionItem::getPurchaseQty)
+                .mapToInt(PurchaseRequisitionItemTransfer::getPurchaseQty)
                 .sum();
     }
+
     public int getTotalGiftOrBonusQty() {
         return items.stream()
                 .filter(i ->
                         i.getGiftOrBonusQty() != null
                 )
-                .mapToInt(FinalPurchaseRequisitionItem::getGiftOrBonusQty)
+                .mapToInt(PurchaseRequisitionItemTransfer::getGiftOrBonusQty)
                 .sum();
     }
+
     public BigDecimal getTotalPrice() {
         return items.stream()
                 .filter(i ->
@@ -70,6 +82,7 @@ public class FinalPurchaseRequisition extends BaseEntity {
                 )
                 .reduce(BigDecimal.ZERO, BigDecimal::add).setScale(2, RoundingMode.HALF_UP);
     }
+
     public BigDecimal getTotalGiftOrBonusPrice() {
         return items.stream()
                 .filter(i ->

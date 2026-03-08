@@ -130,7 +130,7 @@ public class GeoLocationService {
                 }
             }
         }
-        // If no country component found, check formatted address as fallback
+        // If no country component found, transfer formatted address as fallback
         if (placeDetails.formattedAddress != null) {
             String address = placeDetails.formattedAddress.toLowerCase();
             boolean isBangladesh = address.contains("bangladesh") ||

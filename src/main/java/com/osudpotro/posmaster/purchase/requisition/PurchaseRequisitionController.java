@@ -1,7 +1,7 @@
 package com.osudpotro.posmaster.purchase.requisition;
 
 import com.osudpotro.posmaster.common.PagedResponse;
-import com.osudpotro.posmaster.requisition.RequisitionDto;
+import com.osudpotro.posmaster.purchase.transfer.AssignToVehicleRequest;
 import com.osudpotro.posmaster.requisition.RequisitionItemNotApprovedException;
 import com.osudpotro.posmaster.requisition.RequisitionUpdateException;
 import com.osudpotro.posmaster.requisition.RequsitionOnPathNotFoundException;
@@ -147,7 +147,7 @@ public class PurchaseRequisitionController {
         return purchaseRequisitionService.updatePurchaseRequisitionItem(purchaseRequisitionId, purchaseRequisitionItemId, request);
     }
 
-    @PostMapping("/{purchaseRequisitionId}/check-invoice-update-item/{purchaseRequisitionItemId}")
+    @PostMapping("/{purchaseRequisitionId}/transfer-invoice-update-item/{purchaseRequisitionItemId}")
     public PurchaseRequisitionItemDto CheckInvoiceAndUpdatePurchaseRequisitionItem(
             @PathVariable(name = "purchaseRequisitionId") Long purchaseRequisitionId,
             @PathVariable(name = "purchaseRequisitionItemId") Long purchaseRequisitionItemId,

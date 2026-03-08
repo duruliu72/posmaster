@@ -26,9 +26,6 @@ public class Requisition extends BaseEntity {
     //    Like draft=1, Submitted=2,3=Approved,4=Rejected,5=Review,6=Cancelled,7=Closed(After all finally process done)
     private Integer requisitionStatus = 1;
     private String note;
-    //    @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @OneToMany(mappedBy = "requisition", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<GoodsOnTrip> goodsOnTrips = new ArrayList<>();
     public int getTotalPaths() {
         return requisitionOnPaths.size();
     }

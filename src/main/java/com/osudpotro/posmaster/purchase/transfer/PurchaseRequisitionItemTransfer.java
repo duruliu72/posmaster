@@ -1,9 +1,8 @@
-package com.osudpotro.posmaster.purchase.check;
+package com.osudpotro.posmaster.purchase.transfer;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.osudpotro.posmaster.product.Product;
 import com.osudpotro.posmaster.product.ProductDetail;
-import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisition;
 import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisitionItem;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -15,21 +14,21 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-@Table(name = "final_purchase_requisition_items", uniqueConstraints = @UniqueConstraint(
+@Table(name = "purchase_requisition_item_transfers", uniqueConstraints = @UniqueConstraint(
         columnNames = {
-                "final_purchase_requisition_id",
+                "purchase_requisition_transfer_id",
                 "purchase_requisition_item_id",
                 "product_id",
                 "product_detail_id"
         }
 ))
-public class FinalPurchaseRequisitionItem {
+public class PurchaseRequisitionItemTransfer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "final_purchase_requisition_id")
-    private FinalPurchaseRequisition finalPurchaseRequisition;
+    @JoinColumn(name = "purchase_requisition_transfer_id")
+    private PurchaseRequisitionTransfer purchaseRequisitionTransfer;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "purchase_requisition_item_id")
     private PurchaseRequisitionItem purchaseRequisitionItem;
@@ -53,7 +52,6 @@ public class FinalPurchaseRequisitionItem {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "purchase_product_unit_id")
     private ProductDetail purchaseProductUnit;
-
     public BigDecimal getQty() {
         return BigDecimal.valueOf(purchaseQty);
     }
