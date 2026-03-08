@@ -26,11 +26,17 @@ public class PurchaseRequisitionDto {
     private Integer totalActualQty;
     private BigDecimal totalGiftOrBonusPrice;
     private Integer totalGiftOrBonusQty;
-    private Integer requisitionStatus;
-    private String note;
     private String purchaseInvoices;
     private String purchaseInvoiceDocs;
     private String orderRefs;
+    private BigDecimal tempOverallDiscount;
+    private String tempPurchaseInvoices;
+    private String tempPurchaseInvoiceDocs;
+    private String tempOrderRefs;
     private Boolean isFinal;
     private List<PurchaseRequisitionItemDto> items = new ArrayList<>();
+//    Requsition Field
+    private Long requisitionId;
+    private Integer requisitionStatus;
+    private String note;
 }

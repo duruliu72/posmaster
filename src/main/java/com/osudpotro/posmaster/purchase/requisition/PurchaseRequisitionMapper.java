@@ -2,6 +2,7 @@ package com.osudpotro.posmaster.purchase.requisition;
 
 import com.osudpotro.posmaster.organization.OrganizationDto;
 import com.osudpotro.posmaster.purchase.dto.BranchDto;
+import lombok.Data;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
@@ -29,6 +30,7 @@ public class PurchaseRequisitionMapper {
         if(pr.getRequisition()!=null){
             prDto.setRequisitionStatus(pr.getRequisition().getRequisitionStatus());
             prDto.setNote(pr.getRequisition().getNote());
+            prDto.setRequisitionId(pr.getRequisition().getId());
         }
         prDto.setOverallDiscount(prDto.getOverallDiscount());
         prDto.setTotalPrice(pr.getTotalPrice());
@@ -40,6 +42,10 @@ public class PurchaseRequisitionMapper {
         prDto.setPurchaseInvoices(pr.getPurchaseInvoices());
         prDto.setPurchaseInvoiceDocs(pr.getPurchaseInvoiceDocs());
         prDto.setOrderRefs(pr.getOrderRefs());
+        prDto.setTempPurchaseInvoices(pr.getTempPurchaseInvoices());
+        prDto.setTempPurchaseInvoiceDocs(pr.getTempPurchaseInvoiceDocs());
+        prDto.setTempOrderRefs(pr.getTempOrderRefs());
+        prDto.setTempOverallDiscount(pr.getTempOverallDiscount());
         prDto.setIsFinal(pr.getIsFinal());
         return prDto;
     }
@@ -64,6 +70,7 @@ public class PurchaseRequisitionMapper {
         if(pr.getRequisition()!=null){
             pageResponse.setRequisitionStatus(pr.getRequisition().getRequisitionStatus());
             pageResponse.setNote(pr.getRequisition().getNote());
+            pageResponse.setRequisitionId(pr.getRequisition().getId());
         }
         pageResponse.setOverallDiscount(pr.getOverallDiscount());
         pageResponse.setTotalPrice(pr.getTotalPrice());
@@ -75,6 +82,10 @@ public class PurchaseRequisitionMapper {
         pageResponse.setPurchaseInvoices(pr.getPurchaseInvoices());
         pageResponse.setPurchaseInvoiceDocs(pr.getPurchaseInvoiceDocs());
         pageResponse.setOrderRefs(pr.getOrderRefs());
+        pageResponse.setTempPurchaseInvoices(pr.getTempPurchaseInvoices());
+        pageResponse.setTempPurchaseInvoiceDocs(pr.getTempPurchaseInvoiceDocs());
+        pageResponse.setTempOrderRefs(pr.getTempOrderRefs());
+        pageResponse.setTempOverallDiscount(pr.getTempOverallDiscount());
         pageResponse.setIsFinal(pr.getIsFinal());
 
         //For Item Pagination
@@ -119,5 +130,14 @@ public class PurchaseRequisitionMapper {
         prDto.setOverallDiscount(prDto.getOverallDiscount());
         prDto.setIsFinal(pr.getIsFinal());
         return prDto;
+    }
+
+    @Data
+    public static class AssignToVehicleRequest {
+        private String tripRef;
+        private Long driverId;
+        private Long vehicleId;
+        private String sourceAddress;
+        private String destAddress;
     }
 }

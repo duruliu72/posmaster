@@ -1,6 +1,7 @@
 package com.osudpotro.posmaster.purchase.requisition;
 
 import com.osudpotro.posmaster.common.PagedResponse;
+import com.osudpotro.posmaster.requisition.RequisitionDto;
 import com.osudpotro.posmaster.requisition.RequisitionItemNotApprovedException;
 import com.osudpotro.posmaster.requisition.RequisitionUpdateException;
 import com.osudpotro.posmaster.requisition.RequsitionOnPathNotFoundException;
@@ -175,7 +176,10 @@ public class PurchaseRequisitionController {
                 Map.of("count", count)
         );
     }
-
+    @PostMapping("/{purchaseRequisitionId}/assign-to-vehicle")
+    public PurchaseRequisitionDto assignToVehicle(@PathVariable Long purchaseRequisitionId, @RequestBody AssignToVehicleRequest request) {
+        return purchaseRequisitionService.assignToVehicle(purchaseRequisitionId,request);
+    }
     @ExceptionHandler(DuplicatePurchaseRequisitionException.class)
     public ResponseEntity<Map<String, String>> handleDuplicatePurchaseRequisition(Exception ex) {
         return ResponseEntity.badRequest().body(

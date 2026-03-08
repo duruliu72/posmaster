@@ -1,4 +1,4 @@
-package com.osudpotro.posmaster.tms.goodsonvechile;
+package com.osudpotro.posmaster.tms.goodsontrip;
 import lombok.*;
 
 import java.time.LocalDateTime;

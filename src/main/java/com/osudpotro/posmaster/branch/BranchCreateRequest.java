@@ -5,7 +5,8 @@ import lombok.Data;
 @Data
 public class BranchCreateRequest {
     private String name;
-    private String location;
+    private String locationName;
+    private String placeId;
     private String address;
     private String district;
     private String country;

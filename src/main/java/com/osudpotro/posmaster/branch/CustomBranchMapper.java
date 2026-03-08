@@ -1,7 +1,6 @@
 package com.osudpotro.posmaster.branch;
 
 import com.osudpotro.posmaster.multimedia.MultimediaDto;
-import com.osudpotro.posmaster.organization.Organization;
 import com.osudpotro.posmaster.organization.OrganizationDto;
 import org.springframework.stereotype.Component;
 
@@ -13,13 +12,15 @@ public class CustomBranchMapper {
         BranchDto branchDto = new BranchDto();
         branchDto.setId(branch.getId());
         branchDto.setName(branch.getName());
-        branchDto.setLocation(branch.getLocation());
+        branchDto.setLocationName(branch.getLocationName());
+        branchDto.setPlaceId(branch.getPlaceId());
         branchDto.setAddress(branch.getAddress());
         branchDto.setDistrict(branch.getDistrict());
         branchDto.setCountry(branch.getCountry());
         branchDto.setLatitude(branch.getLatitude());
         branchDto.setLongitude(branch.getLongitude());
         branchDto.setAccuracy(branch.getAccuracy());
+        branchDto.setIsMain(branch.getIsMain());
         branchDto.setMobile(branch.getMobile());
         branchDto.setLicenceNo(branch.getLicenceNo());
         if (branch.getMedia() != null && branch.getMedia().getImageUrl() != null) {
