@@ -44,7 +44,8 @@ public class GoodsOnTrip extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "received_by")
     private User receivedBy;
-    @OneToOne(mappedBy= "goodsOnTrip", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "purchase_requisition_transfer_id")
     private PurchaseRequisitionTransfer purchaseRequisitionTransfer;
     @Column(nullable = false, length = 500)
     private String sourceAddress;
@@ -77,6 +78,7 @@ public class GoodsOnTrip extends BaseEntity {
     private String loadedBy;
     @Column(length = 500)
     private String unloadedBy;
+
     // Business logic methods
     public boolean isLoaded() {
         return goodsStatus == GoodsStatus.LOADED;
@@ -91,14 +93,16 @@ public class GoodsOnTrip extends BaseEntity {
         this.loadedBy = loadedByUser;
         this.goodsStatus = GoodsStatus.LOADED;
     }
+
     public void markAsDelivered(String receivedByPerson, String signaturePath) {
         this.unloadedAt = LocalDateTime.now();
         this.signaturePath = signaturePath;
         this.goodsStatus = GoodsStatus.DELIVERED;
         this.unloadedBy = "Driver"; // Or capture from context
     }
+
     public String getGeneratedGoodsRef() {
-        String tripPrefix="SL";
+        String tripPrefix = "SL";
         String datePart = new SimpleDateFormat("yyyyMMdd").format(new Date());
         long nextSeq = 1;
         if (this.getGoodsRef() != null) {
@@ -113,6 +117,6 @@ public class GoodsOnTrip extends BaseEntity {
             }
         }
         //Format String
-        return String.format("%s-%s-%09d",tripPrefix, datePart, nextSeq);
+        return String.format("%s-%s-%09d", tripPrefix, datePart, nextSeq);
     }
 }

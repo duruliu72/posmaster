@@ -33,33 +33,37 @@ public class PurchaseRequisitionTransferMapper {
         prtDto.setPurchaseInvoices(prt.getPurchaseInvoices());
         prtDto.setPurchaseInvoiceDocs(prt.getPurchaseInvoiceDocs());
         prtDto.setOrderRefs(prt.getOrderRefs());
+        prtDto.setCreatedAt(prt.getCreatedAt());
+        prtDto.setTransferStatus(prt.getTransferStatus());
         return prtDto;
     }
 
-    public PurchaseRequisitionTransferWithItemPageResponse toMinDto(PurchaseRequisitionTransfer pr, Page<PurchaseRequisitionItemTransferDto> page) {
+    public PurchaseRequisitionTransferWithItemPageResponse toMinDto(PurchaseRequisitionTransfer prt, Page<PurchaseRequisitionItemTransferDto> page) {
         PurchaseRequisitionTransferWithItemPageResponse pageResponse = new PurchaseRequisitionTransferWithItemPageResponse();
-        pageResponse.setId(pr.getId());
-        pageResponse.setRequsitionRef(pr.getRequsitionRef());
-        String purchaseCode = pr.getPurchaseType().getDescription();
-        String purchaseKey = pr.getPurchaseType().getCode();
+        pageResponse.setId(prt.getId());
+        pageResponse.setRequsitionRef(prt.getRequsitionRef());
+        String purchaseCode = prt.getPurchaseType().getDescription();
+        String purchaseKey = prt.getPurchaseType().getCode();
         pageResponse.setPurchaseType(purchaseCode);
         pageResponse.setPurchaseKey(purchaseKey);
         OrganizationDto orgDto = new OrganizationDto();
-        orgDto.setId(pr.getOrganization().getId());
-        orgDto.setName(pr.getOrganization().getName());
+        orgDto.setId(prt.getOrganization().getId());
+        orgDto.setName(prt.getOrganization().getName());
         pageResponse.setOrganization(orgDto);
         BranchDto branchDto = new BranchDto();
-        branchDto.setId(pr.getBranch().getId());
-        branchDto.setName(pr.getBranch().getName());
+        branchDto.setId(prt.getBranch().getId());
+        branchDto.setName(prt.getBranch().getName());
         pageResponse.setBranch(branchDto);
-        pageResponse.setOverallDiscount(pr.getOverallDiscount());
-        pageResponse.setTotalPrice(pr.getTotalPrice());
-        pageResponse.setTotalQty(pr.getTotalQty());
-        pageResponse.setTotalGiftOrBonusQty(pr.getTotalGiftOrBonusQty());
-        pageResponse.setTotalGiftOrBonusPrice(pr.getTotalGiftOrBonusPrice());
-        pageResponse.setPurchaseInvoices(pr.getPurchaseInvoices());
-        pageResponse.setPurchaseInvoiceDocs(pr.getPurchaseInvoiceDocs());
-        pageResponse.setOrderRefs(pr.getOrderRefs());
+//        pageResponse.setOverallDiscount(prt.getOverallDiscount());
+//        pageResponse.setTotalPrice(prt.getTotalPrice());
+//        pageResponse.setTotalQty(prt.getTotalQty());
+//        pageResponse.setTotalGiftOrBonusQty(prt.getTotalGiftOrBonusQty());
+//        pageResponse.setTotalGiftOrBonusPrice(prt.getTotalGiftOrBonusPrice());
+        pageResponse.setPurchaseInvoices(prt.getPurchaseInvoices());
+        pageResponse.setPurchaseInvoiceDocs(prt.getPurchaseInvoiceDocs());
+        pageResponse.setOrderRefs(prt.getOrderRefs());
+        pageResponse.setCreatedAt(prt.getCreatedAt());
+        pageResponse.setTransferStatus(prt.getTransferStatus());
         //For Item Pagination
         pageResponse.setItems(page.getContent());
         pageResponse.setTotalElements(page.getTotalElements());

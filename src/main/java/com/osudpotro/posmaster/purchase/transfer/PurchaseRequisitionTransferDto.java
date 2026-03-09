@@ -5,6 +5,7 @@ import com.osudpotro.posmaster.purchase.dto.BranchDto;
 import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisition;
 import lombok.Data;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,4 +28,6 @@ public class PurchaseRequisitionTransferDto {
     private String orderRefs;
     private List<PurchaseRequisitionItemTransferDto> items = new ArrayList<>();
     private Integer transferStatus;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

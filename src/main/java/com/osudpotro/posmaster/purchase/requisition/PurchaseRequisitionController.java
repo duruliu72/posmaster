@@ -176,10 +176,10 @@ public class PurchaseRequisitionController {
                 Map.of("count", count)
         );
     }
-    @PostMapping("/{purchaseRequisitionId}/assign-to-vehicle")
-    public PurchaseRequisitionDto assignToVehicle(@PathVariable Long purchaseRequisitionId, @RequestBody AssignToVehicleRequest request) {
-        return purchaseRequisitionService.assignToVehicle(purchaseRequisitionId,request);
-    }
+//    @PostMapping("/{purchaseRequisitionId}/assign-to-vehicle")
+//    public PurchaseRequisitionDto assignToVehicle(@PathVariable Long purchaseRequisitionId, @RequestBody AssignToVehicleRequest request) {
+//        return purchaseRequisitionService.assignToVehicle(purchaseRequisitionId,request);
+//    }
     @ExceptionHandler(DuplicatePurchaseRequisitionException.class)
     public ResponseEntity<Map<String, String>> handleDuplicatePurchaseRequisition(Exception ex) {
         return ResponseEntity.badRequest().body(

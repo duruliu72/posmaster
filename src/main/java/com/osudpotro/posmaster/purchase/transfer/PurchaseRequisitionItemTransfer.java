@@ -3,6 +3,7 @@ package com.osudpotro.posmaster.purchase.transfer;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.osudpotro.posmaster.product.Product;
 import com.osudpotro.posmaster.product.ProductDetail;
+import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisition;
 import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisitionItem;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -29,6 +30,9 @@ public class PurchaseRequisitionItemTransfer {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "purchase_requisition_transfer_id")
     private PurchaseRequisitionTransfer purchaseRequisitionTransfer;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "purchase_requisition_id")
+    private PurchaseRequisition purchaseRequisition;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "purchase_requisition_item_id")
     private PurchaseRequisitionItem purchaseRequisitionItem;

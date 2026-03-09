@@ -81,13 +81,7 @@ public class PurchaseRequisitionTransferService {
     public Page<PurchaseRequisitionTransferDto> filterEntities(PurchaseRequisitionTransferFilter filter, Pageable pageable) {
         return prTransferRepo.findAll(PurchaseRequisitionTransferSpecification.filter(filter), pageable).map(prTransferMapper::toDto);
     }
-    public PurchaseRequisitionTransferWithItemPageResponse filterEntitiesWithItemPage(Long purchaseRequisitionTransferId,PurchaseRequisitionItemTransferFilter filter, Pageable pageable) {
-        PurchaseRequisitionTransfer prt = prTransferRepo.findPurchaseRequisitionById(purchaseRequisitionTransferId).orElseThrow(PurchaseRequisitionNotFoundException::new);
-        Page<PurchaseRequisitionItemTransfer> resultBase = priTransferRepo.findAll(PurchaseRequisitionItemTransferSpecification.filter(filter), pageable);
-        Page<PurchaseRequisitionItemTransferDto> result = resultBase.map(priTransferMapper::toDto);
-        prt.setItems(resultBase.getContent());
-        return prTransferMapper.toMinDto(prt, result);
-    }
+
     public Page<PurchaseRequisitionTransferDto> filterEntitiesByPurchaseRequisition(PurchaseRequisitionTransferFilter filter, Pageable pageable) {
         prRepo.findById(filter.getPurchaseRequisitionId()).orElseThrow(() -> new PurchaseRequisitionNotFoundException("PurchaseRequisition not found with ID: " + filter.getPurchaseRequisitionId()));
         return prTransferRepo.findAll(PurchaseRequisitionTransferSpecification.filter(filter), pageable).map(prTransferMapper::toDto);
@@ -105,16 +99,24 @@ public class PurchaseRequisitionTransferService {
         return prTransferRepo.findById(purchaseRequisitionTransferId).orElseThrow(() -> new PurchaseRequisitionNotFoundException("PurchaseRequisition not found with ID: " + purchaseRequisitionTransferId));
     }
     //    For Purchase Requisition Item
-    public PurchaseRequisitionTransferWithItemPageResponse getPurchaseRequisitionTransferWithItemPagination(Long purchaseRequisitionTransferId, Pageable pageable, PurchaseRequisitionItemTransferFilter filter) {
-        PurchaseRequisitionTransfer pr = prTransferRepo.findPurchaseRequisitionById(purchaseRequisitionTransferId).orElseThrow(PurchaseRequisitionNotFoundException::new);
-        Page<PurchaseRequisitionItemTransferDto> result = priTransferRepo.filterPurchaseRequisitionTransferItems(purchaseRequisitionTransferId, filter.getName(), pageable).map(priTransferMapper::toDto);
-        return prTransferMapper.toMinDto(pr, result);
+    public PurchaseRequisitionTransferWithItemPageResponse filterEntitiesWithItemPagination(Long purchaseRequisitionTransferId,PurchaseRequisitionItemTransferFilter filter, Pageable pageable) {
+        PurchaseRequisitionTransfer prt = prTransferRepo.findPurchaseRequisitionById(purchaseRequisitionTransferId).orElseThrow(PurchaseRequisitionNotFoundException::new);
+        var prtDto=prTransferMapper.toDto(prt);
+        Page<PurchaseRequisitionItemTransfer> resultBase = priTransferRepo.findAll(PurchaseRequisitionItemTransferSpecification.filter(filter), pageable);
+        Page<PurchaseRequisitionItemTransferDto> result = resultBase.map(priTransferMapper::toDto);
+        prt.setItems(resultBase.getContent());
+        var pageResponse=prTransferMapper.toMinDto(prt, result);
+        pageResponse.setOverallDiscount(prtDto.getOverallDiscount());
+        pageResponse.setTotalPrice(prtDto.getTotalPrice());
+        pageResponse.setTotalQty(prtDto.getTotalQty());
+        pageResponse.setTotalGiftOrBonusQty(prtDto.getTotalGiftOrBonusQty());
+        pageResponse.setTotalGiftOrBonusPrice(prtDto.getTotalGiftOrBonusPrice());
+        return pageResponse;
     }
-
     @Transactional
     public PurchaseRequisitionTransferDto assignToVehicle(Long purchaseRequisitionTransferId, AssignToVehicleRequest request) {
         var prt = prTransferRepo.findById(purchaseRequisitionTransferId).orElseThrow(PurchaseRequisitionNotFoundException::new);
-//        if (r.getDeliveryStatus() != 1) {
+//        if (prt.getGoodsOnTrip() != null) {
 //            throw new DuplicateVehicleException("Vehicle Trip already Assign");
 //        }
         Branch sourceBranch = branchRepository.findById(1L).orElseThrow(BranchNotFoundException::new);
