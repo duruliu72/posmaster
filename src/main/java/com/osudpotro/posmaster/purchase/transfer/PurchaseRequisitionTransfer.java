@@ -6,7 +6,6 @@ import com.osudpotro.posmaster.common.BaseEntity;
 import com.osudpotro.posmaster.organization.Organization;
 import com.osudpotro.posmaster.purchase.PurchaseType;
 import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisition;
-import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisitionItem;
 import com.osudpotro.posmaster.tms.goodsontrip.GoodsOnTrip;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -39,13 +38,6 @@ public class PurchaseRequisitionTransfer extends BaseEntity {
     private String orderRefs;
     //1 or Null=Not DELIVERED,2=DELIVERED Via Transport
     private Integer transferStatus = 1;
-    //    @OneToOne(fetch = FetchType.LAZY, optional = true)
-//    @JoinColumn(
-//            name = "goods_on_trip_id",
-//            nullable = true,
-//            unique = true
-//    )
-//    private GoodsOnTrip goodsOnTrip;
     @JsonIgnore
     @OneToMany(mappedBy = "purchaseRequisitionTransfer", cascade = CascadeType.MERGE, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<GoodsOnTrip> trips = new ArrayList<>();

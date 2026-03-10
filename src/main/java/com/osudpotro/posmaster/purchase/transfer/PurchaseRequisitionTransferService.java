@@ -116,9 +116,10 @@ public class PurchaseRequisitionTransferService {
     @Transactional
     public PurchaseRequisitionTransferDto assignToVehicle(Long purchaseRequisitionTransferId, AssignToVehicleRequest request) {
         var prt = prTransferRepo.findById(purchaseRequisitionTransferId).orElseThrow(PurchaseRequisitionNotFoundException::new);
-//        if (prt.getGoodsOnTrip() != null) {
-//            throw new DuplicateVehicleException("Vehicle Trip already Assign");
-//        }
+        var goodsOnTripFind=goodsOnTripRepository.findById(prt.getId()).orElse(null);
+        if (goodsOnTripFind != null) {
+            throw new DuplicateVehicleException("Vehicle Trip already Assign");
+        }
         Branch sourceBranch = branchRepository.findById(1L).orElseThrow(BranchNotFoundException::new);
         Branch destBranch = prt.getBranch();
         VehicleTrip vehicleTrip = null;
@@ -164,7 +165,7 @@ public class PurchaseRequisitionTransferService {
         destination.setLatitude(destBranch.getLatitude());
         destination.setLongitude(destBranch.getLongitude());
         goodsOnTrip.setDestination(destination);
-        goodsOnTrip.setLoadedAt(LocalDateTime.now());
+//        goodsOnTrip.setLoadedAt(LocalDateTime.now());
         goodsOnTrip.setAssignBy(authUser);
         goodsOnTrip.setCreatedBy(authUser);
         goodsOnTrip.setPurchaseRequisitionTransfer(prt);
@@ -179,7 +180,6 @@ public class PurchaseRequisitionTransferService {
         }
         return vehicleTrip.getGeneratedTripRef();
     }
-
     public String generateGoodsRef() {
         GoodsOnTrip goodsOnTrip = goodsOnTripRepository.findTopByOrderByCreatedAtDesc();
         if (goodsOnTrip == null) {

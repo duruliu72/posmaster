@@ -3,6 +3,7 @@ package com.osudpotro.posmaster.tms.vehicletrip;
 import com.osudpotro.posmaster.product.Product;
 import com.osudpotro.posmaster.tms.driver.DriverNotFoundException;
 import com.osudpotro.posmaster.tms.driver.DriverRepository;
+import com.osudpotro.posmaster.tms.goodsontrip.GoodsOnTripRepository;
 import com.osudpotro.posmaster.tms.vechile.*;
 import com.osudpotro.posmaster.user.auth.AuthService;
 import lombok.AllArgsConstructor;
@@ -20,6 +21,7 @@ import java.util.List;
 public class VehicleTripService {
     private final AuthService authService;
     private final VehicleTripRepository vehicleTripRepository;
+    private final GoodsOnTripRepository goodsOnTripRepository;
     private final VehicleRepository vehicleRepository;
     private final DriverRepository driverRepository;
     private final VehicleTripMapper vehicleTripMapper;
@@ -36,14 +38,14 @@ public class VehicleTripService {
     }
 
     public VehicleTripDto createVehicleTrip(VehicleTripCreateRequest request) {
-        String tripRef=generateTripRef();
+        String tripRef = generateTripRef();
         if (vehicleTripRepository.existsByTripRef(tripRef)) {
             throw new DuplicateVehicleException("Vehicle Trip already exists");
         }
         var vehicle = vehicleRepository.findById(request.getVehicleId()).orElseThrow(VehicleNotFoundException::new);
         var driver = driverRepository.findById(request.getDriverId()).orElseThrow(DriverNotFoundException::new);
         var authUser = authService.getCurrentUser();
-        VehicleTrip vehicleTrip=new VehicleTrip();
+        VehicleTrip vehicleTrip = new VehicleTrip();
         vehicleTrip.setTripRef(generateTripRef());
         vehicleTrip.setVehicle(vehicle);
         vehicleTrip.setDriver(driver);
@@ -66,7 +68,6 @@ public class VehicleTripService {
         vehicleTripRepository.save(vehicleTrip);
         return vehicleTripMapper.toDto(vehicleTrip);
     }
-
     public VehicleTripDto getVehicleTrip(Long vehicleTripId) {
         var vehicleTrip = vehicleTripRepository.findById(vehicleTripId).orElseThrow(VehicleTripNotFoundException::new);
         return vehicleTripMapper.toDto(vehicleTrip);
@@ -77,12 +78,12 @@ public class VehicleTripService {
     }
 
     public VehicleTripDto activeVehicleTrip(Long vehicleTripId) {
-        var vehicle = vehicleTripRepository.findById(vehicleTripId).orElseThrow(() -> new VehicleTripNotFoundException("Vehicle Trip not found with ID: " + vehicleTripId));
+        var vehicleTrip = vehicleTripRepository.findById(vehicleTripId).orElseThrow(() -> new VehicleTripNotFoundException("Vehicle Trip not found with ID: " + vehicleTripId));
         var authUser = authService.getCurrentUser();
-        vehicle.setStatus(1);
-        vehicle.setUpdatedBy(authUser);
-        vehicleTripRepository.save(vehicle);
-        return vehicleTripMapper.toDto(vehicle);
+        vehicleTrip.setStatus(1);
+        vehicleTrip.setUpdatedBy(authUser);
+        vehicleTripRepository.save(vehicleTrip);
+        return vehicleTripMapper.toDto(vehicleTrip);
     }
 
     public VehicleTripDto deactivateVehicleTrip(Long vehicleTripId) {
@@ -106,6 +107,7 @@ public class VehicleTripService {
     public int deleteBulkVehicleTrip(List<Long> ids) {
         return vehicleTripRepository.deleteBulkVehicleTrip(ids, 3L);
     }
+
     public String generateTripRef() {
         VehicleTrip vehicleTrip = vehicleTripRepository.findTopByOrderByCreatedAtDesc();
         if (vehicleTrip == null) {

@@ -73,12 +73,13 @@ public class GoodsOnTrip extends BaseEntity {
     @Column(length = 2000)
     private String remarks;
     private LocalDateTime loadedAt;
-    private LocalDateTime unloadedAt;
-    @Column(length = 500)
-    private String loadedBy;
-    @Column(length = 500)
-    private String unloadedBy;
-
+    private LocalDateTime unLoadedAt;
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "loaded_by")
+    private User loadedBy;
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "un_loaded_by")
+    private User unLoadedBy;
     // Business logic methods
     public boolean isLoaded() {
         return goodsStatus == GoodsStatus.LOADED;
@@ -88,17 +89,17 @@ public class GoodsOnTrip extends BaseEntity {
         return goodsStatus == GoodsStatus.DELIVERED;
     }
 
-    public void markAsLoaded(String loadedByUser) {
+    public void markAsLoaded(User loadedByUser) {
         this.loadedAt = LocalDateTime.now();
         this.loadedBy = loadedByUser;
         this.goodsStatus = GoodsStatus.LOADED;
     }
 
     public void markAsDelivered(String receivedByPerson, String signaturePath) {
-        this.unloadedAt = LocalDateTime.now();
+        this.unLoadedAt = LocalDateTime.now();
         this.signaturePath = signaturePath;
         this.goodsStatus = GoodsStatus.DELIVERED;
-        this.unloadedBy = "Driver"; // Or capture from context
+        this.unLoadedBy = null;
     }
 
     public String getGeneratedGoodsRef() {
