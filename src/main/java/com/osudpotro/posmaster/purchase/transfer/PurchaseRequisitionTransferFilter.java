@@ -7,5 +7,5 @@ public class PurchaseRequisitionTransferFilter {
     private String requsitionRef;
     private String purchaseType;
     private Integer status;
-    private Long purchaseRequisitionId;
+    private Boolean isReceived;
 }

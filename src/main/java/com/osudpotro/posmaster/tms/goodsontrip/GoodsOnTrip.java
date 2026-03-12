@@ -28,6 +28,9 @@ public class GoodsOnTrip extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vehicle_trip_id", nullable = false)
     private VehicleTrip vehicleTrip;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "purchase_requisition_transfer_id")
+    private PurchaseRequisitionTransfer purchaseRequisitionTransfer;
     @Column(nullable = false, unique = true, length = 50)
     private String goodsRef;
     @Enumerated(EnumType.STRING)
@@ -41,12 +44,10 @@ public class GoodsOnTrip extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "assign_by")
     private User assignBy;
+    private Boolean isReceived=false;
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "received_by")
     private User receivedBy;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "purchase_requisition_transfer_id")
-    private PurchaseRequisitionTransfer purchaseRequisitionTransfer;
     @Column(nullable = false, length = 500)
     private String sourceAddress;
     @ManyToOne(fetch = FetchType.LAZY)
@@ -84,17 +85,14 @@ public class GoodsOnTrip extends BaseEntity {
     public boolean isLoaded() {
         return goodsStatus == GoodsStatus.LOADED;
     }
-
     public boolean isDelivered() {
         return goodsStatus == GoodsStatus.DELIVERED;
     }
-
     public void markAsLoaded(User loadedByUser) {
         this.loadedAt = LocalDateTime.now();
         this.loadedBy = loadedByUser;
         this.goodsStatus = GoodsStatus.LOADED;
     }
-
     public void markAsDelivered(String receivedByPerson, String signaturePath) {
         this.unLoadedAt = LocalDateTime.now();
         this.signaturePath = signaturePath;

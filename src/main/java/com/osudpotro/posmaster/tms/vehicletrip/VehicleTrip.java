@@ -1,7 +1,6 @@
 package com.osudpotro.posmaster.tms.vehicletrip;
 
 import com.osudpotro.posmaster.common.BaseEntity;
-import com.osudpotro.posmaster.purchase.transfer.PurchaseRequisitionItemTransfer;
 import com.osudpotro.posmaster.tms.goodsontrip.GoodsOnTrip;
 import com.osudpotro.posmaster.tms.vechile.Vehicle;
 import com.osudpotro.posmaster.tms.driver.Driver;

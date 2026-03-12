@@ -1,4 +1,5 @@
 package com.osudpotro.posmaster.purchase.transfer;
+
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -13,6 +14,24 @@ public class PurchaseRequisitionItemTransferSpecification {
                 predicates.add(cb.equal(
                         root.get("purchaseRequisitionTransfer").get("id"),
                         filter.getPurchaseRequisitionTransferId()
+                ));
+            }
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+
+    public static Specification<PurchaseRequisitionItemTransfer> filterByPurchaseRequisitionTransfer(PurchaseRequisitionItemTransferFilter filter, Long PurchaseRequisitionTransferId) {
+        return (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            if (filter.getPurchaseRequisitionTransferId() != null) {
+                predicates.add(cb.equal(
+                        root.get("purchaseRequisitionTransfer").get("id"),
+                        filter.getPurchaseRequisitionTransferId()
+                ));
+            }
+            if (PurchaseRequisitionTransferId != null) {
+                predicates.add(cb.equal(
+                        root.get("purchaseRequisitionTransfer").get("id"), PurchaseRequisitionTransferId
                 ));
             }
             return cb.and(predicates.toArray(new Predicate[0]));

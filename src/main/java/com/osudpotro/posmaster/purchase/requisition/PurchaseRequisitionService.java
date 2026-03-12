@@ -78,6 +78,7 @@ public class PurchaseRequisitionService {
     private DriverRepository driverRepository;
     @Autowired
     private GoodsOnTripRepository goodsOnTripRepository;
+
     public List<PurchaseRequisitionDto> getAllPurchaseRequisitions() {
         return purchaseRequisitionRepository.findAll()
                 .stream()
@@ -249,6 +250,9 @@ public class PurchaseRequisitionService {
     @Transactional
     public PurchaseRequisitionDto updatePurchaseRequisitionInvoiceRef(Long purchaseRequisitionId, PurchaseRequisitionInvoiceRefRequest request) {
         var pr = purchaseRequisitionRepository.findById(purchaseRequisitionId).orElseThrow(PurchaseRequisitionNotFoundException::new);
+        if (pr.getIsFinal()) {
+            throw new PurchaseRequisitionException("Purchase Requisition is not possible to processed further");
+        }
         if (pr.getTotalItems() == 0) {
             throw new PurchaseRequisitionEmptyException();
         }
@@ -292,7 +296,7 @@ public class PurchaseRequisitionService {
                 }
             }
             if (hasFinalInvoice) {
-                throw new DuplicatePurchaseRequisitionException("Duplicate Purchase Invoice Found");
+                throw new DuplicatePurchaseRequisitionException("Duplicate Purchase Invoice Found that you have already send! ");
             }
         }
 
@@ -554,6 +558,21 @@ public class PurchaseRequisitionService {
         if (pr == null) {
             throw new PurchaseRequisitionNotFoundException();
         }
+        if(pr.getIsFinal()){
+            throw new PurchaseRequisitionException("Purchase Requisition is not possible to processed further");
+        }
+        if(pr.getTempPurchaseInvoices()==null&&pr.getTempPurchaseInvoiceDocs()==null){
+            throw new PurchaseRequisitionException("Purchase Invoices and Docs input first");
+        }
+        var priList = pr.getItems();
+        for (Long purchaseRequisitionItemId : purchaseRequisitionItemIds) {
+            var findPri = priList.stream().filter((item) -> {
+                return Objects.equals(item.getId(), purchaseRequisitionItemId) && (item.getAddableStatus() != null && item.getAddableStatus() == 2);
+            }).findFirst();
+            if (findPri.isPresent()) {
+                throw new PurchaseRequisitionItemException("One of them item you have already send");
+            }
+        }
         var prTransfer = prTransferRepo.findFinalPurchaseRequisitionByPrIDAndTransfer(purchaseRequisitionId, 1).orElse(null);
         if (prTransfer == null) {
             prTransfer = new PurchaseRequisitionTransfer();
@@ -594,6 +613,7 @@ public class PurchaseRequisitionService {
         prItemTransferRepo.saveAll(items);
         return priRepostory.updateBulkForAddableItem(purchaseRequisitionId, purchaseRequisitionItemIds, addableStatus);
     }
+
     private String generateRequisitionRef() {
         PurchaseRequisition pr = purchaseRequisitionRepository.findTopByOrderByCreatedAtDesc();
         String prefix = "OSPRE";

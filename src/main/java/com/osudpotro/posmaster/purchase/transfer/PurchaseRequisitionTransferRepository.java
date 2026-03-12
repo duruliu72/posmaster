@@ -13,7 +13,7 @@ public interface PurchaseRequisitionTransferRepository extends JpaSpecificationE
     @Query("SELECT prt FROM PurchaseRequisitionTransfer prt WHERE prt.id = :id")
     Optional<PurchaseRequisitionTransfer> findPurchaseRequisitionById(@Param("id") Long id);
 
-    @Query(value = "SELECT * FROM purchase_requisition_transfers WHERE purchase_invoices LIKE CONCAT('%', :purchase_invoices, '%') AND purchase_requisition_id !=:purchaseRequisitionId limit 1", nativeQuery = true)
+    @Query(value = "SELECT * FROM purchase_requisition_transfers WHERE purchase_invoices LIKE CONCAT('%', :purchase_invoices, '%') AND (purchase_requisition_id !=:purchaseRequisitionId OR transfer_status=2) limit 1", nativeQuery = true)
     Optional<PurchaseRequisitionTransfer> findFinalPurchaseRequisitionByInvoiceExceptprId(@Param("purchaseRequisitionId") Long purchaseRequisitionId, @Param("purchase_invoices") String purchaseInvoices);
     @Query("SELECT prt FROM PurchaseRequisitionTransfer prt WHERE prt.purchaseRequisition.id = :purchaseRequisitionId AND transferStatus=:transferStatus")
     Optional<PurchaseRequisitionTransfer> findFinalPurchaseRequisitionByPrIDAndTransfer(@Param("purchaseRequisitionId") Long purchaseRequisitionId, @Param("transferStatus") Integer transferStatus);

@@ -12,7 +12,6 @@ import java.util.List;
 public class VehicleTripDto {
     private Long id;
     private String tripRef;
-    private String goodsRef;
     private DriverDto driver;
     private VehicleDto vehicle;
     private LocalDateTime tripStartTime;

@@ -19,6 +19,7 @@ public class GoodsOnTripMapper {
         goodsOnTripDto.setRemarks(goodsOnTrip.getRemarks());
         goodsOnTripDto.setLoadedAt(goodsOnTrip.getLoadedAt());
         goodsOnTripDto.setUnLoadedAt(goodsOnTrip.getUnLoadedAt());
+        goodsOnTripDto.setIsReceived(goodsOnTrip.getIsReceived());
         if (goodsOnTrip.getLoadedBy() != null) {
             var loadedBy = goodsOnTrip.getLoadedBy();
             UserPlainDto loadedByDto = new UserPlainDto();

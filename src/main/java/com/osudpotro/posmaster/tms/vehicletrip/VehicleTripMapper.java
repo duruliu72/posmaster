@@ -6,7 +6,6 @@ import com.osudpotro.posmaster.tms.goodsontrip.GoodsOnTripMapper;
 import com.osudpotro.posmaster.tms.vechile.VehicleMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,27 +42,5 @@ public class VehicleTripMapper {
         }
         vehicleTripDto.setGoodsOnTrips(list);
         return vehicleTripDto;
-    }
-    public VehicleTrip toEntity(VehicleTripCreateRequest request) {
-        VehicleTrip vehicleTrip = new VehicleTrip();
-        vehicleTrip.setTripRef(request.getTripRef());
-//        vehicleTrip.setSourceAddress(request.getSourceAddress());
-//        vehicleTrip.setDestAddress(request.getDestAddress());
-//        Location source=new Location();
-//        source.setLongitude(request.getSourceLongitude());
-//        source.setLatitude(request.getDestLatitude());
-//        source.setAccuracy(request.getSourceAccuracy());
-//        vehicleTrip.setSource(source);
-//        Location destination=new Location();
-//        destination.setLongitude(request.getDestLongitude());
-//        destination.setLatitude(request.getDestLatitude());
-//        destination.setAccuracy(request.getDestAccuracy());
-//        vehicleTrip.setDestination(destination);
-//        vehicleTrip.setDestAddress(request.getDestAddress());
-        return vehicleTrip;
-    }
-
-    void update(UpdateVehicleTripRequest request, VehicleTrip vehicleTrip) {
-
     }
 }

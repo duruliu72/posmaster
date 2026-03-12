@@ -1,5 +1,6 @@
 package com.osudpotro.posmaster.tms.goodsontrip;
 import com.osudpotro.posmaster.branch.BranchDto;
+import com.osudpotro.posmaster.tms.vehicletrip.VehicleTripDto;
 import com.osudpotro.posmaster.user.UserPlainDto;
 import lombok.*;
 
@@ -18,6 +19,7 @@ public class GoodsOnTripDto{
     private String goodsReferenceDocs;
     private GoodsStatus goodsStatus;
     private UserPlainDto assignBy;
+    private Boolean isReceived;
     private UserPlainDto receivedBy;
     private String signaturePath;
     private String remarks;
@@ -25,4 +27,5 @@ public class GoodsOnTripDto{
     private LocalDateTime unLoadedAt;
     private UserPlainDto loadedBy;
     private UserPlainDto unLoadedBy;
+    private VehicleTripDto vehicleTrip;
 }

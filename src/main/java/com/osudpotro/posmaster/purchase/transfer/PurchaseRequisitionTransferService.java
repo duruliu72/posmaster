@@ -12,10 +12,7 @@ import com.osudpotro.posmaster.requisition.*;
 import com.osudpotro.posmaster.requisitiontype.RequsitionTypeRepository;
 import com.osudpotro.posmaster.tms.driver.DriverNotFoundException;
 import com.osudpotro.posmaster.tms.driver.DriverRepository;
-import com.osudpotro.posmaster.tms.goodsontrip.GoodsOnTrip;
-import com.osudpotro.posmaster.tms.goodsontrip.GoodsOnTripRepository;
-import com.osudpotro.posmaster.tms.goodsontrip.GoodsStatus;
-import com.osudpotro.posmaster.tms.goodsontrip.GoodsType;
+import com.osudpotro.posmaster.tms.goodsontrip.*;
 import com.osudpotro.posmaster.tms.vechile.DuplicateVehicleException;
 import com.osudpotro.posmaster.tms.vechile.VehicleNotFoundException;
 import com.osudpotro.posmaster.tms.vechile.VehicleRepository;
@@ -46,7 +43,7 @@ public class PurchaseRequisitionTransferService {
     @Autowired
     private AuthService authService;
     @Autowired
-    private  PurchaseRequisitionTransferMapper prTransferMapper;
+    private PurchaseRequisitionTransferMapper prTransferMapper;
     @Autowired
     private PurchaseRequisitionItemTransferMapper priTransferMapper;
     @Autowired
@@ -71,6 +68,7 @@ public class PurchaseRequisitionTransferService {
     private DriverRepository driverRepository;
     @Autowired
     private GoodsOnTripRepository goodsOnTripRepository;
+
     public List<PurchaseRequisitionTransferDto> getAllEntities() {
         return prTransferRepo.findAll()
                 .stream()
@@ -79,12 +77,11 @@ public class PurchaseRequisitionTransferService {
     }
 
     public Page<PurchaseRequisitionTransferDto> filterEntities(PurchaseRequisitionTransferFilter filter, Pageable pageable) {
-        return prTransferRepo.findAll(PurchaseRequisitionTransferSpecification.filter(filter), pageable).map(prTransferMapper::toDto);
+        return prTransferRepo.findAll(PurchaseRequisitionTransferSpecification.filterByDelivered(filter), pageable).map(prTransferMapper::toDto);
     }
-
-    public Page<PurchaseRequisitionTransferDto> filterEntitiesByPurchaseRequisition(PurchaseRequisitionTransferFilter filter, Pageable pageable) {
-        prRepo.findById(filter.getPurchaseRequisitionId()).orElseThrow(() -> new PurchaseRequisitionNotFoundException("PurchaseRequisition not found with ID: " + filter.getPurchaseRequisitionId()));
-        return prTransferRepo.findAll(PurchaseRequisitionTransferSpecification.filter(filter), pageable).map(prTransferMapper::toDto);
+    public Page<PurchaseRequisitionTransferDto> filterEntitiesByPurchaseRequisition(PurchaseRequisitionTransferFilter filter,Long purchaseRequisitionId, Pageable pageable) {
+        prRepo.findById(purchaseRequisitionId).orElseThrow(() -> new PurchaseRequisitionNotFoundException("PurchaseRequisition not found with ID: " + purchaseRequisitionId));
+        return prTransferRepo.findAll(PurchaseRequisitionTransferSpecification.filterByPurchaseRequisition(filter,purchaseRequisitionId), pageable).map(prTransferMapper::toDto);
     }
     public PurchaseRequisitionTransferDto getEntity(Long purchaseRequisitionTransferId) {
         var prt = prTransferRepo.findById(purchaseRequisitionTransferId).orElseThrow(() -> new PurchaseRequisitionNotFoundException("PurchaseRequisition not found with ID: " + purchaseRequisitionTransferId));
@@ -98,14 +95,15 @@ public class PurchaseRequisitionTransferService {
     public PurchaseRequisitionTransfer getMainEntity(Long purchaseRequisitionTransferId) {
         return prTransferRepo.findById(purchaseRequisitionTransferId).orElseThrow(() -> new PurchaseRequisitionNotFoundException("PurchaseRequisition not found with ID: " + purchaseRequisitionTransferId));
     }
+
     //    For Purchase Requisition Item
-    public PurchaseRequisitionTransferWithItemPageResponse filterEntitiesWithItemPagination(Long purchaseRequisitionTransferId,PurchaseRequisitionItemTransferFilter filter, Pageable pageable) {
+    public PurchaseRequisitionTransferWithItemPageResponse filterEntitiesWithItemPagination(Long purchaseRequisitionTransferId, PurchaseRequisitionItemTransferFilter filter, Pageable pageable) {
         PurchaseRequisitionTransfer prt = prTransferRepo.findPurchaseRequisitionById(purchaseRequisitionTransferId).orElseThrow(PurchaseRequisitionNotFoundException::new);
-        var prtDto=prTransferMapper.toDto(prt);
-        Page<PurchaseRequisitionItemTransfer> resultBase = priTransferRepo.findAll(PurchaseRequisitionItemTransferSpecification.filter(filter), pageable);
+        var prtDto = prTransferMapper.toDto(prt);
+        Page<PurchaseRequisitionItemTransfer> resultBase = priTransferRepo.findAll(PurchaseRequisitionItemTransferSpecification.filterByPurchaseRequisitionTransfer(filter,purchaseRequisitionTransferId), pageable);
         Page<PurchaseRequisitionItemTransferDto> result = resultBase.map(priTransferMapper::toDto);
         prt.setItems(resultBase.getContent());
-        var pageResponse=prTransferMapper.toMinDto(prt, result);
+        var pageResponse = prTransferMapper.toMinDto(prt, result);
         pageResponse.setOverallDiscount(prtDto.getOverallDiscount());
         pageResponse.setTotalPrice(prtDto.getTotalPrice());
         pageResponse.setTotalQty(prtDto.getTotalQty());
@@ -113,10 +111,11 @@ public class PurchaseRequisitionTransferService {
         pageResponse.setTotalGiftOrBonusPrice(prtDto.getTotalGiftOrBonusPrice());
         return pageResponse;
     }
+
     @Transactional
     public PurchaseRequisitionTransferDto assignToVehicle(Long purchaseRequisitionTransferId, AssignToVehicleRequest request) {
         var prt = prTransferRepo.findById(purchaseRequisitionTransferId).orElseThrow(PurchaseRequisitionNotFoundException::new);
-        var goodsOnTripFind=goodsOnTripRepository.findById(prt.getId()).orElse(null);
+        var goodsOnTripFind = goodsOnTripRepository.findById(prt.getId()).orElse(null);
         if (goodsOnTripFind != null) {
             throw new DuplicateVehicleException("Vehicle Trip already Assign");
         }
@@ -173,6 +172,36 @@ public class PurchaseRequisitionTransferService {
         prTransferRepo.save(prt);
         return prTransferMapper.toDto(prt);
     }
+
+    @Transactional
+    public PurchaseRequisitionTransferDto receivePurchaseRequisitionTransfer(Long purchaseRequisitionTransferId) {
+        var prt = prTransferRepo.findById(purchaseRequisitionTransferId).orElseThrow(PurchaseRequisitionNotFoundException::new);
+        var pr=prt.getPurchaseRequisition();
+        GoodsOnTrip gooodsOnTrip = prt.getGoodsOnTrip();
+        if (!gooodsOnTrip.getGoodsStatus().equals(GoodsStatus.DELIVERED)) {
+            throw new GoodsOnTripDeliveryException("Goods On Trip is not Delivered yet!");
+        }
+        if (gooodsOnTrip.getIsReceived()!=null&&gooodsOnTrip.getIsReceived()) {
+            throw new GoodsOnTripDeliveryException("Goods On Trip is Already Received!");
+        }
+        var authUser = authService.getCurrentUser();
+        gooodsOnTrip.setIsReceived(true);
+        gooodsOnTrip.setReceivedBy(authUser);
+        prt.setTransferStatus(2);
+        prTransferRepo.save(prt);
+        //        update Purchase requsition tabel
+        pr.setOrderRefs(pr.getTempOrderRefs());
+        pr.setTempOrderRefs("");
+        pr.setPurchaseInvoices(pr.getTempPurchaseInvoices());
+        pr.setTempPurchaseInvoices("");
+        pr.setPurchaseInvoiceDocs(pr.getTempPurchaseInvoiceDocs());
+        pr.setTempPurchaseInvoiceDocs("");
+        pr.setOverallDiscount(pr.getTempOverallDiscount());
+        pr.setOverallDiscount(null);
+        prRepo.save(pr);
+        return prTransferMapper.toDto(prt);
+    }
+
     public String generateTripRef() {
         VehicleTrip vehicleTrip = vehicleTripRepository.findTopByOrderByCreatedAtDesc();
         if (vehicleTrip == null) {
@@ -180,6 +209,7 @@ public class PurchaseRequisitionTransferService {
         }
         return vehicleTrip.getGeneratedTripRef();
     }
+
     public String generateGoodsRef() {
         GoodsOnTrip goodsOnTrip = goodsOnTripRepository.findTopByOrderByCreatedAtDesc();
         if (goodsOnTrip == null) {

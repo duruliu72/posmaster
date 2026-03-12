@@ -36,19 +36,16 @@ public class PurchaseRequisitionTransfer extends BaseEntity {
     private String purchaseInvoices;
     private String purchaseInvoiceDocs;
     private String orderRefs;
-    //1 or Null=Not DELIVERED,2=DELIVERED Via Transport
+    //1 or Null=Not DELIVERED,2=DELIVERED/Received Via Transport,3=Added to Inventory
     private Integer transferStatus = 1;
-    @JsonIgnore
-    @OneToMany(mappedBy = "purchaseRequisitionTransfer", cascade = CascadeType.MERGE, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<GoodsOnTrip> trips = new ArrayList<>();
+    @OneToOne(mappedBy = "purchaseRequisitionTransfer")
+    private GoodsOnTrip goodsOnTrip;
     @JsonIgnore
     @OneToMany(mappedBy = "purchaseRequisitionTransfer", cascade = CascadeType.MERGE, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<PurchaseRequisitionItemTransfer> items = new ArrayList<>();
-
     public int getTotalItems() {
         return items.size();
     }
-
     public int getTotalQty() {
         return items.stream()
                 .filter(i ->

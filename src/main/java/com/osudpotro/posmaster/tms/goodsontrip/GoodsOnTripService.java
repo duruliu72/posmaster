@@ -1,5 +1,6 @@
 package com.osudpotro.posmaster.tms.goodsontrip;
 
+import com.osudpotro.posmaster.tms.vechile.DuplicateVehicleException;
 import com.osudpotro.posmaster.tms.vehicletrip.TripStatus;
 import com.osudpotro.posmaster.tms.vehicletrip.VehicleTrip;
 import com.osudpotro.posmaster.user.auth.AuthService;
@@ -17,9 +18,11 @@ public class GoodsOnTripService {
     @Transactional
     public GoodsOnTripDto updateGoodsTrip(Long goodsOnTripId, UpdateGoodsOnTripRequest request) {
         GoodsOnTrip gooodsOnTrip = goodsOnTripRepository.findById(goodsOnTripId).orElseThrow(() -> new GoodsOnTripNotFoundException("Goods on Trip not found with ID: " + goodsOnTripId));
-        //        if(gooodsOnTrip.)
+        if (gooodsOnTrip.getGoodsStatus().equals(GoodsStatus.DELIVERED)) {
+            throw new GoodsOnTripAlreadyDeliveredException("Goods On Trip Already Delivered");
+        }
         var authUser = authService.getCurrentUser();
-        GoodsStatus goodsStatus=gooodsOnTrip.getGoodsStatus();
+        GoodsStatus goodsStatus = gooodsOnTrip.getGoodsStatus();
         if (goodsStatus.equals(GoodsStatus.ASSIGN_TO_VEHICLE)) {
             gooodsOnTrip.setGoodsStatus(GoodsStatus.LOADED);
             gooodsOnTrip.setLoadedBy(authUser);

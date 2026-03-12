@@ -229,6 +229,17 @@ public class PurchaseRequisitionController {
         return ResponseEntity.badRequest().body(
                 Map.of("error", e.getMessage())
         );
-//        return ResponseEntity.notFound().build();
+    }
+    @ExceptionHandler(PurchaseRequisitionException.class)
+    public ResponseEntity<Map<String, String>> handlePurchaseRequisitionException(Exception e) {
+        return ResponseEntity.badRequest().body(
+                Map.of("error", e.getMessage())
+        );
+    }
+    @ExceptionHandler(PurchaseRequisitionItemException.class)
+    public ResponseEntity<Map<String, String>> handlePurchaseRequisitionItemException(Exception e) {
+        return ResponseEntity.badRequest().body(
+                Map.of("error", e.getMessage())
+        );
     }
 }
