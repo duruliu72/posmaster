@@ -1,5 +1,6 @@
 package com.osudpotro.posmaster.user.admin;
 
+import com.osudpotro.posmaster.branch.Branch;
 import com.osudpotro.posmaster.common.BaseEntity;
 import com.osudpotro.posmaster.multimedia.Multimedia;
 import com.osudpotro.posmaster.user.User;

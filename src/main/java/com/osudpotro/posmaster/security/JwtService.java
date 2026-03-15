@@ -2,6 +2,7 @@ package com.osudpotro.posmaster.security;
 
 import com.osudpotro.posmaster.user.User;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ClaimsBuilder;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import lombok.AllArgsConstructor;
@@ -21,15 +22,27 @@ public class JwtService {
     public Jwt generateRefreshToken(User user) {
         return generateToken(user, jwtConfig.getRefreshTokenExpiration());
     }
+
     private Jwt generateToken(User user, long tokenExpiration) {
         var expTimeMillis = System.currentTimeMillis() + 1000 * tokenExpiration;
         var expIn = new Date(expTimeMillis);
-        Claims claims = Jwts.claims()
+//        Claims claims = Jwts.claims()
+//                .subject(user.getId().toString())
+//                .add("userName", user.getUserName())
+//                .add("email", user.getEmail())
+////                .add("mobile", mobile)
+////                .add("role", user.getRoles())
+//                .issuedAt(new Date())
+//                .expiration(expIn)
+//                .build();
+        ClaimsBuilder claimsBuilder = Jwts.claims()
                 .subject(user.getId().toString())
                 .add("userName", user.getUserName())
-                .add("email", user.getEmail())
-//                .add("mobile", mobile)
-//                .add("role", user.getRoles())
+                .add("email", user.getEmail());
+        if (user.getBranch() != null) {
+            claimsBuilder = claimsBuilder.add("branchId", user.getBranch().getId());
+        }
+        Claims claims = claimsBuilder
                 .issuedAt(new Date())
                 .expiration(expIn)
                 .build();

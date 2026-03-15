@@ -1,5 +1,6 @@
 package com.osudpotro.posmaster.user;
 
+import com.osudpotro.posmaster.branch.Branch;
 import com.osudpotro.posmaster.multimedia.Multimedia;
 import com.osudpotro.posmaster.tms.driver.Driver;
 import com.osudpotro.posmaster.user.Employee.Employee;
@@ -52,8 +53,10 @@ public class User extends BaseEntity {
     private Set<Role> roles = new HashSet<>();
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private Set<Permission> permissions = new HashSet<>();
+    @OneToOne
+    @JoinColumn(name = "branch_id",unique = true,nullable = true)
+    private Branch branch;
     @OneToOne(mappedBy = "user")
-
     private AdminUser adminUser;
     @OneToOne(mappedBy = "user")
     private Employee employee;

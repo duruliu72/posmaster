@@ -1,6 +1,7 @@
 package com.osudpotro.posmaster.requisition;
 
 import com.osudpotro.posmaster.common.PagedResponse;
+import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisitionEmptyException;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -17,7 +18,6 @@ import java.util.Map;
 @RequestMapping("/requisition-on-paths")
 public class RequisitionOnPathController {
     private final RequisitionOnPathService requisitionOnPathService;
-
     @GetMapping
     public List<RequisitionOnPathDto> getAllRequisitionOnPaths() {
         return requisitionOnPathService.getAllRequisitionOnPaths();
@@ -49,7 +49,7 @@ public class RequisitionOnPathController {
             @RequestBody RequisitionOnPathFilter filter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir
     ) {
         Sort sort = sortDir.equalsIgnoreCase("asc") ?
@@ -90,5 +90,11 @@ public class RequisitionOnPathController {
 //        return ResponseEntity.badRequest().body(
 //                Map.of("name", "Name is already exist.")
 //        );
+    }
+    @ExceptionHandler(PurchaseRequisitionEmptyException.class)
+    public ResponseEntity<Map<String, String>> handlePurchaseRequisitionEmptyException(Exception e) {
+        return ResponseEntity.badRequest().body(
+                Map.of("error", e.getMessage())
+        );
     }
 }

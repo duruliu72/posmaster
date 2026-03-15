@@ -115,7 +115,17 @@ public class PurchaseRequisitionTransferService {
     @Transactional
     public PurchaseRequisitionTransferDto assignToVehicle(Long purchaseRequisitionTransferId, AssignToVehicleRequest request) {
         var prt = prTransferRepo.findById(purchaseRequisitionTransferId).orElseThrow(PurchaseRequisitionNotFoundException::new);
-        var goodsOnTripFind = goodsOnTripRepository.findById(prt.getId()).orElse(null);
+        var pr=prt.getPurchaseRequisition();
+        if (pr.getRequisition().getRequisitionStatus() != 3) {
+            throw new PurchaseRequisitionException("Purchase Requisition is not approved yet!");
+        }
+        if (pr.getIsFinal()) {
+            throw new PurchaseRequisitionException("Purchase Requisition is not possible to processed further");
+        }
+        if (pr.getTotalItems() == 0) {
+            throw new PurchaseRequisitionEmptyException();
+        }
+        var goodsOnTripFind = goodsOnTripRepository.findByPurchaseRequisitionTransfer(prt).orElse(null);
         if (goodsOnTripFind != null) {
             throw new DuplicateVehicleException("Vehicle Trip already Assign");
         }
@@ -177,6 +187,15 @@ public class PurchaseRequisitionTransferService {
     public PurchaseRequisitionTransferDto receivePurchaseRequisitionTransfer(Long purchaseRequisitionTransferId) {
         var prt = prTransferRepo.findById(purchaseRequisitionTransferId).orElseThrow(PurchaseRequisitionNotFoundException::new);
         var pr=prt.getPurchaseRequisition();
+        if (pr.getRequisition().getRequisitionStatus() != 3) {
+            throw new PurchaseRequisitionException("Purchase Requisition is not approved yet!");
+        }
+        if (pr.getIsFinal()) {
+            throw new PurchaseRequisitionException("Purchase Requisition is not possible to processed further");
+        }
+        if (pr.getTotalItems() == 0) {
+            throw new PurchaseRequisitionEmptyException();
+        }
         GoodsOnTrip gooodsOnTrip = prt.getGoodsOnTrip();
         if (!gooodsOnTrip.getGoodsStatus().equals(GoodsStatus.DELIVERED)) {
             throw new GoodsOnTripDeliveryException("Goods On Trip is not Delivered yet!");
@@ -190,13 +209,13 @@ public class PurchaseRequisitionTransferService {
         prt.setTransferStatus(2);
         prTransferRepo.save(prt);
         //        update Purchase requsition tabel
-        pr.setOrderRefs(pr.getTempOrderRefs());
-        pr.setTempOrderRefs("");
-        pr.setPurchaseInvoices(pr.getTempPurchaseInvoices());
-        pr.setTempPurchaseInvoices("");
-        pr.setPurchaseInvoiceDocs(pr.getTempPurchaseInvoiceDocs());
-        pr.setTempPurchaseInvoiceDocs("");
-        pr.setOverallDiscount(pr.getTempOverallDiscount());
+        pr.setOrderRefs(pr.getOrderRefs());
+        pr.setOrderRefs("");
+        pr.setPurchaseInvoices(pr.getPurchaseInvoices());
+        pr.setPurchaseInvoices("");
+        pr.setPurchaseInvoiceDocs(pr.getPurchaseInvoiceDocs());
+        pr.setPurchaseInvoiceDocs("");
+        pr.setOverallDiscount(pr.getOverallDiscount());
         pr.setOverallDiscount(null);
         prRepo.save(pr);
         return prTransferMapper.toDto(prt);

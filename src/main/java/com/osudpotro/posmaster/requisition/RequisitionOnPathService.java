@@ -1,5 +1,6 @@
 package com.osudpotro.posmaster.requisition;
 
+import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisitionEmptyException;
 import com.osudpotro.posmaster.user.auth.AuthService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +59,10 @@ public class RequisitionOnPathService {
         var requsitionOnPath = requisitionOnPathRepository.findByIdAndUser(requisitionOnPathId, authUser).orElseThrow(RequsitionOnPathNotFoundException::new);
         var requisitionType = requsitionOnPath.getRequisition().getRequisitionType();
         var requisition = requsitionOnPath.getRequisition();
+        var pr=requisition.getPurchaseRequisition();
+        if (pr.getTotalItems() == 0) {
+            throw new PurchaseRequisitionEmptyException();
+        }
         Set<Integer> checkApprovedStatus = Set.of(2, 3, 4);
         if (checkApprovedStatus.contains(requsitionOnPath.getApprovedStatus())) {
             throw new RequisitionOnPathAlreadyApprovedException();

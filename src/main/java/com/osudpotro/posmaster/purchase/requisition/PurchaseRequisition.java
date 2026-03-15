@@ -34,10 +34,6 @@ public class PurchaseRequisition extends BaseEntity {
     private String purchaseInvoices;
     private String purchaseInvoiceDocs;
     private String orderRefs;
-    private BigDecimal tempOverallDiscount;
-    private String tempPurchaseInvoices;
-    private String tempPurchaseInvoiceDocs;
-    private String tempOrderRefs;
     private Boolean isFinal = false;
     //  @ManyToOne(fetch = FetchType.LAZY)
 //    private Warehouse warehouse;

@@ -30,14 +30,10 @@ public class PurchaseRequisitionDto {
     private String purchaseInvoices;
     private String purchaseInvoiceDocs;
     private String orderRefs;
-    private BigDecimal tempOverallDiscount;
-    private String tempPurchaseInvoices;
-    private String tempPurchaseInvoiceDocs;
-    private String tempOrderRefs;
     private Boolean isFinal;
     private List<PurchaseRequisitionItemDto> items = new ArrayList<>();
     private List<PurchaseRequisitionTransferDto> prTransferList= new ArrayList<>();
-//    Requsition Field
+//  Requsition Field
     private Long requisitionId;
     private Integer requisitionStatus;
     private String note;
