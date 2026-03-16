@@ -129,7 +129,7 @@ public class PurchaseRequisitionTransferService {
         if (goodsOnTripFind != null) {
             throw new DuplicateVehicleException("Vehicle Trip already Assign");
         }
-        Branch sourceBranch = branchRepository.findById(1L).orElseThrow(BranchNotFoundException::new);
+        Branch sourceBranch = branchRepository.findByIsMain(true).orElseThrow(BranchNotFoundException::new);
         Branch destBranch = prt.getBranch();
         VehicleTrip vehicleTrip = null;
         var authUser = authService.getCurrentUser();
@@ -206,9 +206,10 @@ public class PurchaseRequisitionTransferService {
         var authUser = authService.getCurrentUser();
         gooodsOnTrip.setIsReceived(true);
         gooodsOnTrip.setReceivedBy(authUser);
+        gooodsOnTrip.setReceivedAt(LocalDateTime.now());
         prt.setTransferStatus(2);
         prTransferRepo.save(prt);
-        //        update Purchase requsition tabel
+        //update Purchase requsition tabel
         pr.setOrderRefs(pr.getOrderRefs());
         pr.setOrderRefs("");
         pr.setPurchaseInvoices(pr.getPurchaseInvoices());

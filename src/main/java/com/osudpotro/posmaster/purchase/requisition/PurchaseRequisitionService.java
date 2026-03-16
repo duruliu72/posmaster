@@ -86,20 +86,19 @@ public class PurchaseRequisitionService {
                 .toList();
     }
 
-    public Page<PurchaseRequisitionDto> getPurchaseRequisitions(PurchaseRequisitionFilter filter, Pageable pageable) {
+    public Page<PurchaseRequisitionDto> filterPrEntities(PurchaseRequisitionFilter filter, Pageable pageable) {
         return prRepo.findAll(PurchaseRequisitionSpecification.filter(filter), pageable).map(purchaseRequisitionMapper::toDto);
     }
 
+    @Transactional
     public PurchaseRequisitionDto createPurchaseRequisition(PurchaseRequisitionCreateRequest request) {
         var authUser = authService.getCurrentUser();
         String requisitionRef = generateRequisitionRef();
         if (prRepo.existsByRequsitionRef(requisitionRef)) {
             throw new DuplicatePurchaseRequisitionException();
         }
-        var branch = branchRepository.findById(authUser.getBranch().getId()).orElse(null);
-        if (branch == null) {
-            throw new BranchNotFoundException();
-        }
+        Branch sourceBranch = branchRepository.findByIsMain(true).orElseThrow(BranchNotFoundException::new);
+        Branch branch = branchRepository.findById(authUser.getBranch().getId()).orElseThrow(BranchNotFoundException::new);
         var organization = organizationRepository.findById(branch.getOrganization().getId()).orElse(null);
         if (organization == null) {
             throw new OrganizationNotFoundException();
@@ -225,6 +224,7 @@ public class PurchaseRequisitionService {
             requisitionRepository.save(requisition);
         }
         pr.setRequisition(requisition);
+
         // requisition approver paths
         if (requisitionStatus == 1 && request.getRequisitionStatus() != null && request.getRequisitionStatus() == 2) {
             if (!ropRepository.existRequisitionOnPathByUser(authUser.getId(), pr.getRequisition().getId())) {
@@ -384,7 +384,7 @@ public class PurchaseRequisitionService {
     }
 
     //    For Purchase Requisition Item
-    public PurchaseRequisitionWithItemPageResponse getPurchaseRequisitionWithItemPagination(Long purchaseRequisitionId, Pageable pageable, PurchaseRequisitionItemFilter filter) {
+    public PurchaseRequisitionWithItemPageResponse filterWithItemPagination(Long purchaseRequisitionId, Pageable pageable, PurchaseRequisitionItemFilter filter) {
         PurchaseRequisition pr = prRepo.findPurchaseRequisitionById(purchaseRequisitionId).orElseThrow(PurchaseRequisitionNotFoundException::new);
         Page<PurchaseRequisitionItemDto> result = priRepostory.findPurchaseRequisitionItems(purchaseRequisitionId, filter.getName(), pageable).map(priMapper::toDto);
         return purchaseRequisitionMapper.toMinDto(pr, result);

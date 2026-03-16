@@ -32,6 +32,10 @@ public class PurchaseRequisitionTransfer extends BaseEntity {
     private Organization organization;
     @ManyToOne(fetch = FetchType.LAZY)
     private Branch branch;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Branch sourceBranch;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Branch destBranch;
     private BigDecimal overallDiscount;
     private String purchaseInvoices;
     private String purchaseInvoiceDocs;

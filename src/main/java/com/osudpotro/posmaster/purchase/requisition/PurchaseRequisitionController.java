@@ -30,7 +30,7 @@ public class PurchaseRequisitionController {
     }
 
     @PostMapping("/filter")
-    public PagedResponse<PurchaseRequisitionDto> filterManufacturers(
+    public PagedResponse<PurchaseRequisitionDto> filterPrEntities(
             @RequestBody PurchaseRequisitionFilter filter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -41,12 +41,12 @@ public class PurchaseRequisitionController {
                 Sort.by(sortBy).ascending() :
                 Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<PurchaseRequisitionDto> result = purchaseRequisitionService.getPurchaseRequisitions(filter, pageable);
+        Page<PurchaseRequisitionDto> result = purchaseRequisitionService.filterPrEntities(filter, pageable);
         return new PagedResponse<>(result);
     }
     //  For  Purchase Requisition item
     @PostMapping("/{id}/filter")
-    public PurchaseRequisitionWithItemPageResponse getPurchaseRequisitionWithItemPagination(@PathVariable Long id,
+    public PurchaseRequisitionWithItemPageResponse filterWithItemPagination(@PathVariable Long id,
                                                                                             @RequestBody PurchaseRequisitionItemFilter filter,
                                                                                             @RequestParam(defaultValue = "0") int page,
                                                                                             @RequestParam(defaultValue = "10") int size,
@@ -56,7 +56,7 @@ public class PurchaseRequisitionController {
                 Sort.by(sortBy).ascending() :
                 Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        return purchaseRequisitionService.getPurchaseRequisitionWithItemPagination(id, pageable, filter);
+        return purchaseRequisitionService.filterWithItemPagination(id, pageable, filter);
     }
     //  For  Purchase Requisition item
     @PostMapping("/{id}/filter-for-assign-to-vehicle")

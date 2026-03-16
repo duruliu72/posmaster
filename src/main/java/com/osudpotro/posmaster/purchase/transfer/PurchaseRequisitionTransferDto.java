@@ -39,12 +39,20 @@ public class PurchaseRequisitionTransferDto {
     private Integer transferStatus;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    //    Goods On Trip Information
+    //Vehicle Trip
+    private Long vehicleTripId;
+    private String tripRef;
+    private DriverDto driver;
+    private VehicleDto vehicle;
+    private LocalDateTime tripStartTime;
+    private LocalDateTime tripEndTime;
+    private TripStatus tripStatus;
+    //Goods On Trip Information
     private Long goodsOnTripId;
     private String goodsRef;
-    private com.osudpotro.posmaster.branch.BranchDto sourceBranch;
+    private BranchDto sourceBranch;
     private String sourceAddress;
-    private com.osudpotro.posmaster.branch.BranchDto destBranch;
+    private BranchDto destBranch;
     private String destAddress;
     private GoodsType goodsType;
     private String goodsReference;
@@ -59,12 +67,5 @@ public class PurchaseRequisitionTransferDto {
     private LocalDateTime unLoadedAt;
     private UserPlainDto loadedBy;
     private UserPlainDto unLoadedBy;
-    //Vehicle Trip
-    private Long vehicleTripId;
-    private String tripRef;
-    private DriverDto driver;
-    private VehicleDto vehicle;
-    private LocalDateTime tripStartTime;
-    private LocalDateTime tripEndTime;
-    private TripStatus tripStatus;
+
 }

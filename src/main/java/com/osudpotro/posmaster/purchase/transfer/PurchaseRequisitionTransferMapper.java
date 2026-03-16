@@ -2,8 +2,10 @@ package com.osudpotro.posmaster.purchase.transfer;
 
 import com.osudpotro.posmaster.organization.OrganizationDto;
 import com.osudpotro.posmaster.purchase.dto.BranchDto;
+import com.osudpotro.posmaster.tms.driver.DriverMapper;
 import com.osudpotro.posmaster.tms.goodsontrip.GoodsOnTrip;
 import com.osudpotro.posmaster.tms.goodsontrip.GoodsOnTripMapper;
+import com.osudpotro.posmaster.tms.vechile.VehicleMapper;
 import com.osudpotro.posmaster.tms.vehicletrip.VehicleTrip;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -13,6 +15,10 @@ import org.springframework.stereotype.Component;
 public class PurchaseRequisitionTransferMapper {
     @Autowired
     private GoodsOnTripMapper goodsOnTripMapper;
+    @Autowired
+    private DriverMapper driverMapper;
+    @Autowired
+    private VehicleMapper vehicleMapper;
     //Mapping Here
     //Entity → DTO
     public PurchaseRequisitionTransferDto toDto(PurchaseRequisitionTransfer prt) {
@@ -23,14 +29,33 @@ public class PurchaseRequisitionTransferMapper {
         String purchaseKey = prt.getPurchaseType().getCode();
         prtDto.setPurchaseType(purchaseCode);
         prtDto.setPurchaseKey(purchaseKey);
+        prtDto.setPurchaseInvoices(prt.getPurchaseInvoices());
+        prtDto.setPurchaseInvoiceDocs(prt.getPurchaseInvoiceDocs());
+//        Organization
         OrganizationDto orgDto = new OrganizationDto();
         orgDto.setId(prt.getOrganization().getId());
         orgDto.setName(prt.getOrganization().getName());
         prtDto.setOrganization(orgDto);
+//        Branch
         BranchDto branchDto = new BranchDto();
         branchDto.setId(prt.getBranch().getId());
         branchDto.setName(prt.getBranch().getName());
         prtDto.setBranch(branchDto);
+        //  Source      Branch
+        if (prt.getSourceBranch() != null) {
+            BranchDto sourceBranchDto = new BranchDto();
+            sourceBranchDto.setId(prt.getSourceBranch().getId());
+            sourceBranchDto.setName(prt.getSourceBranch().getName());
+            prtDto.setSourceBranch(sourceBranchDto);
+        }
+        //  Destination      Branch
+        if (prt.getDestBranch() != null) {
+            BranchDto destBranchDto = new BranchDto();
+            destBranchDto.setId(prt.getDestBranch().getId());
+            destBranchDto.setName(prt.getDestBranch().getName());
+            prtDto.setDestBranch(destBranchDto);
+        }
+
         prtDto.setOverallDiscount(prtDto.getOverallDiscount());
         prtDto.setTotalPrice(prt.getTotalPrice());
         prtDto.setTotalQty(prt.getTotalQty());
@@ -42,17 +67,19 @@ public class PurchaseRequisitionTransferMapper {
         prtDto.setCreatedAt(prt.getCreatedAt());
         prtDto.setTransferStatus(prt.getTransferStatus());
         //    Goods On Trip Information
-        if(prt.getGoodsOnTrip()!=null){
-            GoodsOnTrip goodsOnTrip=prt.getGoodsOnTrip();
+        if (prt.getGoodsOnTrip() != null) {
+            GoodsOnTrip goodsOnTrip = prt.getGoodsOnTrip();
             prtDto.setGoodsOnTripId(goodsOnTrip.getId());
             prtDto.setGoodsRef(goodsOnTrip.getGoodsRef());
             prtDto.setIsReceived(goodsOnTrip.getIsReceived());
-            if(goodsOnTrip.getVehicleTrip()!=null){
-                VehicleTrip vehicleTrip=goodsOnTrip.getVehicleTrip();
+            //Vehicle Trip Info
+            if (goodsOnTrip.getVehicleTrip() != null) {
+                VehicleTrip vehicleTrip = goodsOnTrip.getVehicleTrip();
                 prtDto.setVehicleTripId(vehicleTrip.getId());
                 prtDto.setTripRef(vehicleTrip.getTripRef());
+                prtDto.setDriver(driverMapper.toDto(vehicleTrip.getDriver()));
+                prtDto.setVehicle(vehicleMapper.toDto(vehicleTrip.getVehicle()));
             }
-            //Vehicle Trip
         }
         return prtDto;
     }
@@ -65,6 +92,8 @@ public class PurchaseRequisitionTransferMapper {
         String purchaseKey = prt.getPurchaseType().getCode();
         pageResponse.setPurchaseType(purchaseCode);
         pageResponse.setPurchaseKey(purchaseKey);
+        pageResponse.setPurchaseInvoices(prt.getPurchaseInvoices());
+        pageResponse.setPurchaseInvoiceDocs(prt.getPurchaseInvoiceDocs());
         OrganizationDto orgDto = new OrganizationDto();
         orgDto.setId(prt.getOrganization().getId());
         orgDto.setName(prt.getOrganization().getName());
@@ -73,6 +102,20 @@ public class PurchaseRequisitionTransferMapper {
         branchDto.setId(prt.getBranch().getId());
         branchDto.setName(prt.getBranch().getName());
         pageResponse.setBranch(branchDto);
+        //  Source      Branch
+        if (prt.getSourceBranch() != null) {
+            BranchDto sourceBranchDto = new BranchDto();
+            sourceBranchDto.setId(prt.getSourceBranch().getId());
+            sourceBranchDto.setName(prt.getSourceBranch().getName());
+            pageResponse.setSourceBranch(sourceBranchDto);
+        }
+        //  Destination      Branch
+        if (prt.getDestBranch() != null) {
+            BranchDto destBranchDto = new BranchDto();
+            destBranchDto.setId(prt.getDestBranch().getId());
+            destBranchDto.setName(prt.getDestBranch().getName());
+            pageResponse.setDestBranch(destBranchDto);
+        }
 //        pageResponse.setOverallDiscount(prt.getOverallDiscount());
 //        pageResponse.setTotalPrice(prt.getTotalPrice());
 //        pageResponse.setTotalQty(prt.getTotalQty());
@@ -84,17 +127,18 @@ public class PurchaseRequisitionTransferMapper {
         pageResponse.setCreatedAt(prt.getCreatedAt());
         pageResponse.setTransferStatus(prt.getTransferStatus());
         //    Goods On Trip Information
-        if(prt.getGoodsOnTrip()!=null){
-            GoodsOnTrip goodsOnTrip=prt.getGoodsOnTrip();
+        if (prt.getGoodsOnTrip() != null) {
+            GoodsOnTrip goodsOnTrip = prt.getGoodsOnTrip();
             pageResponse.setGoodsOnTripId(goodsOnTrip.getId());
             pageResponse.setGoodsRef(goodsOnTrip.getGoodsRef());
             pageResponse.setIsReceived(goodsOnTrip.getIsReceived());
-            if(goodsOnTrip.getVehicleTrip()!=null){
-                VehicleTrip vehicleTrip=goodsOnTrip.getVehicleTrip();
+            if (goodsOnTrip.getVehicleTrip() != null) {
+                VehicleTrip vehicleTrip = goodsOnTrip.getVehicleTrip();
                 pageResponse.setVehicleTripId(vehicleTrip.getId());
                 pageResponse.setTripRef(vehicleTrip.getTripRef());
+                pageResponse.setDriver(driverMapper.toDto(vehicleTrip.getDriver()));
+                pageResponse.setVehicle(vehicleMapper.toDto(vehicleTrip.getVehicle()));
             }
-            //Vehicle Trip
         }
         //For Item Pagination
         pageResponse.setItems(page.getContent());

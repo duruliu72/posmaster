@@ -8,6 +8,9 @@ import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.Date;
+
 @AllArgsConstructor
 @Service
 public class GoodsOnTripService {
@@ -26,10 +29,12 @@ public class GoodsOnTripService {
         if (goodsStatus.equals(GoodsStatus.ASSIGN_TO_VEHICLE)) {
             gooodsOnTrip.setGoodsStatus(GoodsStatus.LOADED);
             gooodsOnTrip.setLoadedBy(authUser);
+            gooodsOnTrip.setLoadedAt(LocalDateTime.now());
         }
         if (goodsStatus.equals(GoodsStatus.LOADED)) {
             gooodsOnTrip.setGoodsStatus(GoodsStatus.DELIVERED);
             gooodsOnTrip.setUnLoadedBy(authUser);
+            gooodsOnTrip.setUnLoadedAt(LocalDateTime.now());
         }
         gooodsOnTrip.setRemarks(request.getRemarks());
 

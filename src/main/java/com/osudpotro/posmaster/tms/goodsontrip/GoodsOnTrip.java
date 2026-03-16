@@ -48,6 +48,7 @@ public class GoodsOnTrip extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "received_by")
     private User receivedBy;
+    private LocalDateTime receivedAt;
     @Column(nullable = false, length = 500)
     private String sourceAddress;
     @ManyToOne(fetch = FetchType.LAZY)
