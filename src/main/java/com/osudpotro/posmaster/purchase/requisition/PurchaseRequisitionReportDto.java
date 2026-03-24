@@ -1,7 +1,7 @@
 package com.osudpotro.posmaster.purchase.requisition;
 
+import com.osudpotro.posmaster.branch.BranchDto;
 import com.osudpotro.posmaster.organization.OrganizationDto;
-import com.osudpotro.posmaster.purchase.dto.BranchDto;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -17,6 +17,8 @@ public class PurchaseRequisitionReportDto {
     private String purchaseKey;
     private OrganizationDto organization;
     private BranchDto branch;
+    private BranchDto rootBranch;
+    private BranchDto reqBranch;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private BigDecimal overallDiscount;

@@ -51,10 +51,6 @@ public class GoodsOnTrip extends BaseEntity {
     private LocalDateTime receivedAt;
     @Column(nullable = false, length = 500)
     private String sourceAddress;
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Branch sourceBranch;
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Branch destBranch;
     @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "latitude", column = @Column(name = "source_latitude")),

@@ -32,5 +32,5 @@ public class Branch extends BaseEntity {
     private Multimedia media;
     @ManyToOne(fetch = FetchType.LAZY)
     private Organization organization;
-    private Boolean isMain=false;
+    private Boolean isRoot=false;
 }

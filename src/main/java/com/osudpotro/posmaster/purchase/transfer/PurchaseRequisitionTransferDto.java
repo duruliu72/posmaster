@@ -1,15 +1,14 @@
 package com.osudpotro.posmaster.purchase.transfer;
 
+import com.osudpotro.posmaster.branch.BranchDto;
 import com.osudpotro.posmaster.organization.OrganizationDto;
-import com.osudpotro.posmaster.purchase.dto.BranchDto;
+import com.osudpotro.posmaster.product.ProductDetailDto;
 import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisition;
 import com.osudpotro.posmaster.tms.driver.DriverDto;
-import com.osudpotro.posmaster.tms.goodsontrip.GoodsOnTripDto;
 import com.osudpotro.posmaster.tms.goodsontrip.GoodsStatus;
 import com.osudpotro.posmaster.tms.goodsontrip.GoodsType;
 import com.osudpotro.posmaster.tms.vechile.VehicleDto;
 import com.osudpotro.posmaster.tms.vehicletrip.TripStatus;
-import com.osudpotro.posmaster.tms.vehicletrip.VehicleTripDto;
 import com.osudpotro.posmaster.user.UserPlainDto;
 import lombok.Data;
 
@@ -26,7 +25,8 @@ public class PurchaseRequisitionTransferDto {
     private String purchaseType;
     private String purchaseKey;
     private OrganizationDto organization;
-    private BranchDto branch;
+    private BranchDto rootBranch;
+    private BranchDto reqBranch;
     private BigDecimal overallDiscount;
     private BigDecimal totalPrice;
     private Integer totalQty;
@@ -35,6 +35,7 @@ public class PurchaseRequisitionTransferDto {
     private String purchaseInvoices;
     private String purchaseInvoiceDocs;
     private String orderRefs;
+    private ProductDetailDto purchaseProductUnit;
     private List<PurchaseRequisitionItemTransferDto> items = new ArrayList<>();
     private Integer transferStatus;
     private LocalDateTime createdAt;

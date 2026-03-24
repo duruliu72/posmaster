@@ -10,7 +10,6 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-
 @Getter
 @Setter
 @Entity
@@ -51,11 +50,9 @@ public class PurchaseRequisitionItem {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "purchase_product_unit_id")
     private ProductDetail purchaseProductUnit;
-
     public BigDecimal getQty() {
         return BigDecimal.valueOf(purchaseQty);
     }
-
     public BigDecimal getDiscountPrice() {
         if (mrpPrice == null || purchasePrice == null) {
             return BigDecimal.ZERO;

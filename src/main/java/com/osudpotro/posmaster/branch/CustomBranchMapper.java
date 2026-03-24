@@ -20,7 +20,7 @@ public class CustomBranchMapper {
         branchDto.setLatitude(branch.getLatitude());
         branchDto.setLongitude(branch.getLongitude());
         branchDto.setAccuracy(branch.getAccuracy());
-        branchDto.setIsMain(branch.getIsMain());
+        branchDto.setIsRoot(branch.getIsRoot());
         branchDto.setMobile(branch.getMobile());
         branchDto.setLicenceNo(branch.getLicenceNo());
         if (branch.getMedia() != null && branch.getMedia().getImageUrl() != null) {

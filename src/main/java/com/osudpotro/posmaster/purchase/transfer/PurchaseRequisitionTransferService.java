@@ -129,8 +129,6 @@ public class PurchaseRequisitionTransferService {
         if (goodsOnTripFind != null) {
             throw new DuplicateVehicleException("Vehicle Trip already Assign");
         }
-        Branch sourceBranch = branchRepository.findByIsMain(true).orElseThrow(BranchNotFoundException::new);
-        Branch destBranch = prt.getBranch();
         VehicleTrip vehicleTrip = null;
         var authUser = authService.getCurrentUser();
         if (request.getTripRef() != null) {
@@ -164,17 +162,16 @@ public class PurchaseRequisitionTransferService {
         goodsOnTrip.setGoodsStatus(GoodsStatus.ASSIGN_TO_VEHICLE);
         goodsOnTrip.setSourceAddress(request.getSourceAddress());
         goodsOnTrip.setDestAddress(request.getDestAddress());
-        goodsOnTrip.setSourceBranch(sourceBranch);
-        Location source = new Location();
-        source.setLatitude(sourceBranch.getLatitude());
-        source.setLongitude(sourceBranch.getLongitude());
-        goodsOnTrip.setSource(source);
-        goodsOnTrip.setDestBranch(destBranch);
+        var rootBranch=pr.getRootBranch();
+        var reqBranch=pr.getReqBranch();
+        Location sourceLoc = new Location();
+        sourceLoc.setLatitude(rootBranch.getLatitude());
+        sourceLoc.setLongitude(rootBranch.getLongitude());
+        goodsOnTrip.setSource(sourceLoc);
         Location destination = new Location();
-        destination.setLatitude(destBranch.getLatitude());
-        destination.setLongitude(destBranch.getLongitude());
+        destination.setLatitude(reqBranch.getLatitude());
+        destination.setLongitude(reqBranch.getLongitude());
         goodsOnTrip.setDestination(destination);
-//        goodsOnTrip.setLoadedAt(LocalDateTime.now());
         goodsOnTrip.setAssignBy(authUser);
         goodsOnTrip.setCreatedBy(authUser);
         goodsOnTrip.setPurchaseRequisitionTransfer(prt);

@@ -12,7 +12,7 @@ import java.util.Optional;
 
 public interface BranchRepository extends JpaSpecificationExecutor<Branch>,JpaRepository<Branch,Long> {
     boolean existsByName(String name);
-    Optional<Branch> findByIsMain(Boolean isMain);
+    Optional<Branch> findByIsRoot(Boolean isRoot);
     @Transactional
     @Modifying
     @Query("update Branch b set b.status = :status where b.id in :ids")

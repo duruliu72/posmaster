@@ -20,7 +20,6 @@ public class PurchaseRequisitionItemTransferMapper {
         priTransferDto.setId(priTransfer.getId());
         priTransferDto.setProduct(productMapper.toDto(priTransfer.getProduct()));
         priTransferDto.setProductDetail(detailMapper.toDto(priTransfer.getProductDetail()));
-        priTransferDto.setPurchaseProductUnit(detailMapper.toDto(priTransfer.getPurchaseProductUnit()));
         priTransferDto.setPurchaseQty(priTransfer.getPurchaseQty());
         priTransferDto.setGiftOrBonusQty(priTransfer.getGiftOrBonusQty());
         priTransferDto.setPurchasePrice(priTransfer.getPurchasePrice());

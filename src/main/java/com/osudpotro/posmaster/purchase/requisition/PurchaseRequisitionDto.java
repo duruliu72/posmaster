@@ -1,8 +1,9 @@
 package com.osudpotro.posmaster.purchase.requisition;
 
+import com.osudpotro.posmaster.branch.BranchDto;
 import com.osudpotro.posmaster.organization.OrganizationDto;
+import com.osudpotro.posmaster.product.ProductDetailDto;
 import com.osudpotro.posmaster.purchase.transfer.PurchaseRequisitionTransferDto;
-import com.osudpotro.posmaster.purchase.dto.BranchDto;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -17,7 +18,8 @@ public class PurchaseRequisitionDto {
     private String purchaseType;
     private String purchaseKey;
     private OrganizationDto organization;
-    private BranchDto branch;
+    private BranchDto rootBranch;
+    private BranchDto reqBranch;
     private BigDecimal overallDiscount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -31,6 +33,7 @@ public class PurchaseRequisitionDto {
     private String purchaseInvoiceDocs;
     private String orderRefs;
     private Boolean isFinal;
+    private ProductDetailDto purchaseProductUnit;
     private List<PurchaseRequisitionItemDto> items = new ArrayList<>();
     private List<PurchaseRequisitionTransferDto> prTransferList= new ArrayList<>();
 //  Requsition Field

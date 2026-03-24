@@ -1,16 +1,12 @@
 package com.osudpotro.posmaster.purchase.transfer;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.osudpotro.posmaster.branch.Branch;
 import com.osudpotro.posmaster.common.BaseEntity;
-import com.osudpotro.posmaster.organization.Organization;
-import com.osudpotro.posmaster.purchase.PurchaseType;
 import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisition;
 import com.osudpotro.posmaster.tms.goodsontrip.GoodsOnTrip;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -25,17 +21,6 @@ public class PurchaseRequisitionTransfer extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "purchase_requisition_id")
     private PurchaseRequisition purchaseRequisition;
-    @Enumerated(EnumType.STRING)
-    @Column(name = "purchase_type", nullable = false)
-    private PurchaseType purchaseType;
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Organization organization;
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Branch branch;
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Branch sourceBranch;
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Branch destBranch;
     private BigDecimal overallDiscount;
     private String purchaseInvoices;
     private String purchaseInvoiceDocs;
@@ -58,7 +43,6 @@ public class PurchaseRequisitionTransfer extends BaseEntity {
                 .mapToInt(PurchaseRequisitionItemTransfer::getPurchaseQty)
                 .sum();
     }
-
     public int getTotalGiftOrBonusQty() {
         return items.stream()
                 .filter(i ->

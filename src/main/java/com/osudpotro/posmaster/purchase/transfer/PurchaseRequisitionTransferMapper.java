@@ -1,10 +1,11 @@
 package com.osudpotro.posmaster.purchase.transfer;
 
+import com.osudpotro.posmaster.branch.BranchDto;
+import com.osudpotro.posmaster.branch.BranchMapper;
 import com.osudpotro.posmaster.organization.OrganizationDto;
-import com.osudpotro.posmaster.purchase.dto.BranchDto;
+import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisition;
 import com.osudpotro.posmaster.tms.driver.DriverMapper;
 import com.osudpotro.posmaster.tms.goodsontrip.GoodsOnTrip;
-import com.osudpotro.posmaster.tms.goodsontrip.GoodsOnTripMapper;
 import com.osudpotro.posmaster.tms.vechile.VehicleMapper;
 import com.osudpotro.posmaster.tms.vehicletrip.VehicleTrip;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,48 +15,46 @@ import org.springframework.stereotype.Component;
 @Component
 public class PurchaseRequisitionTransferMapper {
     @Autowired
-    private GoodsOnTripMapper goodsOnTripMapper;
-    @Autowired
     private DriverMapper driverMapper;
     @Autowired
     private VehicleMapper vehicleMapper;
+    @Autowired
+    private BranchMapper branchMapper;
     //Mapping Here
     //Entity → DTO
     public PurchaseRequisitionTransferDto toDto(PurchaseRequisitionTransfer prt) {
+        if (prt == null) {
+            return null;
+        }
         PurchaseRequisitionTransferDto prtDto = new PurchaseRequisitionTransferDto();
         prtDto.setId(prt.getId());
         prtDto.setRequsitionRef(prt.getRequsitionRef());
-        String purchaseCode = prt.getPurchaseType().getDescription();
-        String purchaseKey = prt.getPurchaseType().getCode();
-        prtDto.setPurchaseType(purchaseCode);
-        prtDto.setPurchaseKey(purchaseKey);
         prtDto.setPurchaseInvoices(prt.getPurchaseInvoices());
         prtDto.setPurchaseInvoiceDocs(prt.getPurchaseInvoiceDocs());
-//        Organization
-        OrganizationDto orgDto = new OrganizationDto();
-        orgDto.setId(prt.getOrganization().getId());
-        orgDto.setName(prt.getOrganization().getName());
-        prtDto.setOrganization(orgDto);
-//        Branch
-        BranchDto branchDto = new BranchDto();
-        branchDto.setId(prt.getBranch().getId());
-        branchDto.setName(prt.getBranch().getName());
-        prtDto.setBranch(branchDto);
-        //  Source      Branch
-        if (prt.getSourceBranch() != null) {
-            BranchDto sourceBranchDto = new BranchDto();
-            sourceBranchDto.setId(prt.getSourceBranch().getId());
-            sourceBranchDto.setName(prt.getSourceBranch().getName());
-            prtDto.setSourceBranch(sourceBranchDto);
+        if (prt.getPurchaseRequisition() != null) {
+            PurchaseRequisition pr = prt.getPurchaseRequisition();
+            String purchaseCode = pr.getPurchaseType().getDescription();
+            String purchaseKey = pr.getPurchaseType().getCode();
+            prtDto.setPurchaseType(purchaseCode);
+            prtDto.setPurchaseKey(purchaseKey);
+            //        Organization
+            OrganizationDto orgDto = new OrganizationDto();
+            orgDto.setId(pr.getOrganization().getId());
+            orgDto.setName(pr.getOrganization().getName());
+            prtDto.setOrganization(orgDto);
+            //        rootBranch
+            BranchDto rootBranchDto = new BranchDto();
+            rootBranchDto.setId(pr.getRootBranch().getId());
+            rootBranchDto.setName(pr.getRootBranch().getName());
+           // prtDto.setRootBranch(rootBranchDto);
+            prtDto.setRootBranch(branchMapper.toDto(pr.getRootBranch()));
+//        reqBranch
+            BranchDto reqBranchDto = new BranchDto();
+            reqBranchDto.setId(pr.getReqBranch().getId());
+            reqBranchDto.setName(pr.getReqBranch().getName());
+           // prtDto.setReqBranch(reqBranchDto);
+            prtDto.setReqBranch(branchMapper.toDto(pr.getReqBranch()));
         }
-        //  Destination      Branch
-        if (prt.getDestBranch() != null) {
-            BranchDto destBranchDto = new BranchDto();
-            destBranchDto.setId(prt.getDestBranch().getId());
-            destBranchDto.setName(prt.getDestBranch().getName());
-            prtDto.setDestBranch(destBranchDto);
-        }
-
         prtDto.setOverallDiscount(prtDto.getOverallDiscount());
         prtDto.setTotalPrice(prt.getTotalPrice());
         prtDto.setTotalQty(prt.getTotalQty());
@@ -88,33 +87,31 @@ public class PurchaseRequisitionTransferMapper {
         PurchaseRequisitionTransferWithItemPageResponse pageResponse = new PurchaseRequisitionTransferWithItemPageResponse();
         pageResponse.setId(prt.getId());
         pageResponse.setRequsitionRef(prt.getRequsitionRef());
-        String purchaseCode = prt.getPurchaseType().getDescription();
-        String purchaseKey = prt.getPurchaseType().getCode();
-        pageResponse.setPurchaseType(purchaseCode);
-        pageResponse.setPurchaseKey(purchaseKey);
         pageResponse.setPurchaseInvoices(prt.getPurchaseInvoices());
         pageResponse.setPurchaseInvoiceDocs(prt.getPurchaseInvoiceDocs());
-        OrganizationDto orgDto = new OrganizationDto();
-        orgDto.setId(prt.getOrganization().getId());
-        orgDto.setName(prt.getOrganization().getName());
-        pageResponse.setOrganization(orgDto);
-        BranchDto branchDto = new BranchDto();
-        branchDto.setId(prt.getBranch().getId());
-        branchDto.setName(prt.getBranch().getName());
-        pageResponse.setBranch(branchDto);
-        //  Source      Branch
-        if (prt.getSourceBranch() != null) {
-            BranchDto sourceBranchDto = new BranchDto();
-            sourceBranchDto.setId(prt.getSourceBranch().getId());
-            sourceBranchDto.setName(prt.getSourceBranch().getName());
-            pageResponse.setSourceBranch(sourceBranchDto);
-        }
-        //  Destination      Branch
-        if (prt.getDestBranch() != null) {
-            BranchDto destBranchDto = new BranchDto();
-            destBranchDto.setId(prt.getDestBranch().getId());
-            destBranchDto.setName(prt.getDestBranch().getName());
-            pageResponse.setDestBranch(destBranchDto);
+        if (prt.getPurchaseRequisition() != null) {
+            PurchaseRequisition pr = prt.getPurchaseRequisition();
+            String purchaseCode = pr.getPurchaseType().getDescription();
+            String purchaseKey = pr.getPurchaseType().getCode();
+            pageResponse.setPurchaseType(purchaseCode);
+            pageResponse.setPurchaseKey(purchaseKey);
+            //        Organization
+            OrganizationDto orgDto = new OrganizationDto();
+            orgDto.setId(pr.getOrganization().getId());
+            orgDto.setName(pr.getOrganization().getName());
+            pageResponse.setOrganization(orgDto);
+            //        rootBranch
+            BranchDto rootBranchDto = new BranchDto();
+            rootBranchDto.setId(pr.getRootBranch().getId());
+            rootBranchDto.setName(pr.getRootBranch().getName());
+//            pageResponse.setRootBranch(rootBranchDto);
+            pageResponse.setRootBranch(branchMapper.toDto(pr.getRootBranch()));
+//        reqBranch
+            BranchDto reqBranchDto = new BranchDto();
+            reqBranchDto.setId(pr.getReqBranch().getId());
+            reqBranchDto.setName(pr.getReqBranch().getName());
+//            pageResponse.setReqBranch(reqBranchDto);
+            pageResponse.setReqBranch(branchMapper.toDto(pr.getReqBranch()));
         }
 //        pageResponse.setOverallDiscount(prt.getOverallDiscount());
 //        pageResponse.setTotalPrice(prt.getTotalPrice());

@@ -97,18 +97,18 @@ public class PurchaseRequisitionService {
         if (prRepo.existsByRequsitionRef(requisitionRef)) {
             throw new DuplicatePurchaseRequisitionException();
         }
-        Branch sourceBranch = branchRepository.findByIsMain(true).orElseThrow(BranchNotFoundException::new);
-        Branch branch = branchRepository.findById(authUser.getBranch().getId()).orElseThrow(BranchNotFoundException::new);
-        var organization = organizationRepository.findById(branch.getOrganization().getId()).orElse(null);
+        Branch rootBranch = branchRepository.findByIsRoot(true).orElseThrow(BranchNotFoundException::new);
+        Branch reqBranch = branchRepository.findById(authUser.getBranch().getId()).orElseThrow(BranchNotFoundException::new);
+        var organization = organizationRepository.findById(reqBranch.getOrganization().getId()).orElse(null);
         if (organization == null) {
             throw new OrganizationNotFoundException();
         }
         PurchaseRequisition pr = new PurchaseRequisition();
         pr.setRequsitionRef(requisitionRef);
         pr.setPurchaseType(PurchaseType.fromCode(request.getPurchaseType()));
-
         pr.setOrganization(organization);
-        pr.setBranch(branch);
+        pr.setReqBranch(reqBranch);
+        pr.setRootBranch(rootBranch);
         pr.setCreatedBy(authUser);
         pr = prRepo.save(pr);
         //Common Requsition Start Here
@@ -149,20 +149,6 @@ public class PurchaseRequisitionService {
         PurchaseRequisition pr = prRepo.findById(purchaseRequisitionId).orElseThrow(PurchaseRequisitionNotFoundException::new);
         if (pr.getTotalItems() == 0) {
             throw new PurchaseRequisitionEmptyException();
-        }
-        if (request.getOrganizationId() != null) {
-            var organization = organizationRepository.findById(request.getOrganizationId()).orElse(null);
-            if (organization == null) {
-                throw new OrganizationNotFoundException();
-            }
-            pr.setOrganization(organization);
-        }
-        if (request.getBranchId() != null) {
-            var branch = branchRepository.findById(request.getBranchId()).orElse(null);
-            if (branch == null) {
-                throw new BranchNotFoundException();
-            }
-            pr.setBranch(branch);
         }
         if (request.getPurchaseType() != null) {
             pr.setPurchaseType(PurchaseType.fromCode(request.getPurchaseType()));
@@ -229,18 +215,16 @@ public class PurchaseRequisitionService {
         if (requisitionStatus == 1 && request.getRequisitionStatus() != null && request.getRequisitionStatus() == 2) {
             if (!ropRepository.existRequisitionOnPathByUser(authUser.getId(), pr.getRequisition().getId())) {
                 var findApproverPrevNullUser = requisitionApproverRepository.findApproverWithNullPrevUser(requisitionType.getId()).orElseThrow(RequsitionOnPathNotFoundException::new);
-                if (findApproverPrevNullUser != null) {
-                    RequisitionOnPath rop = new RequisitionOnPath();
-                    rop.setRequisition(pr.getRequisition());
-                    rop.setReviewCount(pr.getRequisition().getReviewCount());
-                    rop.setPrevUser(findApproverPrevNullUser.getPrevUser());
-                    rop.setUser(findApproverPrevNullUser.getUser());
-                    rop.setNextUser(findApproverPrevNullUser.getNextUser());
-                    rop.setApprovedStatus(1);
-                    rop.setCreatedBy(authUser);
-                    ropRepository.save(rop);
-                    requisition.getRequisitionOnPaths().add(rop);
-                }
+                RequisitionOnPath rop = new RequisitionOnPath();
+                rop.setRequisition(pr.getRequisition());
+                rop.setReviewCount(pr.getRequisition().getReviewCount());
+                rop.setPrevUser(findApproverPrevNullUser.getPrevUser());
+                rop.setUser(findApproverPrevNullUser.getUser());
+                rop.setNextUser(findApproverPrevNullUser.getNextUser());
+                rop.setApprovedStatus(1);
+                rop.setCreatedBy(authUser);
+                ropRepository.save(rop);
+                requisition.getRequisitionOnPaths().add(rop);
             }
         }
         prRepo.save(pr);
@@ -317,9 +301,6 @@ public class PurchaseRequisitionService {
         pr.setOverallDiscount(request.getOverallDiscount());
 
         prTransfer.setRequsitionRef(pr.getRequsitionRef());
-        prTransfer.setPurchaseType(pr.getPurchaseType());
-        prTransfer.setOrganization(pr.getOrganization());
-        prTransfer.setBranch(pr.getBranch());
         prTransfer.setOverallDiscount(request.getOverallDiscount());
         prTransfer.setPurchaseInvoices(request.getPurchaseInvoices());
         prTransfer.setPurchaseInvoiceDocs(request.getPurchaseInvoiceDocs());
@@ -398,7 +379,7 @@ public class PurchaseRequisitionService {
         pr.setItems(resultBase.getContent());
         return purchaseRequisitionMapper.toMinDto(pr, result);
     }
-
+    @Transactional
     public PurchaseRequisitionItemDto addPurchaseRequisitionItem(Long purchaseRequisitionId, PurchaseRequisitionItemAddRequest request) {
         PurchaseRequisition pr = prRepo.findById(purchaseRequisitionId).orElse(null);
         if (pr == null) {
@@ -453,8 +434,11 @@ public class PurchaseRequisitionService {
         if (prItem == null) {
             throw new PurchaseRequisitionItemNotFoundException();
         }
+        var product = productRepository.findById(prItem.getProduct().getId()).orElse(null);
+        if (product == null) {
+            throw new ProductNotFoundException();
+        }
         var authUser = authService.getCurrentUser();
-        prItem.setPurchaseProductUnit(prItem.getProduct().getPurchaseProductUnit());
         if (request.getPurchaseQty() != null) {
             prItem.setPurchaseQty(request.getPurchaseQty());
             prItem.setActualQty(request.getPurchaseQty());
@@ -467,6 +451,7 @@ public class PurchaseRequisitionService {
                         .subtract(prItem.getProductDetail().getPurchasePrice()));
             }
         }
+        prItem.setPurchaseProductUnit(product.getPurchaseProductUnit());
         priRepostory.save(prItem);
         return priMapper.toDto(prItem);
     }
@@ -483,7 +468,6 @@ public class PurchaseRequisitionService {
         if (pr.getRequisition().getRequisitionStatus() != 3) {
             throw new RequisitionItemNotApprovedException();
         }
-        prItem.setPurchaseProductUnit(prItem.getProduct().getPurchaseProductUnit());
         if (pr.getRequisition().getRequisitionStatus() == 3) {
             if (request.getActualQty() != null) {
                 prItem.setActualQty(request.getActualQty());
@@ -559,9 +543,6 @@ public class PurchaseRequisitionService {
         if (prTransfer == null) {
             prTransfer = new PurchaseRequisitionTransfer();
             prTransfer.setRequsitionRef(pr.getRequsitionRef());
-            prTransfer.setPurchaseType(pr.getPurchaseType());
-            prTransfer.setOrganization(pr.getOrganization());
-            prTransfer.setBranch(pr.getBranch());
             prTransfer.setOverallDiscount(pr.getOverallDiscount());
             prTransfer.setPurchaseInvoices(pr.getPurchaseInvoices());
             prTransfer.setPurchaseInvoiceDocs(pr.getPurchaseInvoiceDocs());
@@ -584,7 +565,6 @@ public class PurchaseRequisitionService {
                 prTransferItem.setProduct(prItem.getProduct());
                 prTransferItem.setProductDetail(prItem.getProductDetail());
                 prTransferItem.setMrpPrice(prItem.getMrpPrice());
-                prTransferItem.setPurchaseProductUnit(prItem.getPurchaseProductUnit());
                 prTransferItem.setPurchasePrice(prItem.getPurchasePrice());
                 prTransferItem.setPurchaseQty(prItem.getPurchaseQty());
                 prTransferItem.setDiscount(prItem.getDiscount());

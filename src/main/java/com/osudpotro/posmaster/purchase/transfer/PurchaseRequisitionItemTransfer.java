@@ -53,9 +53,6 @@ public class PurchaseRequisitionItemTransfer {
     @CreationTimestamp
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "purchase_product_unit_id")
-    private ProductDetail purchaseProductUnit;
     public BigDecimal getQty() {
         return BigDecimal.valueOf(purchaseQty);
     }

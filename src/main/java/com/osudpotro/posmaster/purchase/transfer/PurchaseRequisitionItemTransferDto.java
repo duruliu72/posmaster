@@ -22,5 +22,4 @@ public class PurchaseRequisitionItemTransferDto {
     private Integer giftOrBonusQty;
     private BigDecimal purchaseLinePrice;
     private BigDecimal giftOrBonusLinePrice;
-    private ProductDetailDto purchaseProductUnit;
 }

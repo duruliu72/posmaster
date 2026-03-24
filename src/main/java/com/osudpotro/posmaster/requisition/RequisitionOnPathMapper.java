@@ -47,9 +47,9 @@ public class RequisitionOnPathMapper {
                         orgDto.setName(pr.getOrganization().getName());
                         prDto.setOrganization(orgDto);
                         BranchDto branchDto = new BranchDto();
-                        branchDto.setId(pr.getBranch().getId());
-                        branchDto.setName(pr.getBranch().getName());
-                        prDto.setBranch(branchDto);
+//                        branchDto.setId(pr.getBranch().getId());
+//                        branchDto.setName(pr.getBranch().getName());
+//                        prDto.setBranch(branchDto);
                         prDto.setCreatedAt(pr.getCreatedAt());
                         if(pr.getRequisition()!=null){
                             prDto.setRequisitionStatus(pr.getRequisition().getRequisitionStatus());

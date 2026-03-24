@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -29,11 +30,9 @@ public class PurchaseRequisition extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Organization organization;
     @ManyToOne(fetch = FetchType.LAZY)
-    private Branch branch;
+    private Branch rootBranch;
     @ManyToOne(fetch = FetchType.LAZY)
-    private Branch sourceBranch;
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Branch destBranch;
+    private Branch reqBranch;
     private BigDecimal overallDiscount;
     private String purchaseInvoices;
     private String purchaseInvoiceDocs;
@@ -48,7 +47,7 @@ public class PurchaseRequisition extends BaseEntity {
     private List<PurchaseRequisitionItem> items = new ArrayList<>();
 
     @OneToMany(mappedBy = "purchaseRequisition", cascade = CascadeType.MERGE, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<PurchaseRequisitionTransfer> prTransferList= new ArrayList<>();
+    private List<PurchaseRequisitionTransfer> prTransferList = new ArrayList<>();
     @OneToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(
             name = "requisition_id",
@@ -69,7 +68,6 @@ public class PurchaseRequisition extends BaseEntity {
                 .mapToInt(PurchaseRequisitionItem::getPurchaseQty)
                 .sum();
     }
-
     public int getTotalActualQty() {
         return items.stream()
                 .filter(i ->
@@ -78,6 +76,7 @@ public class PurchaseRequisition extends BaseEntity {
                 .mapToInt(PurchaseRequisitionItem::getActualQty)
                 .sum();
     }
+
     public int getTotalGiftOrBonusQty() {
         return items.stream()
                 .filter(i ->

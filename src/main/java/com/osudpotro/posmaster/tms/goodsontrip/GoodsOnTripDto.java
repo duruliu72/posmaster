@@ -1,5 +1,5 @@
 package com.osudpotro.posmaster.tms.goodsontrip;
-import com.osudpotro.posmaster.branch.BranchDto;
+import com.osudpotro.posmaster.purchase.dto.BranchDto;
 import com.osudpotro.posmaster.tms.vehicletrip.VehicleTripDto;
 import com.osudpotro.posmaster.user.UserPlainDto;
 import lombok.*;
