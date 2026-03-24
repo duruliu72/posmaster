@@ -8,6 +8,8 @@ import com.osudpotro.posmaster.tms.driver.DriverMapper;
 import com.osudpotro.posmaster.tms.goodsontrip.GoodsOnTrip;
 import com.osudpotro.posmaster.tms.vechile.VehicleMapper;
 import com.osudpotro.posmaster.tms.vehicletrip.VehicleTrip;
+import com.osudpotro.posmaster.user.CustomUserMapper;
+import com.osudpotro.posmaster.user.UserPlainDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
@@ -20,6 +22,8 @@ public class PurchaseRequisitionTransferMapper {
     private VehicleMapper vehicleMapper;
     @Autowired
     private BranchMapper branchMapper;
+    @Autowired
+    private CustomUserMapper customUserMapper;
     //Mapping Here
     //Entity → DTO
     public PurchaseRequisitionTransferDto toDto(PurchaseRequisitionTransfer prt) {
@@ -43,17 +47,19 @@ public class PurchaseRequisitionTransferMapper {
             orgDto.setName(pr.getOrganization().getName());
             prtDto.setOrganization(orgDto);
             //        rootBranch
-            BranchDto rootBranchDto = new BranchDto();
-            rootBranchDto.setId(pr.getRootBranch().getId());
-            rootBranchDto.setName(pr.getRootBranch().getName());
-           // prtDto.setRootBranch(rootBranchDto);
-            prtDto.setRootBranch(branchMapper.toDto(pr.getRootBranch()));
+            if (pr.getRootBranch() != null) {
+                BranchDto rootBranchDto = new BranchDto();
+                rootBranchDto.setId(pr.getRootBranch().getId());
+                rootBranchDto.setName(pr.getRootBranch().getName());
+                prtDto.setRootBranch(branchMapper.toDto(pr.getRootBranch()));
+            }
 //        reqBranch
-            BranchDto reqBranchDto = new BranchDto();
-            reqBranchDto.setId(pr.getReqBranch().getId());
-            reqBranchDto.setName(pr.getReqBranch().getName());
-           // prtDto.setReqBranch(reqBranchDto);
-            prtDto.setReqBranch(branchMapper.toDto(pr.getReqBranch()));
+            if (pr.getReqBranch() != null) {
+                BranchDto reqBranchDto = new BranchDto();
+                reqBranchDto.setId(pr.getReqBranch().getId());
+                reqBranchDto.setName(pr.getReqBranch().getName());
+                prtDto.setReqBranch(branchMapper.toDto(pr.getReqBranch()));
+            }
         }
         prtDto.setOverallDiscount(prtDto.getOverallDiscount());
         prtDto.setTotalPrice(prt.getTotalPrice());
@@ -78,7 +84,25 @@ public class PurchaseRequisitionTransferMapper {
                 prtDto.setTripRef(vehicleTrip.getTripRef());
                 prtDto.setDriver(driverMapper.toDto(vehicleTrip.getDriver()));
                 prtDto.setVehicle(vehicleMapper.toDto(vehicleTrip.getVehicle()));
+                prtDto.setTripStartTime(vehicleTrip.getTripStartTime());
+                prtDto.setTripEndTime(vehicleTrip.getTripEndTime());
+                prtDto.setTripStatus(vehicleTrip.getTripStatus());
             }
+            prtDto.setSourceAddress(goodsOnTrip.getSourceAddress());
+            prtDto.setDestAddress(goodsOnTrip.getDestAddress());
+            prtDto.setGoodsType(goodsOnTrip.getGoodsType());
+            prtDto.setGoodsStatus(goodsOnTrip.getGoodsStatus());
+            UserPlainDto assignBy=customUserMapper.toPlainDto(goodsOnTrip.getAssignBy());
+            prtDto.setAssignBy(assignBy);
+            UserPlainDto receivedBy=customUserMapper.toPlainDto(goodsOnTrip.getReceivedBy());
+            prtDto.setReceivedBy(receivedBy);
+            prtDto.setLoadedAt(goodsOnTrip.getLoadedAt());
+            prtDto.setUnLoadedAt(goodsOnTrip.getUnLoadedAt());
+            UserPlainDto loadedBy=customUserMapper.toPlainDto(goodsOnTrip.getLoadedBy());
+            prtDto.setLoadedBy(loadedBy);
+            UserPlainDto unLoadedBy=customUserMapper.toPlainDto(goodsOnTrip.getLoadedBy());
+            prtDto.setUnLoadedBy(unLoadedBy);
+            prtDto.setReceivedAt(goodsOnTrip.getReceivedAt());
         }
         return prtDto;
     }
@@ -101,17 +125,19 @@ public class PurchaseRequisitionTransferMapper {
             orgDto.setName(pr.getOrganization().getName());
             pageResponse.setOrganization(orgDto);
             //        rootBranch
-            BranchDto rootBranchDto = new BranchDto();
-            rootBranchDto.setId(pr.getRootBranch().getId());
-            rootBranchDto.setName(pr.getRootBranch().getName());
-//            pageResponse.setRootBranch(rootBranchDto);
-            pageResponse.setRootBranch(branchMapper.toDto(pr.getRootBranch()));
+            if (pr.getRootBranch() != null) {
+                BranchDto rootBranchDto = new BranchDto();
+                rootBranchDto.setId(pr.getRootBranch().getId());
+                rootBranchDto.setName(pr.getRootBranch().getName());
+                pageResponse.setRootBranch(branchMapper.toDto(pr.getRootBranch()));
+            }
 //        reqBranch
-            BranchDto reqBranchDto = new BranchDto();
-            reqBranchDto.setId(pr.getReqBranch().getId());
-            reqBranchDto.setName(pr.getReqBranch().getName());
-//            pageResponse.setReqBranch(reqBranchDto);
-            pageResponse.setReqBranch(branchMapper.toDto(pr.getReqBranch()));
+            if (pr.getReqBranch() != null) {
+                BranchDto reqBranchDto = new BranchDto();
+                reqBranchDto.setId(pr.getReqBranch().getId());
+                reqBranchDto.setName(pr.getReqBranch().getName());
+                pageResponse.setReqBranch(branchMapper.toDto(pr.getReqBranch()));
+            }
         }
 //        pageResponse.setOverallDiscount(prt.getOverallDiscount());
 //        pageResponse.setTotalPrice(prt.getTotalPrice());
@@ -135,7 +161,25 @@ public class PurchaseRequisitionTransferMapper {
                 pageResponse.setTripRef(vehicleTrip.getTripRef());
                 pageResponse.setDriver(driverMapper.toDto(vehicleTrip.getDriver()));
                 pageResponse.setVehicle(vehicleMapper.toDto(vehicleTrip.getVehicle()));
+                pageResponse.setTripStartTime(vehicleTrip.getTripStartTime());
+                pageResponse.setTripEndTime(vehicleTrip.getTripEndTime());
+                pageResponse.setTripStatus(vehicleTrip.getTripStatus());
             }
+            pageResponse.setSourceAddress(goodsOnTrip.getSourceAddress());
+            pageResponse.setDestAddress(goodsOnTrip.getDestAddress());
+            pageResponse.setGoodsType(goodsOnTrip.getGoodsType());
+            pageResponse.setGoodsStatus(goodsOnTrip.getGoodsStatus());
+            UserPlainDto assignBy=customUserMapper.toPlainDto(goodsOnTrip.getAssignBy());
+            pageResponse.setAssignBy(assignBy);
+            UserPlainDto receivedBy=customUserMapper.toPlainDto(goodsOnTrip.getReceivedBy());
+            pageResponse.setReceivedBy(receivedBy);
+            pageResponse.setLoadedAt(goodsOnTrip.getLoadedAt());
+            pageResponse.setUnLoadedAt(goodsOnTrip.getUnLoadedAt());
+            UserPlainDto loadedBy=customUserMapper.toPlainDto(goodsOnTrip.getLoadedBy());
+            pageResponse.setLoadedBy(loadedBy);
+            UserPlainDto unLoadedBy=customUserMapper.toPlainDto(goodsOnTrip.getLoadedBy());
+            pageResponse.setUnLoadedBy(unLoadedBy);
+            pageResponse.setReceivedAt(goodsOnTrip.getReceivedAt());
         }
         //For Item Pagination
         pageResponse.setItems(page.getContent());

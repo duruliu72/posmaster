@@ -51,13 +51,9 @@ public class PurchaseRequisitionTransferDto {
     //Goods On Trip Information
     private Long goodsOnTripId;
     private String goodsRef;
-    private BranchDto sourceBranch;
     private String sourceAddress;
-    private BranchDto destBranch;
     private String destAddress;
     private GoodsType goodsType;
-    private String goodsReference;
-    private String goodsReferenceDocs;
     private GoodsStatus goodsStatus;
     private UserPlainDto assignBy;
     private Boolean isReceived;
@@ -68,5 +64,5 @@ public class PurchaseRequisitionTransferDto {
     private LocalDateTime unLoadedAt;
     private UserPlainDto loadedBy;
     private UserPlainDto unLoadedBy;
-
+    private LocalDateTime receivedAt;
 }

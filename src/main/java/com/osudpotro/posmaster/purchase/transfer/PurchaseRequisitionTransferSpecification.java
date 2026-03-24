@@ -74,7 +74,7 @@ public class PurchaseRequisitionTransferSpecification {
                         PurchaseType.fromCode(filter.getPurchaseType());
 
                 predicates.add(
-                        cb.equal(root.get("purchaseType"), purchaseType)
+                        cb.equal(root.get("purchaseType"), filter.getPurchaseType())
                 );
             }
             if (filter.getStatus() != null) {

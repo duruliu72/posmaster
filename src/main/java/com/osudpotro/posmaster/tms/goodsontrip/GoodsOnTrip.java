@@ -36,8 +36,6 @@ public class GoodsOnTrip extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private GoodsType goodsType = GoodsType.INVOICE;
-    private String goodsReference; // Invoice/GRN/DN number
-    private String goodsReferenceDocs;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private GoodsStatus goodsStatus = GoodsStatus.LOADED;

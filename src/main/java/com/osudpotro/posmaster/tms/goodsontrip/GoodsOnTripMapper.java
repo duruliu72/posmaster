@@ -16,8 +16,6 @@ public class GoodsOnTripMapper {
         goodsOnTripDto.setId(goodsOnTrip.getId());
         goodsOnTripDto.setGoodsRef(goodsOnTrip.getGoodsRef());
         goodsOnTripDto.setGoodsType(goodsOnTrip.getGoodsType());
-        goodsOnTripDto.setGoodsReference(goodsOnTrip.getGoodsReference());
-        goodsOnTripDto.setGoodsReferenceDocs(goodsOnTrip.getGoodsReferenceDocs());
         goodsOnTripDto.setGoodsStatus(goodsOnTrip.getGoodsStatus());
         goodsOnTripDto.setSignaturePath(goodsOnTrip.getSignaturePath());
         goodsOnTripDto.setRemarks(goodsOnTrip.getRemarks());

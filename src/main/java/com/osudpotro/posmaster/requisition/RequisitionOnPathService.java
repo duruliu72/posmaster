@@ -59,7 +59,7 @@ public class RequisitionOnPathService {
         var requsitionOnPath = requisitionOnPathRepository.findByIdAndUser(requisitionOnPathId, authUser).orElseThrow(RequsitionOnPathNotFoundException::new);
         var requisitionType = requsitionOnPath.getRequisition().getRequisitionType();
         var requisition = requsitionOnPath.getRequisition();
-        var pr=requisition.getPurchaseRequisition();
+        var pr = requisition.getPurchaseRequisition();
         if (pr.getTotalItems() == 0) {
             throw new PurchaseRequisitionEmptyException();
         }
@@ -68,8 +68,8 @@ public class RequisitionOnPathService {
             throw new RequisitionOnPathAlreadyApprovedException();
         }
         if (requsitionOnPath.getApprovedStatus() == 1) {
-            int totalApprovers=requisitionType.getTotalApprover();
-            int totalPaths=requisition.getTotalPaths();
+            int totalApprovers = requisitionType.getTotalApprover();
+            int totalPaths = requisition.getTotalPaths();
             if (request.getApprovedStatus() == 2 && totalApprovers == totalPaths) {
 //                3=Approved
                 requisition.setRequisitionStatus(3);
@@ -82,26 +82,26 @@ public class RequisitionOnPathService {
             }
             if (request.getApprovedStatus() == 4) {
 //                5=Review
-                int reviewCount=requisition.getReviewCount()+1;
+                int reviewCount = requisition.getReviewCount() + 1;
                 requisition.setRequisitionStatus(5);
                 requisition.setReviewCount(reviewCount);
                 requisitionRepository.save(requisition);
-                var findApproverPrevUser = requisitionApproverRepository.findApproverWithNullPrevUser(requisitionType.getId()).orElseThrow(RequsitionOnPathNotFoundException::new);
-                RequisitionOnPath rop = new RequisitionOnPath();
-                rop.setRequisition(requisition);
-                rop.setReviewCount(reviewCount);
-                rop.setPrevUser(findApproverPrevUser.getPrevUser());
-                rop.setUser(findApproverPrevUser.getUser());
-                rop.setNextUser(findApproverPrevUser.getNextUser());
-                rop.setApprovedStatus(1);
-                rop.setCreatedBy(authUser);
-                requisitionOnPathRepository.save(rop);
+//                var findApproverPrevUser = requisitionApproverRepository.findApproverWithNullPrevUser(requisitionType.getId()).orElseThrow(RequsitionOnPathNotFoundException::new);
+//                RequisitionOnPath rop = new RequisitionOnPath();
+//                rop.setRequisition(requisition);
+//                rop.setReviewCount(reviewCount);
+//                rop.setPrevUser(findApproverPrevUser.getPrevUser());
+//                rop.setUser(findApproverPrevUser.getUser());
+//                rop.setNextUser(findApproverPrevUser.getNextUser());
+//                rop.setApprovedStatus(1);
+//                rop.setCreatedBy(authUser);
+//                requisitionOnPathRepository.save(rop);
             }
             requsitionOnPath.setComment(request.getComment());
             requsitionOnPath.setApprovedStatus(request.getApprovedStatus());
 //        Forward Requisition next approver
             var nextUser = requsitionOnPath.getNextUser();
-            if (nextUser != null) {
+            if (request.getApprovedStatus() != 4 && nextUser != null) {
                 var findApproverNextUser = requisitionApproverRepository.findRequisitionApprover(requisitionType.getId(), nextUser.getId()).orElseThrow(RequsitionOnPathNotFoundException::new);
                 RequisitionOnPath rop = new RequisitionOnPath();
                 rop.setRequisition(requisition);

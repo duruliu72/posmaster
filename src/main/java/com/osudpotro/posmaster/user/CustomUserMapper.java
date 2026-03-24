@@ -94,6 +94,14 @@ public class CustomUserMapper {
         userMainDto.setCreatedAt(user.getCreatedAt());
         return userMainDto;
     }
+    public UserPlainDto toPlainDto(User user) {
+        UserPlainDto userPlainDto = new UserPlainDto();
+        userPlainDto.setId(user.getId());
+        userPlainDto.setUserName(user.getUserName());
+        userPlainDto.setEmail(user.getEmail());
+        userPlainDto.setMobile(user.getMobile());
+        return userPlainDto;
+    }
 }
 
 

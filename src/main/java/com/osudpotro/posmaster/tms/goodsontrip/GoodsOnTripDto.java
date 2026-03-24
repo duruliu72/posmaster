@@ -15,8 +15,6 @@ public class GoodsOnTripDto{
     private BranchDto destBranch;
     private String destAddress;
     private GoodsType goodsType;
-    private String goodsReference;
-    private String goodsReferenceDocs;
     private GoodsStatus goodsStatus;
     private UserPlainDto assignBy;
     private Boolean isReceived;

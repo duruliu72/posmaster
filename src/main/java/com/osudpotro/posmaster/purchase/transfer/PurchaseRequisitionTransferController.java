@@ -1,7 +1,6 @@
 package com.osudpotro.posmaster.purchase.transfer;
 import com.osudpotro.posmaster.common.PagedResponse;
 import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisitionNotFoundException;
-import com.osudpotro.posmaster.requisition.RequsitionOnPathNotFoundException;
 import com.osudpotro.posmaster.tms.goodsontrip.GoodsOnTripDeliveryException;
 import com.osudpotro.posmaster.tms.vechile.DuplicateVehicleException;
 import lombok.AllArgsConstructor;

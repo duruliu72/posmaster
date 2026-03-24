@@ -172,20 +172,24 @@ public class PurchaseRequisitionService {
         }
         var requisitionType = requsitionTypeRepository.findByRequisitionTypeKey(requsitionName).orElseThrow(RequisitionTypeNotFoundException::new);
         Requisition requisition = null;
-        int requisitionStatus = 1;
+        int requisitionStatus = 0;
+        Set<Integer> checkRequisitionStatus = Set.of(1, 5);
         if (pr.getRequisition() != null) {
             requisitionStatus = pr.getRequisition().getRequisitionStatus();
-            if (requisitionStatus != 1) {
-                throw new RequisitionUpdateException();
+            if(!checkRequisitionStatus.contains(requisitionStatus)){
+                throw new RequisitionUpdateException("Already Processed! ");
             }
             requisition = requisitionRepository.findById(pr.getRequisition().getId()).orElse(null);
+        }else {
+            requisitionStatus=1;
         }
-
         if (requisition != null) {
             requisition.setPurchaseRequisition(pr);
             requisition.setRequsitionRef(pr.getRequsitionRef());
             requisition.setRequisitionType(requisitionType);
-            requisition.setReviewCount(1);
+            if(requisition.getReviewCount()==1){
+                requisition.setReviewCount(1);
+            }
             if (request.getRequisitionStatus() != null) {
                 requisition.setRequisitionStatus(request.getRequisitionStatus());
             }
@@ -212,7 +216,7 @@ public class PurchaseRequisitionService {
         pr.setRequisition(requisition);
 
         // requisition approver paths
-        if (requisitionStatus == 1 && request.getRequisitionStatus() != null && request.getRequisitionStatus() == 2) {
+        if (checkRequisitionStatus.contains(requisitionStatus) && request.getRequisitionStatus() != null && request.getRequisitionStatus() == 2) {
             if (!ropRepository.existRequisitionOnPathByUser(authUser.getId(), pr.getRequisition().getId())) {
                 var findApproverPrevNullUser = requisitionApproverRepository.findApproverWithNullPrevUser(requisitionType.getId()).orElseThrow(RequsitionOnPathNotFoundException::new);
                 RequisitionOnPath rop = new RequisitionOnPath();
@@ -379,6 +383,7 @@ public class PurchaseRequisitionService {
         pr.setItems(resultBase.getContent());
         return purchaseRequisitionMapper.toMinDto(pr, result);
     }
+
     @Transactional
     public PurchaseRequisitionItemDto addPurchaseRequisitionItem(Long purchaseRequisitionId, PurchaseRequisitionItemAddRequest request) {
         PurchaseRequisition pr = prRepo.findById(purchaseRequisitionId).orElse(null);

@@ -22,6 +22,7 @@ import java.util.Objects;
 @Entity
 @Table(name = "purchase_requisitions")
 public class PurchaseRequisition extends BaseEntity {
+    @Column(unique = true)
     private String requsitionRef;
     //c.p=Company Purchase,l.p=Locale Purchase,p.o=purchase order ,procurement
     @Enumerated(EnumType.STRING)
@@ -68,6 +69,7 @@ public class PurchaseRequisition extends BaseEntity {
                 .mapToInt(PurchaseRequisitionItem::getPurchaseQty)
                 .sum();
     }
+
     public int getTotalActualQty() {
         return items.stream()
                 .filter(i ->

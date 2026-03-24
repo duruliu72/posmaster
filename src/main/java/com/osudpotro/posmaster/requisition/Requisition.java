@@ -17,6 +17,7 @@ import java.util.List;
 public class Requisition extends BaseEntity {
     @OneToOne(mappedBy = "requisition", cascade = CascadeType.ALL)
     private PurchaseRequisition purchaseRequisition;
+    @Column(unique = true)
     private String requsitionRef;
     @ManyToOne
     private RequisitionType requisitionType;

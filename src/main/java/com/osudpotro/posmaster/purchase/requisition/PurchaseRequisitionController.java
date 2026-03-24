@@ -1,7 +1,6 @@
 package com.osudpotro.posmaster.purchase.requisition;
 
 import com.osudpotro.posmaster.common.PagedResponse;
-import com.osudpotro.posmaster.purchase.transfer.AssignToVehicleRequest;
 import com.osudpotro.posmaster.requisition.RequisitionItemNotApprovedException;
 import com.osudpotro.posmaster.requisition.RequisitionUpdateException;
 import com.osudpotro.posmaster.requisition.RequsitionOnPathNotFoundException;

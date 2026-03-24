@@ -157,8 +157,6 @@ public class PurchaseRequisitionTransferService {
         goodsOnTrip.setGoodsRef(generateGoodsRef());
         goodsOnTrip.setVehicleTrip(vehicleTrip);
         goodsOnTrip.setGoodsType(GoodsType.INVOICE);
-        goodsOnTrip.setGoodsReference(prt.getPurchaseInvoices());
-        goodsOnTrip.setGoodsReferenceDocs(prt.getPurchaseInvoiceDocs());
         goodsOnTrip.setGoodsStatus(GoodsStatus.ASSIGN_TO_VEHICLE);
         goodsOnTrip.setSourceAddress(request.getSourceAddress());
         goodsOnTrip.setDestAddress(request.getDestAddress());
@@ -204,6 +202,7 @@ public class PurchaseRequisitionTransferService {
         gooodsOnTrip.setIsReceived(true);
         gooodsOnTrip.setReceivedBy(authUser);
         gooodsOnTrip.setReceivedAt(LocalDateTime.now());
+
         prt.setTransferStatus(2);
         prTransferRepo.save(prt);
         //update Purchase requsition tabel
@@ -215,6 +214,7 @@ public class PurchaseRequisitionTransferService {
         pr.setPurchaseInvoiceDocs("");
         pr.setOverallDiscount(pr.getOverallDiscount());
         pr.setOverallDiscount(null);
+        goodsOnTripRepository.save(gooodsOnTrip);
         prRepo.save(pr);
         return prTransferMapper.toDto(prt);
     }
