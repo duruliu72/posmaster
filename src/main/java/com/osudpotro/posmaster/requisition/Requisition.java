@@ -2,6 +2,7 @@ package com.osudpotro.posmaster.requisition;
 
 import com.osudpotro.posmaster.common.BaseEntity;
 import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisition;
+import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisitionItem;
 import com.osudpotro.posmaster.requisitiontype.RequisitionType;
 import com.osudpotro.posmaster.tms.goodsontrip.GoodsOnTrip;
 import jakarta.persistence.*;
@@ -10,6 +11,7 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -28,6 +30,10 @@ public class Requisition extends BaseEntity {
     private Integer requisitionStatus = 1;
     private String note;
     public int getTotalPaths() {
-        return requisitionOnPaths.size();
+       return requisitionOnPaths.stream()
+                .filter(i ->
+                        Objects.equals(i.getReviewCount(), this.reviewCount)
+                ).toList().size();
+//        return requisitionOnPaths.size();
     }
 }

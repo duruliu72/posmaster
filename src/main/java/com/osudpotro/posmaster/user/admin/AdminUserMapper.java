@@ -1,12 +1,16 @@
 package com.osudpotro.posmaster.user.admin;
 
+import com.osudpotro.posmaster.branch.BranchMapper;
 import com.osudpotro.posmaster.multimedia.MultimediaDto;
 import com.osudpotro.posmaster.user.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 
 @Component
 public class AdminUserMapper {
+    @Autowired
+    private BranchMapper branchMapper;
     //Mapping Here
     //Entity → DTO
     public AdminUserDto toDto(AdminUser adminUser) {
@@ -39,6 +43,9 @@ public class AdminUserMapper {
             multimediaDto.setName(user.getProfilePic().getName());
             multimediaDto.setImageUrl(user.getProfilePic().getImageUrl());
             adminUserDto.setProfilePic(multimediaDto);
+        }
+        if(user.getBranch()!=null){
+            adminUserDto.setBranch(branchMapper.toDto(user.getBranch()));
         }
         return adminUserDto;
     }
@@ -78,6 +85,7 @@ public class AdminUserMapper {
         if (request.getProviderId() != null && !request.getProviderId().isEmpty()) {
             user.setProviderId(request.getProviderId());
         }
+
         return user;
     }
     public AdminUser toEntity(AdminUserCreateRequest request) {

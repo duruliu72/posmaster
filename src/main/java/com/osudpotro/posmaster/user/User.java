@@ -53,8 +53,8 @@ public class User extends BaseEntity {
     private Set<Role> roles = new HashSet<>();
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private Set<Permission> permissions = new HashSet<>();
-    @ManyToOne
-    @JoinColumn(name = "branch_id",nullable = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "branch_id")
     private Branch branch;
     @OneToOne(mappedBy = "user")
     private AdminUser adminUser;

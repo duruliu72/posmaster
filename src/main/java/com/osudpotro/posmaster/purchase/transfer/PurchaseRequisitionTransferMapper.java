@@ -37,6 +37,7 @@ public class PurchaseRequisitionTransferMapper {
         prtDto.setPurchaseInvoiceDocs(prt.getPurchaseInvoiceDocs());
         if (prt.getPurchaseRequisition() != null) {
             PurchaseRequisition pr = prt.getPurchaseRequisition();
+            prtDto.setPurchaseRequisitionId(pr.getId());
             String purchaseCode = pr.getPurchaseType().getDescription();
             String purchaseKey = pr.getPurchaseType().getCode();
             prtDto.setPurchaseType(purchaseCode);
@@ -110,11 +111,13 @@ public class PurchaseRequisitionTransferMapper {
     public PurchaseRequisitionTransferWithItemPageResponse toMinDto(PurchaseRequisitionTransfer prt, Page<PurchaseRequisitionItemTransferDto> page) {
         PurchaseRequisitionTransferWithItemPageResponse pageResponse = new PurchaseRequisitionTransferWithItemPageResponse();
         pageResponse.setId(prt.getId());
+
         pageResponse.setRequsitionRef(prt.getRequsitionRef());
         pageResponse.setPurchaseInvoices(prt.getPurchaseInvoices());
         pageResponse.setPurchaseInvoiceDocs(prt.getPurchaseInvoiceDocs());
         if (prt.getPurchaseRequisition() != null) {
             PurchaseRequisition pr = prt.getPurchaseRequisition();
+            pageResponse.setPurchaseRequisitionId(pr.getId());
             String purchaseCode = pr.getPurchaseType().getDescription();
             String purchaseKey = pr.getPurchaseType().getCode();
             pageResponse.setPurchaseType(purchaseCode);

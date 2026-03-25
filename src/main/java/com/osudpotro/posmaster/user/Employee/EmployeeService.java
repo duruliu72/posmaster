@@ -1,5 +1,7 @@
 package com.osudpotro.posmaster.user.Employee;
 
+import com.osudpotro.posmaster.branch.BranchNotFoundException;
+import com.osudpotro.posmaster.branch.BranchRepository;
 import com.osudpotro.posmaster.multimedia.Multimedia;
 import com.osudpotro.posmaster.multimedia.MultimediaRepository;
 import com.osudpotro.posmaster.role.Role;
@@ -27,6 +29,7 @@ public class EmployeeService {
     private final MultimediaRepository multimediaRepository;
     private final EmployeeMapper employeeMapper;
     private final PasswordEncoder passwordEncoder;
+    private final BranchRepository branchRepository;
 
     public List<EmployeeDto> getAllEmployees() {
         return employeeRepository.findAll()
@@ -82,7 +85,11 @@ public class EmployeeService {
             }
         }
         if (request.getMobile() != null && userRepository.existsByMobile(request.getMobile())) {
-            if (!user.getMobile().equals(request.getMobile())) {
+            String mobile="";
+            if(user.getMobile()!=null){
+                mobile=user.getMobile();
+            }
+            if (!mobile.equals(request.getMobile())) {
                 throw new DuplicateUserException("Phone number already exists");
             }
 
@@ -104,6 +111,10 @@ public class EmployeeService {
                 multimedia.setLinked(true);
                 user.setProfilePic(multimedia);
             }
+        }
+        if (request.getBranchId() != null) {
+            var branch = branchRepository.findById(request.getBranchId()).orElseThrow(BranchNotFoundException::new);
+            user.setBranch(branch);
         }
         employee.setUser(user);
         employee.setUpdatedBy(authUser);

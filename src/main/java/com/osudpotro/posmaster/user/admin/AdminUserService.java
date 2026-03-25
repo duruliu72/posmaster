@@ -1,5 +1,7 @@
 package com.osudpotro.posmaster.user.admin;
 
+import com.osudpotro.posmaster.branch.BranchNotFoundException;
+import com.osudpotro.posmaster.branch.BranchRepository;
 import com.osudpotro.posmaster.user.auth.AuthService;
 import com.osudpotro.posmaster.multimedia.Multimedia;
 import com.osudpotro.posmaster.multimedia.MultimediaRepository;
@@ -27,6 +29,7 @@ public class AdminUserService {
     private final MultimediaRepository multimediaRepository;
     private final AdminUserMapper adminUserMapper;
     private final PasswordEncoder passwordEncoder;
+    private final BranchRepository branchRepository;
 
     public List<AdminUserDto> getAllAdminUsers() {
         return adminUserRepository.findAll()
@@ -104,12 +107,15 @@ public class AdminUserService {
                 user.setProfilePic(multimedia);
             }
         }
+        if (request.getBranchId() != null) {
+            var branch = branchRepository.findById(request.getBranchId()).orElseThrow(BranchNotFoundException::new);
+            user.setBranch(branch);
+        }
         adminUser.setUser(user);
         adminUser.setUpdatedBy(authUser);
         adminUserRepository.save(adminUser);
         return adminUserMapper.toDto(adminUser);
     }
-
     public AdminUserDto updateUpdateEmailAndMobileForUser(Long adminUserId, UpdateEmailAndMobileForUserRequest request) {
         var adminUser = adminUserRepository.findById(adminUserId).orElseThrow(AdminUserNotFoundException::new);
         var user = adminUser.getUser();

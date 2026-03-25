@@ -3,7 +3,7 @@ package com.osudpotro.posmaster.purchase.transfer;
 import com.osudpotro.posmaster.branch.BranchDto;
 import com.osudpotro.posmaster.organization.OrganizationDto;
 import com.osudpotro.posmaster.product.ProductDetailDto;
-import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisition;
+import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisitionDto;
 import com.osudpotro.posmaster.tms.driver.DriverDto;
 import com.osudpotro.posmaster.tms.goodsontrip.GoodsStatus;
 import com.osudpotro.posmaster.tms.goodsontrip.GoodsType;
@@ -20,7 +20,8 @@ import java.util.List;
 @Data
 public class PurchaseRequisitionTransferDto {
     private Long id;
-    private PurchaseRequisition purchaseRequisition;
+    private PurchaseRequisitionDto purchaseRequisition;
+    private Long purchaseRequisitionId;
     private String requsitionRef;
     private String purchaseType;
     private String purchaseKey;

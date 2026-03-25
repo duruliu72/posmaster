@@ -99,9 +99,9 @@ public class AdminUserController {
 
 
     @ExceptionHandler(DuplicateUserException.class)
-    public ResponseEntity<Map<String, String>> handleDuplicateBranch(Exception ex) {
+    public ResponseEntity<Map<String, String>> handleDuplicateUserException(Exception e) {
         return ResponseEntity.badRequest().body(
-                Map.of("name", "Name is already exist.")
+                Map.of("error", e.getMessage())
         );
     }
 

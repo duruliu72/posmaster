@@ -56,7 +56,6 @@ public class PurchaseRequisitionItemTransfer {
     public BigDecimal getQty() {
         return BigDecimal.valueOf(purchaseQty);
     }
-
     public BigDecimal getDiscountPrice() {
         if (mrpPrice == null || purchasePrice == null) {
             return BigDecimal.ZERO;

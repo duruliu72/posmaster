@@ -15,6 +15,9 @@ public class CustomUserMapper {
     //Mapping Here
     //Entity → DTO
     public UserDto toDto(User user) {
+        if (user == null) {
+            return null;
+        }
         UserDto userDto = new UserDto();
         userDto.setId(user.getId());
         userDto.setUserName(user.getUserName());
@@ -85,6 +88,9 @@ public class CustomUserMapper {
     }
 
     public UserMainDto toMainDto(User user) {
+        if (user == null) {
+            return null;
+        }
         UserMainDto userMainDto = new UserMainDto();
         userMainDto.setId(user.getId());
         if (user.getAdminUser() != null) {
@@ -95,6 +101,9 @@ public class CustomUserMapper {
         return userMainDto;
     }
     public UserPlainDto toPlainDto(User user) {
+        if (user == null) {
+            return null;
+        }
         UserPlainDto userPlainDto = new UserPlainDto();
         userPlainDto.setId(user.getId());
         userPlainDto.setUserName(user.getUserName());

@@ -101,7 +101,7 @@ public class RequisitionOnPathService {
             requsitionOnPath.setApprovedStatus(request.getApprovedStatus());
 //        Forward Requisition next approver
             var nextUser = requsitionOnPath.getNextUser();
-            if (request.getApprovedStatus() != 4 && nextUser != null) {
+            if (request.getApprovedStatus() == 2 && nextUser != null) {
                 var findApproverNextUser = requisitionApproverRepository.findRequisitionApprover(requisitionType.getId(), nextUser.getId()).orElseThrow(RequsitionOnPathNotFoundException::new);
                 RequisitionOnPath rop = new RequisitionOnPath();
                 rop.setRequisition(requisition);

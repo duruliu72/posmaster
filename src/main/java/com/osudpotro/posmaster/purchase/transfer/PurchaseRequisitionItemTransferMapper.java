@@ -17,7 +17,11 @@ public class PurchaseRequisitionItemTransferMapper {
     //Entity → DTO
     public PurchaseRequisitionItemTransferDto toDto(PurchaseRequisitionItemTransfer priTransfer) {
         PurchaseRequisitionItemTransferDto priTransferDto = new PurchaseRequisitionItemTransferDto();
+        var prTransfer=priTransfer.getPurchaseRequisitionTransfer();
+        var pri=priTransfer.getPurchaseRequisitionItem();
         priTransferDto.setId(priTransfer.getId());
+        priTransferDto.setPurchaseRequisitionTransferId(prTransfer.getId());
+        priTransferDto.setPurchaseRequisitionItemId(pri.getId());
         priTransferDto.setProduct(productMapper.toDto(priTransfer.getProduct()));
         priTransferDto.setProductDetail(detailMapper.toDto(priTransfer.getProductDetail()));
         priTransferDto.setPurchaseQty(priTransfer.getPurchaseQty());

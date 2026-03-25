@@ -1,12 +1,16 @@
 package com.osudpotro.posmaster.user.Employee;
 
+import com.osudpotro.posmaster.branch.BranchMapper;
 import com.osudpotro.posmaster.multimedia.MultimediaDto;
 import com.osudpotro.posmaster.user.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 
 @Component
 public class EmployeeMapper {
+    @Autowired
+    private BranchMapper branchMapper;
     //Mapping Here
     //Entity → DTO
     public EmployeeDto toDto(Employee employee) {
@@ -42,6 +46,9 @@ public class EmployeeMapper {
             multimediaDto.setName(user.getProfilePic().getName());
             multimediaDto.setImageUrl(user.getProfilePic().getImageUrl());
             employeeDto.setProfilePic(multimediaDto);
+        }
+        if(user.getBranch()!=null){
+            employeeDto.setBranch(branchMapper.toDto(user.getBranch()));
         }
         return employeeDto;
     }

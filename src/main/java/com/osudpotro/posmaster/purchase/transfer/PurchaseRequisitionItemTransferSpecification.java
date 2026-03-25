@@ -23,6 +23,7 @@ public class PurchaseRequisitionItemTransferSpecification {
     public static Specification<PurchaseRequisitionItemTransfer> filterByPurchaseRequisitionTransfer(PurchaseRequisitionItemTransferFilter filter, Long PurchaseRequisitionTransferId) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+
             if (filter.getPurchaseRequisitionTransferId() != null) {
                 predicates.add(cb.equal(
                         root.get("purchaseRequisitionTransfer").get("id"),
