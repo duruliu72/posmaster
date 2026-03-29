@@ -1,5 +1,6 @@
 package com.osudpotro.posmaster.user.customer;
 
+import com.osudpotro.posmaster.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -16,4 +17,6 @@ public interface CustomerRepository extends JpaSpecificationExecutor<Customer>, 
     @Modifying
     @Query("update Customer c set c.status = :status where c.id in :ids")
     int deleteBulkCustomer(@Param("ids") List<Long> ids, @Param("status") Long status);
+
+    Optional<Customer> findByUser(User user);
 }

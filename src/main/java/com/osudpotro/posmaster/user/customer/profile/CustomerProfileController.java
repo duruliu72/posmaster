@@ -1,6 +1,4 @@
-
 package com.osudpotro.posmaster.user.customer.profile;
-
 import com.osudpotro.posmaster.multimedia.Multimedia;
 import com.osudpotro.posmaster.multimedia.MultimediaDto;
 import com.osudpotro.posmaster.multimedia.MultimediaRepository;
@@ -8,8 +6,7 @@ import com.osudpotro.posmaster.security.JwtService;
 import com.osudpotro.posmaster.user.User;
 import com.osudpotro.posmaster.user.UserRepository;
 import com.osudpotro.posmaster.user.auth.AuthService;
-import com.osudpotro.posmaster.user.customer.ChangePasswordRequest;
-import com.osudpotro.posmaster.user.customer.UpdateProfileRequest;
+import com.osudpotro.posmaster.user.customer.*;
 import com.osudpotro.posmaster.user.loginrecords.LoginRecord;
 import com.osudpotro.posmaster.user.loginrecords.LoginRecordRepository;
 import lombok.Getter;
@@ -21,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -46,6 +44,8 @@ public class CustomerProfileController {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final AuthService authService;  // ← ADD THIS
+    private final CustomerRepository customerRepository;
+    private final CustomerService customerService;
 
     @GetMapping("/me")
     public ResponseEntity<?> getMyProfile() {
@@ -54,16 +54,25 @@ public class CustomerProfileController {
             User user = authService.getCurrentUser();
             Long userId = user.getId();
 
-            log.info("📊 Building complete profile for user ID: {}, Email: {}", userId, user.getEmail());
+            log.info(" Building complete profile for user ID: {}, Email: {}", userId, user.getEmail());
 
-            // 1. Get current active session
-            Optional<LoginRecord> activeSession = loginRecordRepository
-                    .findActiveSessionByUserId(userId);
+            // FIX: Get ALL active sessions and handle multiple
+            List<LoginRecord> activeSessions = loginRecordRepository
+                    .findAllActiveSessionsByUserId(userId);
 
-            CustomerLoginDeviceResponse currentDevice = activeSession
-                    .map(this::mapToLoginDeviceResponse)
-                    .orElse(null);
+            CustomerLoginDeviceResponse currentDevice = null;
 
+            if (!activeSessions.isEmpty()) {
+                // Take the most recent session
+                LoginRecord latestActive = activeSessions.get(0);
+                currentDevice = mapToLoginDeviceResponse(latestActive);
+
+                // Log warning if multiple sessions exist
+                if (activeSessions.size() > 1) {
+                    log.warn("⚠️ User {} has {} active sessions. Using most recent.",
+                            userId, activeSessions.size());
+                }
+            }
             // 2. Get recent login history (last 5 logins)
             Page<LoginRecord> recentLogins = loginRecordRepository
                     .findByUserOrderByLoginTimeDesc(
@@ -114,7 +123,7 @@ public class CustomerProfileController {
                     .totalLoginCount(totalLoginCount)
                     .build();
 
-            log.info("✅ Complete profile built - User: {}, Active: {}, History: {}, Total: {}",
+            log.info(" Complete profile built - User: {}, Active: {}, History: {}, Total: {}",
                     userId,
                     currentDevice != null ? "Yes" : "No",
                     loginHistory.size(),
@@ -124,7 +133,7 @@ public class CustomerProfileController {
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            log.error("❌ Error fetching profile: {}", e.getMessage());
+            log.error(" Error fetching profile: {}", e.getMessage());
             return ResponseEntity.status(401).body(Map.of(
                     "error", "Unauthorized",
                     "message", e.getMessage()
@@ -154,34 +163,35 @@ public class CustomerProfileController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<?> updateProfile(@RequestBody UpdateProfileRequest request) {
+    public ResponseEntity<?> updateProfile(@RequestBody CustomerUpdateRequest request) {
         try {
-            User user = authService.getCurrentUser();
+            User currentUser = authService.getCurrentUser();
+            Customer customer = customerRepository.findByUser(currentUser)
+                    .orElseThrow(() -> new RuntimeException("Customer not found"));
 
-            // Update fields
-            if (request.getUserName() != null) user.setUserName(request.getUserName());
-            if (request.getFirstName() != null) user.setFirstName(request.getFirstName());
-            if (request.getLastName() != null) user.setLastName(request.getLastName());
-            if (request.getSecondaryEmail() != null) user.setSecondaryEmail(request.getSecondaryEmail());
-            if (request.getSecondaryMobile() != null) user.setSecondaryMobile(request.getSecondaryMobile());
-            if (request.getGender() != null) user.setGender(request.getGender());
-
-            userRepository.save(user);
+            CustomerDto updatedCustomer = customerService.updateMyProfile(request);
 
             return ResponseEntity.ok(Map.of(
                     "success", true,
-                    "message", "Profile updated successfully"
+                    "message", "Profile updated successfully",
+                    "data", updatedCustomer
             ));
 
+        } catch (DuplicateCustomerException e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", e.getMessage()
+            ));
         } catch (Exception e) {
             log.error("Error updating profile: {}", e.getMessage());
             return ResponseEntity.badRequest().body(Map.of(
-                    "error", e.getMessage()
+                    "success", false,
+                    "message", e.getMessage()
             ));
         }
     }
 
-    @PostMapping("/change-password")
+    @PostMapping("/changePassword")
     public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request) {
         try {
             // Validate passwords
@@ -225,61 +235,65 @@ public class CustomerProfileController {
                 return ResponseEntity.badRequest().body(Map.of("error", "File is empty"));
             }
 
-            // Check file type
             String contentType = file.getContentType();
             if (contentType == null || !contentType.startsWith("image/")) {
-                return ResponseEntity.badRequest().body(Map.of("error", "Only image files are allowed"));
+                return ResponseEntity.badRequest().body(Map.of("error", "Only image files allowed"));
             }
 
-            User user = authService.getCurrentUser();
+            // Get current user
+            User currentUser = authService.getCurrentUser();
+            Customer customer = customerRepository.findByUser(currentUser)
+                    .orElseThrow(() -> new RuntimeException("Customer not found"));
 
-            // Create upload directory if not exists
-            String UPLOAD_DIR = "public/uploads/profiles/";
-            Path uploadPath = Paths.get(UPLOAD_DIR);
+            // Create upload directory
+            Path uploadPath = Paths.get("public/uploads/profiles/");
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
 
-            // Generate unique filename
+            // Save file with unique name
             String originalFilename = file.getOriginalFilename();
-            assert originalFilename != null;
             String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-            String filename = UUID.randomUUID() + extension;
+            String filename = UUID.randomUUID().toString() + extension;
             Path filePath = uploadPath.resolve(filename);
-
-            // Save file
             Files.copy(file.getInputStream(), filePath);
 
             // Create Multimedia record
             Multimedia multimedia = new Multimedia();
             multimedia.setName(originalFilename);
             multimedia.setImageUrl("/uploads/profiles/" + filename);
+            multimedia.setMediaType(1);
             multimedia.setSourceLink(1);
             multimedia.setLinked(true);
-            multimedia.setMediaType(1);
 
-            Multimedia savedMultimedia = multimediaRepository.save(multimedia);
+            Multimedia saved = multimediaRepository.save(multimedia);
 
-            // Update user profile pic
-            user.setProfilePic(savedMultimedia);
+            // Update user profile
+            User user = customer.getUser();
+
+            // Optional: Delete old profile pic if exists
+            if (user.getProfilePic() != null) {
+                // You can delete old file here if needed
+            }
+
+            user.setProfilePic(saved);
             userRepository.save(user);
 
             return ResponseEntity.ok(Map.of(
                     "success", true,
-                    "message", "Profile picture uploaded successfully",
-                    "imageUrl", savedMultimedia.getImageUrl()
+                    "message", "Profile picture updated successfully",
+                    "imageUrl", saved.getImageUrl(),
+                    "multimediaId", saved.getId()
             ));
 
         } catch (IOException e) {
-            log.error("Error uploading file: {}", e.getMessage());
+            log.error("File upload error: {}", e.getMessage());
             return ResponseEntity.status(500).body(Map.of("error", "Failed to upload file"));
-        } catch (Exception e) {
-            log.error("Error: {}", e.getMessage());
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
-    @GetMapping("/login-devices")
+
+    @GetMapping("/logindevices")
     public ResponseEntity<?> getLoginDevices(
             @PageableDefault(size = 20, sort = "loginTime", direction = Sort.Direction.DESC) Pageable pageable) {
 
@@ -294,7 +308,7 @@ public class CustomerProfileController {
         }
     }
 
-    @GetMapping("/active-sessions")
+    @GetMapping("/activeSessions")
     public ResponseEntity<?> getActiveSessions() {
         try {
             User user = authService.getCurrentUser();

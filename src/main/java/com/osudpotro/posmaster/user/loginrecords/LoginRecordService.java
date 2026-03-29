@@ -1,95 +1,4 @@
 
-//
-//package com.osudpotro.posmaster.user.loginrecords;
-//
-//import com.osudpotro.posmaster.user.User;
-//import com.osudpotro.posmaster.utility.DeviceDetectionUtil;
-//import jakarta.servlet.http.HttpServletRequest;
-//import lombok.RequiredArgsConstructor;
-//import lombok.extern.slf4j.Slf4j;
-//import org.springframework.data.domain.Pageable;
-//import org.springframework.stereotype.Service;
-//import org.springframework.transaction.annotation.Transactional;
-//
-//import java.time.LocalDateTime;
-//import java.time.temporal.ChronoUnit;
-//import java.util.Optional;
-//
-//@Slf4j
-//@Service
-//@RequiredArgsConstructor
-//public class LoginRecordService {
-//
-//    private final LoginRecordRepository loginRecordRepository;
-//    private final DeviceDetectionUtil deviceDetectionUtil;
-//
-//    @Transactional
-//    public void recordLogin(User user, HttpServletRequest request, String loginMethod) {
-//        try {
-//            String userAgent = request.getHeader("User-Agent");
-//            DeviceDetectionUtil.ClientInfo clientInfo = deviceDetectionUtil.parseUserAgent(userAgent);
-//            String ipAddress = deviceDetectionUtil.getClientIp(request);
-//
-//            LoginRecord record = new LoginRecord();
-//            record.setUser(user);
-//            record.setUserEmail(user.getEmail());
-//            record.setUserPhone(user.getMobile());
-//            record.setUserName(user.getUserName());
-//            record.setUserType(String.valueOf(user.getCustomer()));
-//            record.setLoginTime(LocalDateTime.now());
-//            record.setIsActive(true);
-//            record.setAutoLoggedOut(false);
-//            record.setIpAddress(ipAddress);
-//            record.setUserAgent(userAgent);
-//            record.setDeviceType(clientInfo.getDeviceType());
-//            record.setDeviceBrand(clientInfo.getDeviceBrand());
-//            record.setOsName(clientInfo.getOsName());
-//            record.setBrowserName(clientInfo.getBrowserName());
-//            record.setLoginMethod(loginMethod);
-//            record.setLoginSuccess(true);
-//            record.setStatus(1);
-//
-//            loginRecordRepository.save(record);
-//            log.info(" LOGIN RECORDED - User: {}, Method: {}", user.getId(), loginMethod);
-//
-//        } catch (Exception e) {
-//            log.error("Failed to record login", e);
-//        }
-//    }
-//
-//    @Transactional
-//    public boolean recordLogout(User user) {
-//        try {
-//            Long userId = user.getId();
-//            log.info(" Processing logout for user ID: {}", userId);
-//
-//            Optional<LoginRecord> activeSession = loginRecordRepository
-//                    .findActiveSessionByUserId(userId);
-//
-//            if (activeSession.isPresent()) {
-//                LoginRecord record = activeSession.get();
-//                LocalDateTime now = LocalDateTime.now();
-//                Long duration = ChronoUnit.SECONDS.between(record.getLoginTime(), now);
-//
-//                record.setLogoutTime(now);
-//                record.setIsActive(false);
-//                record.setSessionDurationSeconds(duration);
-//
-//                loginRecordRepository.save(record);
-//                log.info(" LOGOUT SUCCESS - User: {}, Duration: {}s", userId, duration);
-//                return true;
-//            } else {
-//                log.warn(" No active session found for user: {}", userId);
-//                return false;
-//            }
-//
-//        } catch (Exception e) {
-//            log.error(" Logout error", e);
-//            return false;
-//        }
-//    }
-//}
-
 package com.osudpotro.posmaster.user.loginrecords;
 
 import com.osudpotro.posmaster.user.User;
@@ -176,7 +85,7 @@ public class LoginRecordService {
     public boolean recordLogout(User user) {
         try {
             Long userId = user.getId();
-            log.info("🔴 Logout for user ID: {}", userId);
+            log.info(" Logout for user ID: {}", userId);
 
             // This should find the active session
             Optional<LoginRecord> activeSession = loginRecordRepository
@@ -192,22 +101,22 @@ public class LoginRecordService {
                 record.setSessionDurationSeconds(duration);
 
                 loginRecordRepository.save(record);
-                log.info("✅ LOGOUT SUCCESS - User: {}, Duration: {}s", userId, duration);
+                log.info(" LOGOUT SUCCESS - User: {}, Duration: {}s", userId, duration);
                 return true;
             } else {
-                log.warn("⚠️ No active session for user: {}", userId);
+                log.warn("⚠ No active session for user: {}", userId);
 
                 // Try backup method
                 int updated = loginRecordRepository.logoutUser(userId, LocalDateTime.now(), 0L);
                 if (updated > 0) {
-                    log.info("✅ LOGOUT via backup - User: {}", userId);
+                    log.info(" LOGOUT via backup - User: {}", userId);
                     return true;
                 }
                 return false;
             }
 
         } catch (Exception e) {
-            log.error("❌ Logout error", e);
+            log.error(" Logout error", e);
             return false;
         }
 

@@ -21,7 +21,7 @@ public class YauaaDeviceDetectionUtil {
                 .withCache(10000)
                 .hideMatcherLoadStats()
                 .build();
-        log.info("✅ Yauaa Device Detector initialized");
+        log.info(" Yauaa Device Detector initialized");
     }
 
     public DeviceInfo parseUserAgent(String userAgent) {

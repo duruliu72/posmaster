@@ -3,7 +3,6 @@ package com.osudpotro.posmaster.user.customer;
 import com.osudpotro.posmaster.multimedia.Multimedia;
 import com.osudpotro.posmaster.user.User;
 import org.springframework.stereotype.Component;
-
 @Component
 public class CustomerMapper {
     public CustomerDto toDto(Customer customer) {

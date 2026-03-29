@@ -154,7 +154,7 @@ public class WebCustomerController {
                 customerRepository.save(customer);
             }
         }
-        // ==================== PROVIDER AUTH (GOOGLE) ====================
+        // ==================== PROVIDER AUTH (GOOGLE)
         if (request.getProvider() != null && !request.getProvider().trim().isEmpty() &&
                 request.getProviderId() != null && !request.getProviderId().trim().isEmpty()) {
 

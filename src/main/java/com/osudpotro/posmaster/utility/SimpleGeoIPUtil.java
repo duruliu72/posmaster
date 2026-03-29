@@ -39,7 +39,7 @@ public class SimpleGeoIPUtil {
                 String city = json.has("city") ? json.get("city").asText() : "Unknown";
                 String location = city + ", " + country;
 
-                log.info("📍 Location - IP: {}, Country: {}, City: {}", ipAddress, country, city);
+                log.info(" Location - IP: {}, Country: {}, City: {}", ipAddress, country, city);
 
                 return LocationInfo.builder()
                         .country(country)

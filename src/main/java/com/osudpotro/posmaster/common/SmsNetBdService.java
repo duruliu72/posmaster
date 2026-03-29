@@ -24,14 +24,14 @@ public class SmsNetBdService {
             // Format: 017xxxxxxx -> 88017xxxxxxx
             String formattedNumber = formatPhoneNumber(to);
 
-            log.info("📱 Sending SMS to: {} (formatted: {})", to, formattedNumber);
+            log.info(" Sending SMS to: {} (formatted: {})", to, formattedNumber);
 
             // Create request body - WITHOUT sender_id
             MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
             body.add("api_key", utilityConfig.getSmsNetbdApiKey());
             body.add("msg", message);
             body.add("to", formattedNumber);
-            // ❌ REMOVED sender_id - this was causing error 413
+            //  REMOVED sender_id - this was causing error 413
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
@@ -51,13 +51,13 @@ public class SmsNetBdService {
 
             // Check if successful
             if (response.getBody() != null && response.getBody().contains("\"error\":0")) {
-                log.info("✅ SMS sent successfully to: {}", to);
+                log.info(" SMS sent successfully to: {}", to);
             } else {
-                log.error("❌ SMS failed: {}", response.getBody());
+                log.error(" SMS failed: {}", response.getBody());
             }
 
         } catch (Exception e) {
-            log.error("❌ SMS sending failed: {}", e.getMessage());
+            log.error(" SMS sending failed: {}", e.getMessage());
         }
     }
 
