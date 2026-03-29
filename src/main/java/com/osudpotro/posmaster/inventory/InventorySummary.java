@@ -5,6 +5,8 @@ import com.osudpotro.posmaster.branch.Branch;
 import com.osudpotro.posmaster.organization.Organization;
 import com.osudpotro.posmaster.product.Product;
 import com.osudpotro.posmaster.product.ProductDetail;
+import com.osudpotro.posmaster.purchase.Purchase;
+import com.osudpotro.posmaster.purchase.PurchaseDetails;
 import com.osudpotro.posmaster.supplier.Supplier;
 import com.osudpotro.posmaster.warehouse.Warehouse;
 import jakarta.persistence.*;
@@ -34,6 +36,18 @@ public class InventorySummary {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "purchase_id")
+    private Purchase purchase;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "purchase_details_id")
+    private PurchaseDetails purchaseDetails;
+    @ManyToOne
+    @JoinColumn(name = "product_id")
+    private Product product;
+    @ManyToOne
+    @JoinColumn(name = "product_detail_id")
+    private ProductDetail productDetail;
+    @ManyToOne(fetch = FetchType.LAZY)
     private Organization organization;
     @ManyToOne(fetch = FetchType.LAZY)
     private Branch branch;
@@ -41,19 +55,13 @@ public class InventorySummary {
     private Warehouse warehouse;
     @ManyToOne(fetch = FetchType.LAZY)
     private Supplier supplier;
-    @ManyToOne
-    @JoinColumn(name = "product_id")
-    private Product product;
-    @ManyToOne
-    @JoinColumn(name = "product_detail_id")
-    private ProductDetail productDetail;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime invoiceDate;//purchaseDate,purchaseReturnDate,saleDate etc
     private Long invoiceId;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
     private InvoiceType invoiceType;
-    private String batchNo;
     private Integer stockIn;
     private Integer stockOut;
     @CreationTimestamp

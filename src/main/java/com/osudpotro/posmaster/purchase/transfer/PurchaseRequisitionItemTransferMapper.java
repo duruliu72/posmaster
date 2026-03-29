@@ -35,6 +35,10 @@ public class PurchaseRequisitionItemTransferMapper {
         if (priTransfer.getGiftOrBonusQty() != null) {
             priTransferDto.setGiftOrBonusLinePrice(priTransfer.getGiftOrBonusLinePrice());
         }
+        priTransferDto.setProductionBatchNo(priTransfer.getProductionBatchNo());
+        priTransferDto.setManufactureDate(priTransfer.getManufactureDate());
+        priTransferDto.setExpiredDate(priTransfer.getExpiredDate());
+        priTransferDto.setIsAddedToInventory(priTransfer.getIsAddedToInventory());
         return priTransferDto;
     }
 

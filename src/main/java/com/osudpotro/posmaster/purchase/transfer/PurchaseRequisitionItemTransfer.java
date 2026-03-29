@@ -50,6 +50,10 @@ public class PurchaseRequisitionItemTransfer {
     private BigDecimal discount;
     private Integer purchaseQty;
     private Integer giftOrBonusQty;
+    private String productionBatchNo;
+    private LocalDateTime manufactureDate;
+    private LocalDateTime expiredDate;
+    private Boolean isAddedToInventory;
     @CreationTimestamp
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;

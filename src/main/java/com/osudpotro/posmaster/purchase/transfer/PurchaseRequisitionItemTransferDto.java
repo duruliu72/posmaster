@@ -8,6 +8,7 @@ import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisitionItemDto;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Data
 public class PurchaseRequisitionItemTransferDto {
@@ -25,4 +26,8 @@ public class PurchaseRequisitionItemTransferDto {
     private Integer giftOrBonusQty;
     private BigDecimal purchaseLinePrice;
     private BigDecimal giftOrBonusLinePrice;
+    private String productionBatchNo;
+    private LocalDateTime manufactureDate;
+    private LocalDateTime expiredDate;
+    private Boolean isAddedToInventory;
 }
