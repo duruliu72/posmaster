@@ -2,6 +2,7 @@ package com.osudpotro.posmaster.purchase.transfer;
 
 import com.osudpotro.posmaster.purchase.PurchaseType;
 import com.osudpotro.posmaster.tms.goodsontrip.GoodsStatus;
+import com.osudpotro.posmaster.user.User;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -59,7 +60,7 @@ public class PurchaseRequisitionTransferSpecification {
         };
     }
 
-    public static Specification<PurchaseRequisitionTransfer> filterByDelivered(PurchaseRequisitionTransferFilter filter) {
+    public static Specification<PurchaseRequisitionTransfer> filterByDelivered(PurchaseRequisitionTransferFilter filter, User user) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             if (filter.getRequsitionRef() != null && !filter.getRequsitionRef().isEmpty()) {
@@ -74,11 +75,15 @@ public class PurchaseRequisitionTransferSpecification {
                         PurchaseType.fromCode(filter.getPurchaseType());
 
                 predicates.add(
-                        cb.equal(root.get("purchaseType"), filter.getPurchaseType())
+                        cb.equal(root.get("purchaseRequisition").get("purchaseType"), purchaseType)
                 );
             }
             if (filter.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status"), filter.getStatus()));
+            }
+            if (user != null) {
+                Long branchId=user.getBranch().getId();
+                predicates.add(cb.equal(root.get("purchaseRequisition").get("reqBranch").get("id"),branchId ));
             }
             predicates.add(cb.equal(root.get("goodsOnTrip").get("goodsStatus"), GoodsStatus.DELIVERED));
             return cb.and(predicates.toArray(new Predicate[0]));

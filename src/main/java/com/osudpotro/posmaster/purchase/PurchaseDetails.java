@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.osudpotro.posmaster.product.Product;
 import com.osudpotro.posmaster.product.ProductDetail;
 import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisition;
+import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisitionItem;
 import com.osudpotro.posmaster.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -35,6 +36,9 @@ public class PurchaseDetails {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "purchase_requisition_id")
     private PurchaseRequisition purchaseRequisition;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "purchase_requisition_item_id")
+    private PurchaseRequisitionItem purchaseRequisitionItem;
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
@@ -56,7 +60,7 @@ public class PurchaseDetails {
     private LocalDateTime expiredDate;
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "added_by", nullable = true)
-    private User createdBy;
+    private User addedBy;
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "updated_by")
     private User updatedBy;

@@ -1,0 +1,42 @@
+package com.osudpotro.posmaster.dispatch;
+
+import com.osudpotro.posmaster.product.Product;
+import com.osudpotro.posmaster.product.ProductDetail;
+import com.osudpotro.posmaster.purchase.Purchase;
+import com.osudpotro.posmaster.purchase.PurchaseDetails;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+@Entity
+@Table(name = "dispatch_details", uniqueConstraints = @UniqueConstraint(
+        columnNames = {
+                "dispatch_id",
+                "purchase_id",
+                "product_id",
+                "product_detail_id"
+        }
+))
+public class DispatchDetail {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "dispatch_id")
+    private Dispatch dispatch;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "purchase_id")
+    private Purchase purchase;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "purchase_details_id")
+    private PurchaseDetails purchaseDetails;
+    @ManyToOne
+    @JoinColumn(name = "product_id")
+    private Product product;
+    @ManyToOne
+    @JoinColumn(name = "product_detail_id")
+    private ProductDetail productDetail;
+    private Integer dispatchQty;
+}

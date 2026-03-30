@@ -1,6 +1,7 @@
 package com.osudpotro.posmaster.purchase.transfer;
 
 import com.osudpotro.posmaster.common.PagedResponse;
+import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisitionException;
 import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisitionNotFoundException;
 import com.osudpotro.posmaster.tms.goodsontrip.GoodsOnTripDeliveryException;
 import com.osudpotro.posmaster.tms.vechile.DuplicateVehicleException;
@@ -116,7 +117,12 @@ public class PurchaseRequisitionTransferController {
                 Map.of("error", e.getMessage())
         );
     }
-
+    @ExceptionHandler(PurchaseRequisitionException.class)
+    public ResponseEntity<Map<String, String>> handlePurchaseRequisitionException(Exception e) {
+        return ResponseEntity.badRequest().body(
+                Map.of("error", e.getMessage())
+        );
+    }
     @ExceptionHandler(GoodsOnTripDeliveryException.class)
     public ResponseEntity<Map<String, String>> handleGoodsOnTripDeliveryException(Exception e) {
         return ResponseEntity.badRequest().body(

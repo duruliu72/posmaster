@@ -2,10 +2,18 @@ package com.osudpotro.posmaster.purchase.transfer;
 
 import com.osudpotro.posmaster.branch.BranchRepository;
 import com.osudpotro.posmaster.common.Location;
+import com.osudpotro.posmaster.dispatch.Dispatch;
+import com.osudpotro.posmaster.dispatch.DispatchDetail;
+import com.osudpotro.posmaster.dispatch.DispatchRepository;
+import com.osudpotro.posmaster.inventory.InventorySummary;
+import com.osudpotro.posmaster.inventory.InventorySummaryRepository;
+import com.osudpotro.posmaster.inventory.InvoiceType;
 import com.osudpotro.posmaster.organization.OrganizationRepository;
 import com.osudpotro.posmaster.product.ProductDetailRepository;
 import com.osudpotro.posmaster.product.ProductRepository;
 import com.osudpotro.posmaster.purchase.Purchase;
+import com.osudpotro.posmaster.purchase.PurchaseDetails;
+import com.osudpotro.posmaster.purchase.PurchaseReferenceDto;
 import com.osudpotro.posmaster.purchase.PurchaseRepository;
 import com.osudpotro.posmaster.purchase.requisition.*;
 import com.osudpotro.posmaster.requisition.*;
@@ -20,8 +28,10 @@ import com.osudpotro.posmaster.tms.vehicletrip.TripStatus;
 import com.osudpotro.posmaster.tms.vehicletrip.VehicleTrip;
 import com.osudpotro.posmaster.tms.vehicletrip.VehicleTripNotFoundException;
 import com.osudpotro.posmaster.tms.vehicletrip.VehicleTripRepository;
+import com.osudpotro.posmaster.user.User;
 import com.osudpotro.posmaster.user.auth.AuthService;
 import jakarta.transaction.Transactional;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -39,7 +49,11 @@ public class PurchaseRequisitionTransferService {
     @Autowired
     private PurchaseRequisitionTransferRepository prTransferRepo;
     @Autowired
-    private PurchaseRepository purchaseRepository;
+    private PurchaseRepository purchaseRepo;
+    @Autowired
+    private DispatchRepository dispatchRepo;
+    @Autowired
+    private InventorySummaryRepository invSummaryRepo;
     @Autowired
     private PurchaseRequisitionItemTransferRepository priTransferRepo;
     @Autowired
@@ -81,7 +95,8 @@ public class PurchaseRequisitionTransferService {
     }
 
     public Page<PurchaseRequisitionTransferDto> filterEntities(PurchaseRequisitionTransferFilter filter, Pageable pageable) {
-        return prTransferRepo.findAll(PurchaseRequisitionTransferSpecification.filterByDelivered(filter), pageable).map(prTransferMapper::toDto);
+        var authUser = authService.getCurrentUser();
+        return prTransferRepo.findAll(PurchaseRequisitionTransferSpecification.filterByDelivered(filter,authUser), pageable).map(prTransferMapper::toDto);
     }
 
     public Page<PurchaseRequisitionTransferDto> filterEntitiesByPurchaseRequisition(PurchaseRequisitionTransferFilter filter, Long purchaseRequisitionId, Pageable pageable) {
@@ -229,29 +244,165 @@ public class PurchaseRequisitionTransferService {
     @Transactional
     public PurchaseRequisitionTransferDto addToInventory(Long purchaseRequisitionTransferId, AddToInventoryRequest request) {
         var prt = prTransferRepo.findById(purchaseRequisitionTransferId).orElseThrow(PurchaseRequisitionNotFoundException::new);
+        var purchaseFind = purchaseRepo.findByPurchaseRequisitionTransfer(prt).orElse(null);
+        if (prt.getTransferStatus() == 3 || purchaseFind != null) {
+            throw new PurchaseRequisitionException("Already Added to Inventory!");
+        }
+        prt.setTransferStatus(3);
+        var authUser = authService.getCurrentUser();
 //        Update Purchase Requisition Item Transfer
-        List<PurchaseRequisitionItemTransfer> items = new ArrayList<>();
+        List<PurchaseRequisitionItemTransfer> priTransferList = new ArrayList<>();
         for (var item : request.getItems()) {
             var prtItem = priTransferRepo.findById(item.getPurchaseRequisitionItemTransferId()).orElseThrow(PurchaseRequisitionItemTransferNotFoundException::new);
             prtItem = getPurchaseRequisitionItemTransfer(prtItem, item);
-            items.add(prtItem);
+            priTransferList.add(prtItem);
         }
         prt.getItems().clear();
-        prt.getItems().addAll(items);
+        prt.getItems().addAll(priTransferList);
 //        Insert Purchase and Purchase details table for Main Branch
-        Purchase purchase =new Purchase();
+        Purchase purchase = new Purchase();
+        PurchaseReferenceDto purchaseReference=generatePurchaseRef();
+        purchase.setPurchaseRef(purchaseReference.getPurchaseRef());
         purchase.setRequsitionRef(prt.getPurchaseRequisition().getRequsitionRef());
         purchase.setPurchaseRequisitionTransfer(prt);
         purchase.setPurchaseRequisition(prt.getPurchaseRequisition());
         purchase.setPurchaseType(prt.getPurchaseRequisition().getPurchaseType());
         purchase.setOrganization(prt.getPurchaseRequisition().getOrganization());
         purchase.setBranch(prt.getPurchaseRequisition().getRootBranch());
+        purchase.setReqBranch(prt.getPurchaseRequisition().getReqBranch());
+        purchase.setPurchaseBatchNo(purchaseReference.getPurchaseBatchNo());
+        purchase.setOverallDiscount(prt.getOverallDiscount());
         purchase.setPurchaseInvoices(prt.getPurchaseInvoices());
         purchase.setPurchaseInvoiceDocs(prt.getPurchaseInvoiceDocs());
         purchase.setOrderRefs(prt.getPurchaseRequisition().getOrderRefs());
-        purchaseRepository.save(purchase);
+        purchase.setAddedBy(authUser);
+//        Purchase Details
+        List<PurchaseDetails> purchaseDetailList = new ArrayList<>();
+        for (var priTransfer : priTransferList) {
+            PurchaseDetails pd = getPurchaseDetails(priTransfer, authUser, purchase);
+            purchaseDetailList.add(pd);
+        }
+        purchase.setItems(purchaseDetailList);
+        purchase = purchaseRepo.save(purchase);
+//        Inventory Summary add here
+        List<InventorySummary> inventorySummaryList = new ArrayList<>();
+        for (var purchaseDetail : purchaseDetailList) {
+            InventorySummary invSummary = getInventorySummary(purchaseDetail, purchase);
+            invSummary.setInvoiceType(InvoiceType.PURCHASE);
+            Integer qty = purchaseDetail.getPurchaseQty();
+            if (purchaseDetail.getGiftOrBonusQty() != null) {
+                qty = qty + purchaseDetail.getGiftOrBonusQty();
+            }
+            invSummary.setStockIn(qty);
+            inventorySummaryList.add(invSummary);
+        }
+        invSummaryRepo.saveAll(inventorySummaryList);
+//        Dispatch to Destination Branch
+//        Here have Stock out from purchase table
+        List<InventorySummary> inventorySummaryListForDispatchSend = new ArrayList<>();
+        for (var purchaseDetail : purchaseDetailList) {
+            InventorySummary invSummary = getInventorySummary(purchaseDetail, purchase);
+            invSummary.setInvoiceType(InvoiceType.DISPATCH_SEND);
+            Integer qty = purchaseDetail.getPurchaseQty();
+            if (purchaseDetail.getGiftOrBonusQty() != null) {
+                qty = qty + purchaseDetail.getGiftOrBonusQty();
+            }
+            invSummary.setStockOut(qty);
+            inventorySummaryListForDispatchSend.add(invSummary);
+        }
+        invSummaryRepo.saveAll(inventorySummaryListForDispatchSend);
+        Dispatch dispatch = new Dispatch();
+        dispatch.setPurchase(purchase);
+        dispatch.setDispatchInvoice(generateDispatchInvoice());
+        dispatch.setOrganization(purchase.getOrganization());
+        dispatch.setRootBranch(purchase.getBranch());//Main Branch
+        dispatch.setSenderBranch(purchase.getBranch());
+        dispatch.setReceiverBranch(purchase.getReqBranch());
+        dispatch.setWarehouse(null);
+        dispatch.setSupplier(purchase.getSupplier());
+        dispatch.setDispatchBy(authUser);
+        //        Dispatch Details
+        List<DispatchDetail> dispatchDetailsList = new ArrayList<>();
+        for (var purchaseDetail : purchaseDetailList) {
+            DispatchDetail dispatchDetail = new DispatchDetail();
+            dispatchDetail.setDispatch(dispatch);
+            dispatchDetail.setPurchase(purchase);
+            dispatchDetail.setPurchaseDetails(purchaseDetail);
+            dispatchDetail.setProduct(purchaseDetail.getProduct());
+            dispatchDetail.setProductDetail(purchaseDetail.getProductDetail());
+            Integer dispatchQty = purchaseDetail.getPurchaseQty();
+            if (purchaseDetail.getGiftOrBonusQty() != null) {
+                dispatchQty = dispatchQty + purchaseDetail.getGiftOrBonusQty();
+            }
+            dispatchDetail.setDispatchQty(dispatchQty);
+            dispatchDetailsList.add(dispatchDetail);
+        }
+        dispatch.setItems(dispatchDetailsList);
+        dispatch = dispatchRepo.save(dispatch);
+        List<InventorySummary> inventorySummaryListForDispatchReceive = new ArrayList<>();
+        for (var dispatchDetail : dispatchDetailsList) {
+            InventorySummary invSummaryForDispatchReceive = new InventorySummary();
+            invSummaryForDispatchReceive.setInvoiceType(InvoiceType.DISPATCH_RECEIVE);
+            invSummaryForDispatchReceive.setInvoiceId(dispatch.getId());
+            invSummaryForDispatchReceive.setInvoiceDetailId(dispatchDetail.getId());
+            invSummaryForDispatchReceive.setBranch(dispatch.getReceiverBranch());
+            invSummaryForDispatchReceive.setInvoiceDate(dispatch.getDispatchAt());
+            invSummaryForDispatchReceive.setPurchaseRef(dispatch.getDispatchInvoice());
+            invSummaryForDispatchReceive.setPurchaseBatchNo(purchase.getPurchaseBatchNo());
+            var pd = dispatchDetail.getPurchaseDetails();
+            invSummaryForDispatchReceive.setProductionBatchNo(pd.getProductionBatchNo());
+            invSummaryForDispatchReceive.setManufactureDate(pd.getManufactureDate());
+            invSummaryForDispatchReceive.setExpiredDate(pd.getExpiredDate());
+            invSummaryForDispatchReceive.setProduct(pd.getProduct());
+            invSummaryForDispatchReceive.setProductDetail(pd.getProductDetail());
+            invSummaryForDispatchReceive.setOrganization(dispatch.getOrganization());
+            invSummaryForDispatchReceive.setWarehouse(dispatch.getWarehouse());
+            invSummaryForDispatchReceive.setSupplier(dispatch.getSupplier());
+            invSummaryForDispatchReceive.setStockIn(dispatchDetail.getDispatchQty());
+            inventorySummaryListForDispatchReceive.add(invSummaryForDispatchReceive);
+        }
+        invSummaryRepo.saveAll(inventorySummaryListForDispatchReceive);
         prTransferRepo.save(prt);
         return prTransferMapper.toDto(prt);
+    }
+
+    private InventorySummary getInventorySummary(PurchaseDetails purchaseDetail, Purchase purchase) {
+        InventorySummary invSummary = new InventorySummary();
+        invSummary.setInvoiceId(purchase.getId());
+        invSummary.setInvoiceDetailId(purchaseDetail.getId());
+        invSummary.setBranch(purchase.getBranch());
+        invSummary.setInvoiceDate(purchase.getPurchaseAt());
+        invSummary.setPurchaseRef(purchase.getPurchaseRef());
+        invSummary.setPurchaseBatchNo(purchase.getPurchaseBatchNo());
+        invSummary.setProductionBatchNo(purchaseDetail.getProductionBatchNo());
+        invSummary.setManufactureDate(purchaseDetail.getManufactureDate());
+        invSummary.setExpiredDate(purchaseDetail.getExpiredDate());
+        invSummary.setProduct(purchaseDetail.getProduct());
+        invSummary.setProductDetail(purchaseDetail.getProductDetail());
+        invSummary.setOrganization(purchase.getOrganization());
+        invSummary.setWarehouse(purchase.getWarehouse());
+        invSummary.setSupplier(purchase.getSupplier());
+        return invSummary;
+    }
+
+    private PurchaseDetails getPurchaseDetails(PurchaseRequisitionItemTransfer priTransfer, User authUser, Purchase purchase) {
+        PurchaseDetails pd = new PurchaseDetails();
+        pd.setPurchaseRequisition(priTransfer.getPurchaseRequisition());
+        pd.setPurchaseRequisitionItem(priTransfer.getPurchaseRequisitionItem());
+        pd.setProduct(priTransfer.getProduct());
+        pd.setProductDetail(priTransfer.getProductDetail());
+        pd.setPurchasePrice(priTransfer.getPurchasePrice());
+        pd.setMrpPrice(priTransfer.getMrpPrice());
+        pd.setPurchaseDiscount(priTransfer.getDiscountPrice());
+        pd.setPurchaseQty(priTransfer.getPurchaseQty());
+        pd.setGiftOrBonusQty(priTransfer.getGiftOrBonusQty());
+        pd.setAtomQty(priTransfer.getProductDetail().getAtomQty());
+        pd.setProductionBatchNo(priTransfer.getProductionBatchNo());
+        pd.setManufactureDate(priTransfer.getManufactureDate());
+        pd.setExpiredDate(priTransfer.getExpiredDate());
+        pd.setAddedBy(authUser);
+        pd.setPurchase(purchase);
+        return pd;
     }
 
     public PurchaseRequisitionTransferDto updateFromMedicineCorner(Long purchaseRequisitionTransferId, UpdateFromMedicineCornerRequest request) {
@@ -261,6 +412,10 @@ public class PurchaseRequisitionTransferService {
 
     public PurchaseRequisitionTransferDto updateItemFromMedicineCorner(Long purchaseRequisitionTransferId, Long purchaseRequisitionItemTransferId, UpdateFromMedicineCornerRequest request) {
         var prt = prTransferRepo.findById(purchaseRequisitionTransferId).orElseThrow(PurchaseRequisitionNotFoundException::new);
+        var purchaseFind = purchaseRepo.findByPurchaseRequisitionTransfer(prt).orElse(null);
+        if (prt.getTransferStatus() == 3 || purchaseFind != null) {
+            throw new PurchaseRequisitionException("As you Already Added to Inventory. Not to possible update");
+        }
         var prtItem = priTransferRepo.findById(purchaseRequisitionItemTransferId).orElseThrow(PurchaseRequisitionItemTransferNotFoundException::new);
         prtItem = getPurchaseRequisitionItemTransfer(prtItem, request);
         priTransferRepo.save(prtItem);
@@ -297,6 +452,17 @@ public class PurchaseRequisitionTransferService {
         return prtItem;
     }
 
+    public PurchaseReferenceDto generatePurchaseRef() {
+        Purchase purchase = purchaseRepo.findTopByOrderByPurchaseAtDesc();
+        if (purchase == null) {
+            purchase = new Purchase();
+
+        }
+        PurchaseReferenceDto purchaseReference=new PurchaseReferenceDto();
+        purchaseReference.setPurchaseRef(purchase.getGeneratePurchaseRef());
+        purchaseReference.setPurchaseBatchNo(purchase.getGeneratePurchaseBatchNo());
+        return purchaseReference;
+    }
     public String generateTripRef() {
         VehicleTrip vehicleTrip = vehicleTripRepository.findTopByOrderByCreatedAtDesc();
         if (vehicleTrip == null) {
@@ -305,7 +471,14 @@ public class PurchaseRequisitionTransferService {
         }
         return vehicleTrip.getGeneratedTripRef();
     }
+    public String generateDispatchInvoice() {
+        Dispatch dispatch = dispatchRepo.findTopByOrderByDispatchAtDesc();
+        if (dispatch == null) {
+            dispatch = new Dispatch();
 
+        }
+        return dispatch.getGenerateDispatchInvoice();
+    }
     public String generateGoodsRef() {
         GoodsOnTrip goodsOnTrip = goodsOnTripRepository.findTopByOrderByCreatedAtDesc();
         if (goodsOnTrip == null) {
@@ -313,6 +486,4 @@ public class PurchaseRequisitionTransferService {
         }
         return goodsOnTrip.getGeneratedGoodsRef();
     }
-
-
 }

@@ -6,5 +6,7 @@ public enum InvoiceType {
     SALE,
     SALE_RETURN,
     ADJUSTMENT,
-    TRANSFER
+    TRANSFER,
+    DISPATCH_SEND,
+    DISPATCH_RECEIVE
 }
