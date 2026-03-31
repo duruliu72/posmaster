@@ -87,11 +87,11 @@ public class JwtService {
         }
     }
 
-    public void blacklistToken(String token) {
-        tokenBlacklist.add(token);
-    }
-
-    public boolean isTokenBlacklisted(String token) {
-        return tokenBlacklist.contains(token);
-    }
+//    public void blacklistToken(String token) {
+//        tokenBlacklist.add(token);
+//    }
+//
+//    public boolean isTokenBlacklisted(String token) {
+//        return tokenBlacklist.contains(token);
+//    }
 }
