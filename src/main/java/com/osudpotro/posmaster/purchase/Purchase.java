@@ -77,7 +77,7 @@ public class Purchase {
     @JsonIgnore
 //    @OneToMany(mappedBy = "purchase", cascade = CascadeType.MERGE, orphanRemoval = true, fetch = FetchType.LAZY)
     @OneToMany(mappedBy = "purchase", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
-    private List<PurchaseDetails> items = new ArrayList<>();
+    private List<PurchaseDetail> items = new ArrayList<>();
 
 
     public String getGeneratePurchaseBatchNo() {

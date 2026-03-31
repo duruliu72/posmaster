@@ -3,7 +3,7 @@ package com.osudpotro.posmaster.dispatch;
 import com.osudpotro.posmaster.product.Product;
 import com.osudpotro.posmaster.product.ProductDetail;
 import com.osudpotro.posmaster.purchase.Purchase;
-import com.osudpotro.posmaster.purchase.PurchaseDetails;
+import com.osudpotro.posmaster.purchase.PurchaseDetail;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -31,7 +31,7 @@ public class DispatchDetail {
     private Purchase purchase;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "purchase_details_id")
-    private PurchaseDetails purchaseDetails;
+    private PurchaseDetail purchaseDetail;
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;

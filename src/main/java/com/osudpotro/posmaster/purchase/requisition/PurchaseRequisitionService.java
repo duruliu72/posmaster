@@ -1,20 +1,12 @@
 package com.osudpotro.posmaster.purchase.requisition;
 
 import com.osudpotro.posmaster.branch.Branch;
-import com.osudpotro.posmaster.common.Location;
 import com.osudpotro.posmaster.purchase.transfer.*;
-import com.osudpotro.posmaster.tms.driver.DriverNotFoundException;
 import com.osudpotro.posmaster.tms.driver.DriverRepository;
 import com.osudpotro.posmaster.tms.goodsontrip.GoodsOnTrip;
 import com.osudpotro.posmaster.tms.goodsontrip.GoodsOnTripRepository;
-import com.osudpotro.posmaster.tms.goodsontrip.GoodsStatus;
-import com.osudpotro.posmaster.tms.goodsontrip.GoodsType;
-import com.osudpotro.posmaster.tms.vechile.DuplicateVehicleException;
-import com.osudpotro.posmaster.tms.vechile.VehicleNotFoundException;
 import com.osudpotro.posmaster.tms.vechile.VehicleRepository;
-import com.osudpotro.posmaster.tms.vehicletrip.TripStatus;
 import com.osudpotro.posmaster.tms.vehicletrip.VehicleTrip;
-import com.osudpotro.posmaster.tms.vehicletrip.VehicleTripNotFoundException;
 import com.osudpotro.posmaster.tms.vehicletrip.VehicleTripRepository;
 import com.osudpotro.posmaster.user.auth.AuthService;
 import com.osudpotro.posmaster.branch.BranchNotFoundException;
@@ -35,7 +27,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Service

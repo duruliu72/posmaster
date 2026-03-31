@@ -26,7 +26,7 @@ import java.time.LocalDateTime;
                 "product_detail_id"
         }
 ))
-public class PurchaseDetails {
+public class PurchaseDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

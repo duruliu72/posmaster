@@ -5,6 +5,8 @@ import com.osudpotro.posmaster.branch.Branch;
 import com.osudpotro.posmaster.organization.Organization;
 import com.osudpotro.posmaster.product.Product;
 import com.osudpotro.posmaster.product.ProductDetail;
+import com.osudpotro.posmaster.purchase.Purchase;
+import com.osudpotro.posmaster.purchase.PurchaseDetail;
 import com.osudpotro.posmaster.supplier.Supplier;
 import com.osudpotro.posmaster.warehouse.Warehouse;
 import jakarta.persistence.*;
@@ -38,6 +40,12 @@ public class InventorySummary {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
     private InvoiceType invoiceType;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "purchase_id")
+    private Purchase purchase;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "purchase_details_id")
+    private PurchaseDetail purchaseDetail;
     private String purchaseRef;
     private String purchaseBatchNo;
     private String productionBatchNo;

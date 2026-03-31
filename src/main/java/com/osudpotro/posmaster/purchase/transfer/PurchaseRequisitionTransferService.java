@@ -12,7 +12,7 @@ import com.osudpotro.posmaster.organization.OrganizationRepository;
 import com.osudpotro.posmaster.product.ProductDetailRepository;
 import com.osudpotro.posmaster.product.ProductRepository;
 import com.osudpotro.posmaster.purchase.Purchase;
-import com.osudpotro.posmaster.purchase.PurchaseDetails;
+import com.osudpotro.posmaster.purchase.PurchaseDetail;
 import com.osudpotro.posmaster.purchase.PurchaseReferenceDto;
 import com.osudpotro.posmaster.purchase.PurchaseRepository;
 import com.osudpotro.posmaster.purchase.requisition.*;
@@ -31,7 +31,6 @@ import com.osudpotro.posmaster.tms.vehicletrip.VehicleTripRepository;
 import com.osudpotro.posmaster.user.User;
 import com.osudpotro.posmaster.user.auth.AuthService;
 import jakarta.transaction.Transactional;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -277,9 +276,9 @@ public class PurchaseRequisitionTransferService {
         purchase.setOrderRefs(prt.getPurchaseRequisition().getOrderRefs());
         purchase.setAddedBy(authUser);
 //        Purchase Details
-        List<PurchaseDetails> purchaseDetailList = new ArrayList<>();
+        List<PurchaseDetail> purchaseDetailList = new ArrayList<>();
         for (var priTransfer : priTransferList) {
-            PurchaseDetails pd = getPurchaseDetails(priTransfer, authUser, purchase);
+            PurchaseDetail pd = getPurchaseDetails(priTransfer, authUser, purchase);
             purchaseDetailList.add(pd);
         }
         purchase.setItems(purchaseDetailList);
@@ -288,6 +287,8 @@ public class PurchaseRequisitionTransferService {
         List<InventorySummary> inventorySummaryList = new ArrayList<>();
         for (var purchaseDetail : purchaseDetailList) {
             InventorySummary invSummary = getInventorySummary(purchaseDetail, purchase);
+            invSummary.setPurchase(purchase);
+            invSummary.setPurchaseDetail(purchaseDetail);
             invSummary.setInvoiceType(InvoiceType.PURCHASE);
             Integer qty = purchaseDetail.getPurchaseQty();
             if (purchaseDetail.getGiftOrBonusQty() != null) {
@@ -302,6 +303,8 @@ public class PurchaseRequisitionTransferService {
         List<InventorySummary> inventorySummaryListForDispatchSend = new ArrayList<>();
         for (var purchaseDetail : purchaseDetailList) {
             InventorySummary invSummary = getInventorySummary(purchaseDetail, purchase);
+            invSummary.setPurchase(purchase);
+            invSummary.setPurchaseDetail(purchaseDetail);
             invSummary.setInvoiceType(InvoiceType.DISPATCH_SEND);
             Integer qty = purchaseDetail.getPurchaseQty();
             if (purchaseDetail.getGiftOrBonusQty() != null) {
@@ -327,7 +330,7 @@ public class PurchaseRequisitionTransferService {
             DispatchDetail dispatchDetail = new DispatchDetail();
             dispatchDetail.setDispatch(dispatch);
             dispatchDetail.setPurchase(purchase);
-            dispatchDetail.setPurchaseDetails(purchaseDetail);
+            dispatchDetail.setPurchaseDetail(purchaseDetail);
             dispatchDetail.setProduct(purchaseDetail.getProduct());
             dispatchDetail.setProductDetail(purchaseDetail.getProductDetail());
             Integer dispatchQty = purchaseDetail.getPurchaseQty();
@@ -341,7 +344,10 @@ public class PurchaseRequisitionTransferService {
         dispatch = dispatchRepo.save(dispatch);
         List<InventorySummary> inventorySummaryListForDispatchReceive = new ArrayList<>();
         for (var dispatchDetail : dispatchDetailsList) {
+            var purchaseDetails = dispatchDetail.getPurchaseDetail();
             InventorySummary invSummaryForDispatchReceive = new InventorySummary();
+            invSummaryForDispatchReceive.setPurchase(purchase);
+            invSummaryForDispatchReceive.setPurchaseDetail(purchaseDetails);
             invSummaryForDispatchReceive.setInvoiceType(InvoiceType.DISPATCH_RECEIVE);
             invSummaryForDispatchReceive.setInvoiceId(dispatch.getId());
             invSummaryForDispatchReceive.setInvoiceDetailId(dispatchDetail.getId());
@@ -349,12 +355,12 @@ public class PurchaseRequisitionTransferService {
             invSummaryForDispatchReceive.setInvoiceDate(dispatch.getDispatchAt());
             invSummaryForDispatchReceive.setPurchaseRef(dispatch.getDispatchInvoice());
             invSummaryForDispatchReceive.setPurchaseBatchNo(purchase.getPurchaseBatchNo());
-            var pd = dispatchDetail.getPurchaseDetails();
-            invSummaryForDispatchReceive.setProductionBatchNo(pd.getProductionBatchNo());
-            invSummaryForDispatchReceive.setManufactureDate(pd.getManufactureDate());
-            invSummaryForDispatchReceive.setExpiredDate(pd.getExpiredDate());
-            invSummaryForDispatchReceive.setProduct(pd.getProduct());
-            invSummaryForDispatchReceive.setProductDetail(pd.getProductDetail());
+
+            invSummaryForDispatchReceive.setProductionBatchNo(purchaseDetails.getProductionBatchNo());
+            invSummaryForDispatchReceive.setManufactureDate(purchaseDetails.getManufactureDate());
+            invSummaryForDispatchReceive.setExpiredDate(purchaseDetails.getExpiredDate());
+            invSummaryForDispatchReceive.setProduct(purchaseDetails.getProduct());
+            invSummaryForDispatchReceive.setProductDetail(purchaseDetails.getProductDetail());
             invSummaryForDispatchReceive.setOrganization(dispatch.getOrganization());
             invSummaryForDispatchReceive.setWarehouse(dispatch.getWarehouse());
             invSummaryForDispatchReceive.setSupplier(dispatch.getSupplier());
@@ -366,7 +372,7 @@ public class PurchaseRequisitionTransferService {
         return prTransferMapper.toDto(prt);
     }
 
-    private InventorySummary getInventorySummary(PurchaseDetails purchaseDetail, Purchase purchase) {
+    private InventorySummary getInventorySummary(PurchaseDetail purchaseDetail, Purchase purchase) {
         InventorySummary invSummary = new InventorySummary();
         invSummary.setInvoiceId(purchase.getId());
         invSummary.setInvoiceDetailId(purchaseDetail.getId());
@@ -385,8 +391,8 @@ public class PurchaseRequisitionTransferService {
         return invSummary;
     }
 
-    private PurchaseDetails getPurchaseDetails(PurchaseRequisitionItemTransfer priTransfer, User authUser, Purchase purchase) {
-        PurchaseDetails pd = new PurchaseDetails();
+    private PurchaseDetail getPurchaseDetails(PurchaseRequisitionItemTransfer priTransfer, User authUser, Purchase purchase) {
+        PurchaseDetail pd = new PurchaseDetail();
         pd.setPurchaseRequisition(priTransfer.getPurchaseRequisition());
         pd.setPurchaseRequisitionItem(priTransfer.getPurchaseRequisitionItem());
         pd.setProduct(priTransfer.getProduct());
