@@ -41,7 +41,7 @@ public interface PurchaseRequisitionItemRepository extends JpaSpecificationExecu
                                                     	JOIN product_detail as pd on pd.id=pri.product_detail_id
                                                     	JOIN product_detail as ppd on ppd.id=p.purchase_product_unit_id
                                                     	JOIN variant_unit as ppvu on ppvu.id= ppd.size_id
-                                                    	WHERE pri.purchase_requisition_id=3 group by pri.product_id,p.product_name,cat.name,pt.name,mf.id,mf.name,ppd.id,pri.purchase_product_unit_id,ppvu.name order by mf.id
+                                                    	WHERE pri.purchase_requisition_id=:purchaseRequisitionId group by pri.product_id,p.product_name,cat.name,pt.name,mf.id,mf.name,ppd.id,pri.purchase_product_unit_id,ppvu.name order by mf.id
             """,nativeQuery = true)
     List<PurchaseRequisitionItemReportDTO> findPurchaseRequisitionItemReportList(@Param("purchaseRequisitionId") Long purchaseRequisitionId);
 

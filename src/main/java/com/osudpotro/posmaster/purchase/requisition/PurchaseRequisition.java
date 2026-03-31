@@ -5,6 +5,7 @@ import com.osudpotro.posmaster.branch.Branch;
 import com.osudpotro.posmaster.common.BaseEntity;
 import com.osudpotro.posmaster.organization.Organization;
 import com.osudpotro.posmaster.purchase.PurchaseType;
+import com.osudpotro.posmaster.purchase.transfer.PurchaseRequisitionTransfer;
 import com.osudpotro.posmaster.requisition.Requisition;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -20,6 +21,7 @@ import java.util.List;
 @Entity
 @Table(name = "purchase_requisitions")
 public class PurchaseRequisition extends BaseEntity {
+    @Column(unique = true)
     private String requsitionRef;
     //c.p=Company Purchase,l.p=Locale Purchase,p.o=purchase order ,procurement
     @Enumerated(EnumType.STRING)
@@ -28,15 +30,13 @@ public class PurchaseRequisition extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Organization organization;
     @ManyToOne(fetch = FetchType.LAZY)
-    private Branch branch;
+    private Branch rootBranch;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Branch reqBranch;
     private BigDecimal overallDiscount;
     private String purchaseInvoices;
     private String purchaseInvoiceDocs;
     private String orderRefs;
-    private BigDecimal tempOverallDiscount;
-    private String tempPurchaseInvoices;
-    private String tempPurchaseInvoiceDocs;
-    private String tempOrderRefs;
     private Boolean isFinal = false;
     //  @ManyToOne(fetch = FetchType.LAZY)
 //    private Warehouse warehouse;
@@ -46,6 +46,8 @@ public class PurchaseRequisition extends BaseEntity {
     @OneToMany(mappedBy = "purchaseRequisition", cascade = CascadeType.MERGE, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<PurchaseRequisitionItem> items = new ArrayList<>();
 
+    @OneToMany(mappedBy = "purchaseRequisition", cascade = CascadeType.MERGE, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<PurchaseRequisitionTransfer> prTransferList = new ArrayList<>();
     @OneToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(
             name = "requisition_id",
@@ -75,6 +77,7 @@ public class PurchaseRequisition extends BaseEntity {
                 .mapToInt(PurchaseRequisitionItem::getActualQty)
                 .sum();
     }
+
     public int getTotalGiftOrBonusQty() {
         return items.stream()
                 .filter(i ->

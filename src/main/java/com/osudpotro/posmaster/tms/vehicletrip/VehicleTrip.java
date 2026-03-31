@@ -37,7 +37,7 @@ public class VehicleTrip extends BaseEntity {
     @Column(nullable = false)
     private TripStatus tripStatus=TripStatus.PENDING;
     @OneToMany(mappedBy = "vehicleTrip", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<GoodsOnTrip> goodsItems = new ArrayList<>();
+    private List<GoodsOnTrip> goodsOnTrips = new ArrayList<>();
     public String getGeneratedTripRef() {
         String tripPrefix="TRIP";
         String datePart = new SimpleDateFormat("yyyyMMdd").format(new Date());
@@ -55,5 +55,10 @@ public class VehicleTrip extends BaseEntity {
         }
         //Format String
         return String.format("%s-%s-%09d",tripPrefix, datePart, nextSeq);
+    }
+    public int getTotalDelivered() {
+        return goodsOnTrips.stream()
+                .filter(GoodsOnTrip::isDelivered)
+                .toList().size();
     }
 }

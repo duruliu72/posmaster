@@ -19,7 +19,6 @@ public class PurchaseRequisitionItemMapper {
         prItemDto.setId(prItem.getId());
         prItemDto.setProduct(productMapper.toDto(prItem.getProduct()));
         prItemDto.setProductDetail(detailMapper.toDto(prItem.getProductDetail()));
-        prItemDto.setPurchaseProductUnit(detailMapper.toDto(prItem.getPurchaseProductUnit()));
         prItemDto.setPurchaseQty(prItem.getPurchaseQty());
         prItemDto.setActualQty(prItem.getActualQty());
         prItemDto.setGiftOrBonusQty(prItem.getGiftOrBonusQty());

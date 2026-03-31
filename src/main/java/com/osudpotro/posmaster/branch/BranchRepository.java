@@ -8,9 +8,11 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface BranchRepository extends JpaSpecificationExecutor<Branch>,JpaRepository<Branch,Long> {
     boolean existsByName(String name);
+    Optional<Branch> findByIsRoot(Boolean isRoot);
     @Transactional
     @Modifying
     @Query("update Branch b set b.status = :status where b.id in :ids")

@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class UserFilter {
-    private String name;
+    private String userName;
     private String email;
     private String mobile;
     private String secondaryEmail;

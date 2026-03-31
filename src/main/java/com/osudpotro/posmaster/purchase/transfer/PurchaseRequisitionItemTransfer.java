@@ -1,4 +1,4 @@
-package com.osudpotro.posmaster.purchase.check;
+package com.osudpotro.posmaster.purchase.transfer;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.osudpotro.posmaster.product.Product;
@@ -15,21 +15,24 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-@Table(name = "final_purchase_requisition_items", uniqueConstraints = @UniqueConstraint(
+@Table(name = "purchase_requisition_item_transfers", uniqueConstraints = @UniqueConstraint(
         columnNames = {
-                "final_purchase_requisition_id",
+                "purchase_requisition_transfer_id",
                 "purchase_requisition_item_id",
                 "product_id",
                 "product_detail_id"
         }
 ))
-public class FinalPurchaseRequisitionItem {
+public class PurchaseRequisitionItemTransfer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "final_purchase_requisition_id")
-    private FinalPurchaseRequisition finalPurchaseRequisition;
+    @JoinColumn(name = "purchase_requisition_transfer_id")
+    private PurchaseRequisitionTransfer purchaseRequisitionTransfer;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "purchase_requisition_id")
+    private PurchaseRequisition purchaseRequisition;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "purchase_requisition_item_id")
     private PurchaseRequisitionItem purchaseRequisitionItem;
@@ -47,17 +50,16 @@ public class FinalPurchaseRequisitionItem {
     private BigDecimal discount;
     private Integer purchaseQty;
     private Integer giftOrBonusQty;
+    private String productionBatchNo;
+    private LocalDateTime manufactureDate;
+    private LocalDateTime expiredDate;
+    private Boolean isAddedToInventory;
     @CreationTimestamp
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "purchase_product_unit_id")
-    private ProductDetail purchaseProductUnit;
-
     public BigDecimal getQty() {
         return BigDecimal.valueOf(purchaseQty);
     }
-
     public BigDecimal getDiscountPrice() {
         if (mrpPrice == null || purchasePrice == null) {
             return BigDecimal.ZERO;

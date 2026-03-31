@@ -52,7 +52,6 @@ public class ProductDetail extends BaseEntity {
     @JoinColumn(name = "product_id")
     @JsonBackReference
     private Product product;
-
     public byte[] generateProductDetailsBarCodeImage(Integer customHeight, Integer customWidth) {
         int width = customWidth != null ? customWidth : 400;
         int height = customHeight != null ? customHeight : 150;

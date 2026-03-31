@@ -1,7 +1,6 @@
 package com.osudpotro.posmaster.purchase.requisition;
 
 import com.osudpotro.posmaster.common.PagedResponse;
-import com.osudpotro.posmaster.requisition.RequisitionDto;
 import com.osudpotro.posmaster.requisition.RequisitionItemNotApprovedException;
 import com.osudpotro.posmaster.requisition.RequisitionUpdateException;
 import com.osudpotro.posmaster.requisition.RequsitionOnPathNotFoundException;
@@ -30,24 +29,23 @@ public class PurchaseRequisitionController {
     }
 
     @PostMapping("/filter")
-    public PagedResponse<PurchaseRequisitionDto> filterManufacturers(
+    public PagedResponse<PurchaseRequisitionDto> filterPrEntities(
             @RequestBody PurchaseRequisitionFilter filter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir
     ) {
-
         Sort sort = sortDir.equalsIgnoreCase("asc") ?
                 Sort.by(sortBy).ascending() :
                 Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<PurchaseRequisitionDto> result = purchaseRequisitionService.getPurchaseRequisitions(filter, pageable);
+        Page<PurchaseRequisitionDto> result = purchaseRequisitionService.filterPrEntities(filter, pageable);
         return new PagedResponse<>(result);
     }
     //  For  Purchase Requisition item
     @PostMapping("/{id}/filter")
-    public PurchaseRequisitionWithItemPageResponse getPurchaseRequisitionWithItemPagination(@PathVariable Long id,
+    public PurchaseRequisitionWithItemPageResponse filterWithItemPagination(@PathVariable Long id,
                                                                                             @RequestBody PurchaseRequisitionItemFilter filter,
                                                                                             @RequestParam(defaultValue = "0") int page,
                                                                                             @RequestParam(defaultValue = "10") int size,
@@ -57,7 +55,7 @@ public class PurchaseRequisitionController {
                 Sort.by(sortBy).ascending() :
                 Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        return purchaseRequisitionService.getPurchaseRequisitionWithItemPagination(id, pageable, filter);
+        return purchaseRequisitionService.filterWithItemPagination(id, pageable, filter);
     }
     //  For  Purchase Requisition item
     @PostMapping("/{id}/filter-for-assign-to-vehicle")
@@ -147,7 +145,7 @@ public class PurchaseRequisitionController {
         return purchaseRequisitionService.updatePurchaseRequisitionItem(purchaseRequisitionId, purchaseRequisitionItemId, request);
     }
 
-    @PostMapping("/{purchaseRequisitionId}/check-invoice-update-item/{purchaseRequisitionItemId}")
+    @PostMapping("/{purchaseRequisitionId}/transfer-invoice-update-item/{purchaseRequisitionItemId}")
     public PurchaseRequisitionItemDto CheckInvoiceAndUpdatePurchaseRequisitionItem(
             @PathVariable(name = "purchaseRequisitionId") Long purchaseRequisitionId,
             @PathVariable(name = "purchaseRequisitionItemId") Long purchaseRequisitionItemId,
@@ -176,10 +174,10 @@ public class PurchaseRequisitionController {
                 Map.of("count", count)
         );
     }
-    @PostMapping("/{purchaseRequisitionId}/assign-to-vehicle")
-    public PurchaseRequisitionDto assignToVehicle(@PathVariable Long purchaseRequisitionId, @RequestBody AssignToVehicleRequest request) {
-        return purchaseRequisitionService.assignToVehicle(purchaseRequisitionId,request);
-    }
+//    @PostMapping("/{purchaseRequisitionId}/assign-to-vehicle")
+//    public PurchaseRequisitionDto assignToVehicle(@PathVariable Long purchaseRequisitionId, @RequestBody AssignToVehicleRequest request) {
+//        return purchaseRequisitionService.assignToVehicle(purchaseRequisitionId,request);
+//    }
     @ExceptionHandler(DuplicatePurchaseRequisitionException.class)
     public ResponseEntity<Map<String, String>> handleDuplicatePurchaseRequisition(Exception ex) {
         return ResponseEntity.badRequest().body(
@@ -229,6 +227,17 @@ public class PurchaseRequisitionController {
         return ResponseEntity.badRequest().body(
                 Map.of("error", e.getMessage())
         );
-//        return ResponseEntity.notFound().build();
+    }
+    @ExceptionHandler(PurchaseRequisitionException.class)
+    public ResponseEntity<Map<String, String>> handlePurchaseRequisitionException(Exception e) {
+        return ResponseEntity.badRequest().body(
+                Map.of("error", e.getMessage())
+        );
+    }
+    @ExceptionHandler(PurchaseRequisitionItemException.class)
+    public ResponseEntity<Map<String, String>> handlePurchaseRequisitionItemException(Exception e) {
+        return ResponseEntity.badRequest().body(
+                Map.of("error", e.getMessage())
+        );
     }
 }

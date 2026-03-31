@@ -1,6 +1,7 @@
 package com.osudpotro.posmaster.user.Employee;
 
 import com.osudpotro.posmaster.common.PagedResponse;
+import com.osudpotro.posmaster.tms.goodsontrip.GoodsOnTripDeliveryException;
 import com.osudpotro.posmaster.user.DuplicateUserException;
 import com.osudpotro.posmaster.user.UserMapper;
 import com.osudpotro.posmaster.user.UserRepository;
@@ -98,14 +99,12 @@ public class EmployeeController {
             @PathVariable(name = "id") Long id) {
         return employeeService.deactivateEmployee(id);
     }
-
     @ExceptionHandler(DuplicateUserException.class)
-    public ResponseEntity<Map<String, String>> handleDuplicateBranch(Exception ex) {
+    public ResponseEntity<Map<String, String>> handleDuplicateUserException(Exception e) {
         return ResponseEntity.badRequest().body(
-                Map.of("name", "Name is already exist.")
+                Map.of("error", e.getMessage())
         );
     }
-
     @ExceptionHandler(EmployeeNotFoundException.class)
     public ResponseEntity<Void> handleEmployeeNotFound() {
         return ResponseEntity.notFound().build();

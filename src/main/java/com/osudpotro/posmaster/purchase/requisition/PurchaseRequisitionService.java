@@ -2,10 +2,7 @@ package com.osudpotro.posmaster.purchase.requisition;
 
 import com.osudpotro.posmaster.branch.Branch;
 import com.osudpotro.posmaster.common.Location;
-import com.osudpotro.posmaster.purchase.check.FinalPurchaseRequisition;
-import com.osudpotro.posmaster.purchase.check.FinalPurchaseRequisitionItem;
-import com.osudpotro.posmaster.purchase.check.FinalPurchaseRequisitionItemRepository;
-import com.osudpotro.posmaster.purchase.check.FinalPurchaseRequisitionRepository;
+import com.osudpotro.posmaster.purchase.transfer.*;
 import com.osudpotro.posmaster.tms.driver.DriverNotFoundException;
 import com.osudpotro.posmaster.tms.driver.DriverRepository;
 import com.osudpotro.posmaster.tms.goodsontrip.GoodsOnTrip;
@@ -44,13 +41,13 @@ import java.util.*;
 @Service
 public class PurchaseRequisitionService {
     @Autowired
-    private PurchaseRequisitionRepository purchaseRequisitionRepository;
+    private PurchaseRequisitionRepository prRepo;
     @Autowired
     private PurchaseRequisitionItemRepository priRepostory;
     @Autowired
-    private FinalPurchaseRequisitionRepository fprRepo;
+    private PurchaseRequisitionTransferRepository prTransferRepo;
     @Autowired
-    private FinalPurchaseRequisitionItemRepository fprItemRepo;
+    private PurchaseRequisitionItemTransferRepository prItemTransferRepo;
     @Autowired
     private RequisitionRepository requisitionRepository;
     @Autowired
@@ -81,41 +78,39 @@ public class PurchaseRequisitionService {
     private DriverRepository driverRepository;
     @Autowired
     private GoodsOnTripRepository goodsOnTripRepository;
-    private Optional<FinalPurchaseRequisition> finalPr;
 
     public List<PurchaseRequisitionDto> getAllPurchaseRequisitions() {
-        return purchaseRequisitionRepository.findAll()
+        return prRepo.findAll()
                 .stream()
                 .map(purchaseRequisitionMapper::toDto)
                 .toList();
     }
 
-    public Page<PurchaseRequisitionDto> getPurchaseRequisitions(PurchaseRequisitionFilter filter, Pageable pageable) {
-        return purchaseRequisitionRepository.findAll(PurchaseRequisitionSpecification.filter(filter), pageable).map(purchaseRequisitionMapper::toDto);
+    public Page<PurchaseRequisitionDto> filterPrEntities(PurchaseRequisitionFilter filter, Pageable pageable) {
+        return prRepo.findAll(PurchaseRequisitionSpecification.filter(filter), pageable).map(purchaseRequisitionMapper::toDto);
     }
 
+    @Transactional
     public PurchaseRequisitionDto createPurchaseRequisition(PurchaseRequisitionCreateRequest request) {
-        if (purchaseRequisitionRepository.existsByRequsitionRef(request.getRequsitionRef())) {
+        var authUser = authService.getCurrentUser();
+        String requisitionRef = generateRequisitionRef();
+        if (prRepo.existsByRequsitionRef(requisitionRef)) {
             throw new DuplicatePurchaseRequisitionException();
         }
-        var organization = organizationRepository.findById(request.getOrganizationId()).orElse(null);
+        Branch rootBranch = branchRepository.findByIsRoot(true).orElseThrow(BranchNotFoundException::new);
+        Branch reqBranch = branchRepository.findById(authUser.getBranch().getId()).orElseThrow(BranchNotFoundException::new);
+        var organization = organizationRepository.findById(reqBranch.getOrganization().getId()).orElse(null);
         if (organization == null) {
             throw new OrganizationNotFoundException();
         }
-        var branch = branchRepository.findById(request.getBranchId()).orElse(null);
-        if (branch == null) {
-            throw new BranchNotFoundException();
-        }
-        var authUser = authService.getCurrentUser();
         PurchaseRequisition pr = new PurchaseRequisition();
-        String requisitionRef = generateRequisitionRef();
         pr.setRequsitionRef(requisitionRef);
         pr.setPurchaseType(PurchaseType.fromCode(request.getPurchaseType()));
-
         pr.setOrganization(organization);
-        pr.setBranch(branch);
+        pr.setReqBranch(reqBranch);
+        pr.setRootBranch(rootBranch);
         pr.setCreatedBy(authUser);
-        pr = purchaseRequisitionRepository.save(pr);
+        pr = prRepo.save(pr);
         //Common Requsition Start Here
         if (pr.getRequisition() == null) {
             Requisition requisition = new Requisition();
@@ -145,29 +140,15 @@ public class PurchaseRequisitionService {
             requisitionRepository.save(requisition);
             pr.setRequisition(requisition);
         }
-        purchaseRequisitionRepository.save(pr);
+        prRepo.save(pr);
         return purchaseRequisitionMapper.toDto(pr);
     }
 
     @Transactional
     public PurchaseRequisitionDto updatePurchaseRequisition(Long purchaseRequisitionId, PurchaseRequisitionUpdateRequest request) {
-        var pr = purchaseRequisitionRepository.findById(purchaseRequisitionId).orElseThrow(PurchaseRequisitionNotFoundException::new);
+        PurchaseRequisition pr = prRepo.findById(purchaseRequisitionId).orElseThrow(PurchaseRequisitionNotFoundException::new);
         if (pr.getTotalItems() == 0) {
             throw new PurchaseRequisitionEmptyException();
-        }
-        if (request.getOrganizationId() != null) {
-            var organization = organizationRepository.findById(request.getOrganizationId()).orElse(null);
-            if (organization == null) {
-                throw new OrganizationNotFoundException();
-            }
-            pr.setOrganization(organization);
-        }
-        if (request.getBranchId() != null) {
-            var branch = branchRepository.findById(request.getBranchId()).orElse(null);
-            if (branch == null) {
-                throw new BranchNotFoundException();
-            }
-            pr.setBranch(branch);
         }
         if (request.getPurchaseType() != null) {
             pr.setPurchaseType(PurchaseType.fromCode(request.getPurchaseType()));
@@ -191,20 +172,24 @@ public class PurchaseRequisitionService {
         }
         var requisitionType = requsitionTypeRepository.findByRequisitionTypeKey(requsitionName).orElseThrow(RequisitionTypeNotFoundException::new);
         Requisition requisition = null;
-        int requisitionStatus = 1;
+        int requisitionStatus = 0;
+        Set<Integer> checkRequisitionStatus = Set.of(1, 5);
         if (pr.getRequisition() != null) {
             requisitionStatus = pr.getRequisition().getRequisitionStatus();
-            if (requisitionStatus != 1) {
-                throw new RequisitionUpdateException();
+            if(!checkRequisitionStatus.contains(requisitionStatus)){
+                throw new RequisitionUpdateException("Already Processed! ");
             }
             requisition = requisitionRepository.findById(pr.getRequisition().getId()).orElse(null);
+        }else {
+            requisitionStatus=1;
         }
-
         if (requisition != null) {
             requisition.setPurchaseRequisition(pr);
             requisition.setRequsitionRef(pr.getRequsitionRef());
             requisition.setRequisitionType(requisitionType);
-            requisition.setReviewCount(1);
+            if(requisition.getReviewCount()==1){
+                requisition.setReviewCount(1);
+            }
             if (request.getRequisitionStatus() != null) {
                 requisition.setRequisitionStatus(request.getRequisitionStatus());
             }
@@ -229,31 +214,36 @@ public class PurchaseRequisitionService {
             requisitionRepository.save(requisition);
         }
         pr.setRequisition(requisition);
+
         // requisition approver paths
-        if (requisitionStatus == 1 && request.getRequisitionStatus() != null && request.getRequisitionStatus() == 2) {
+        if (checkRequisitionStatus.contains(requisitionStatus) && request.getRequisitionStatus() != null && request.getRequisitionStatus() == 2) {
             if (!ropRepository.existRequisitionOnPathByUser(authUser.getId(), pr.getRequisition().getId())) {
                 var findApproverPrevNullUser = requisitionApproverRepository.findApproverWithNullPrevUser(requisitionType.getId()).orElseThrow(RequsitionOnPathNotFoundException::new);
-                if (findApproverPrevNullUser != null) {
-                    RequisitionOnPath rop = new RequisitionOnPath();
-                    rop.setRequisition(pr.getRequisition());
-                    rop.setReviewCount(pr.getRequisition().getReviewCount());
-                    rop.setPrevUser(findApproverPrevNullUser.getPrevUser());
-                    rop.setUser(findApproverPrevNullUser.getUser());
-                    rop.setNextUser(findApproverPrevNullUser.getNextUser());
-                    rop.setApprovedStatus(1);
-                    rop.setCreatedBy(authUser);
-                    ropRepository.save(rop);
-                    requisition.getRequisitionOnPaths().add(rop);
-                }
+                RequisitionOnPath rop = new RequisitionOnPath();
+                rop.setRequisition(pr.getRequisition());
+                rop.setReviewCount(pr.getRequisition().getReviewCount());
+                rop.setPrevUser(findApproverPrevNullUser.getPrevUser());
+                rop.setUser(findApproverPrevNullUser.getUser());
+                rop.setNextUser(findApproverPrevNullUser.getNextUser());
+                rop.setApprovedStatus(1);
+                rop.setCreatedBy(authUser);
+                ropRepository.save(rop);
+                requisition.getRequisitionOnPaths().add(rop);
             }
         }
-        purchaseRequisitionRepository.save(pr);
+        prRepo.save(pr);
         return purchaseRequisitionMapper.toDto(pr);
     }
 
     @Transactional
     public PurchaseRequisitionDto updatePurchaseRequisitionInvoiceRef(Long purchaseRequisitionId, PurchaseRequisitionInvoiceRefRequest request) {
-        var pr = purchaseRequisitionRepository.findById(purchaseRequisitionId).orElseThrow(PurchaseRequisitionNotFoundException::new);
+        var pr = prRepo.findById(purchaseRequisitionId).orElseThrow(PurchaseRequisitionNotFoundException::new);
+        if (pr.getRequisition().getRequisitionStatus() != 3) {
+            throw new PurchaseRequisitionException("Purchase Requisition is not approved yet!");
+        }
+        if (pr.getIsFinal()) {
+            throw new PurchaseRequisitionException("Purchase Requisition is not possible to processed further");
+        }
         if (pr.getTotalItems() == 0) {
             throw new PurchaseRequisitionEmptyException();
         }
@@ -262,13 +252,13 @@ public class PurchaseRequisitionService {
             String[] reqInvoices = request.getPurchaseInvoices().split(",");
             for (String invoice : reqInvoices) {
                 if (!hasInvoice) {
-                    var findPr = purchaseRequisitionRepository.findPurchaseRequisitionByInvoice(purchaseRequisitionId, invoice).orElse(null);
+                    var findPr = prRepo.findPurchaseRequisitionByInvoice(purchaseRequisitionId, invoice).orElse(null);
                     if (findPr != null && findPr.getPurchaseInvoices() != null) {
                         String invoices = findPr.getPurchaseInvoices();
                         if (!invoices.isEmpty()) {
-                            invoices = invoices + "," + findPr.getTempPurchaseInvoices();
+                            invoices = invoices + "," + findPr.getPurchaseInvoices();
                         } else {
-                            invoices = findPr.getTempPurchaseInvoices();
+                            invoices = findPr.getPurchaseInvoices();
                         }
                         String[] prevInvoices = invoices.split(",");
                         if (Arrays.asList(prevInvoices).contains(invoice)) {
@@ -281,79 +271,52 @@ public class PurchaseRequisitionService {
                 throw new DuplicatePurchaseRequisitionException("Duplicate Purchase Invoice Found");
             }
         }
-//        Check here transferStatus is DELIVERED or not in FinalPurchaseRequisition
-        var finalPr = fprRepo.findFinalPurchaseRequisitionByPrIDAndTransfer(purchaseRequisitionId, 1).orElse(null);
-        if (finalPr != null) {
-            boolean hasFinalInvoice = false;
+//        Check here transferStatus is DELIVERED or not in PurchaseRequisitionTransfer
+        var prTransfer = prTransferRepo.findFinalPurchaseRequisitionByPrIDAndTransfer(purchaseRequisitionId, 1).orElse(null);
+        if (prTransfer != null) {
+            boolean hasTempInvoice = false;
             if (request.getPurchaseInvoices() != null) {
                 String[] reqInvoices = request.getPurchaseInvoices().split(",");
                 for (String invoice : reqInvoices) {
-                    if (!hasFinalInvoice) {
-                        var findFinalPr = fprRepo.findFinalPurchaseRequisitionByInvoiceExceptprId(purchaseRequisitionId, invoice).orElse(null);
+                    if (!hasTempInvoice) {
+                        var findFinalPr = prTransferRepo.findFinalPurchaseRequisitionByInvoiceExceptprId(purchaseRequisitionId, invoice).orElse(null);
                         if (findFinalPr != null) {
-                            hasFinalInvoice = true;
+                            hasTempInvoice = true;
                         }
                     }
                 }
             }
-            if (hasFinalInvoice) {
-                throw new DuplicatePurchaseRequisitionException("Duplicate Purchase Invoice Found");
+            if (hasTempInvoice) {
+                throw new DuplicatePurchaseRequisitionException("Duplicate Purchase Invoice Found that you have already send! ");
             }
         }
-
         var authUser = authService.getCurrentUser();
         pr.setUpdatedBy(authUser);
         if (request.getIsFinal() != null && request.getIsFinal()) {
             pr.setIsFinal(true);
         }
-        if (finalPr == null) {
-            finalPr = new FinalPurchaseRequisition();
-            if (pr.getPurchaseInvoices() != null && !pr.getPurchaseInvoiceDocs().isEmpty()) {
-                if (pr.getTempPurchaseInvoices() != null && !pr.getTempPurchaseInvoices().isEmpty()) {
-                    pr.setPurchaseInvoices(pr.getPurchaseInvoices() + "," + pr.getTempPurchaseInvoices());
-                }
-                pr.setTempPurchaseInvoices(request.getPurchaseInvoices());
-            }
-            if (pr.getPurchaseInvoiceDocs() != null && !pr.getPurchaseInvoiceDocs().isEmpty()) {
-                if (pr.getTempPurchaseInvoiceDocs() != null && !pr.getTempPurchaseInvoiceDocs().isEmpty()) {
-                    pr.setTempPurchaseInvoiceDocs(pr.getTempPurchaseInvoiceDocs() + "," + pr.getTempPurchaseInvoiceDocs());
-                }
-                pr.setTempPurchaseInvoiceDocs(request.getPurchaseInvoiceDocs());
-            }
-            if (pr.getOrderRefs() != null && !pr.getOrderRefs().isEmpty()) {
-                if (pr.getTempOrderRefs() != null && !pr.getTempOrderRefs().isEmpty()) {
-                    pr.setOrderRefs(pr.getOrderRefs() + "," + pr.getTempOrderRefs());
-                }
-                pr.setTempOrderRefs(request.getOrderRefs());
-            }
-            if (pr.getOverallDiscount() != null) {
-                if (pr.getTempOverallDiscount() != null) {
-                    pr.setOverallDiscount(pr.getOverallDiscount());
-                }
-                pr.setTempOverallDiscount(request.getOverallDiscount());
-            }
-        } else {
-            pr.setTempPurchaseInvoices(request.getPurchaseInvoices());
-            pr.setTempPurchaseInvoiceDocs(request.getPurchaseInvoiceDocs());
-            pr.setTempOrderRefs(request.getOrderRefs());
-            pr.setTempOverallDiscount(request.getOverallDiscount());
+        if (prTransfer == null) {
+            prTransfer = new PurchaseRequisitionTransfer();
         }
-        finalPr.setRequsitionRef(pr.getRequsitionRef());
-        finalPr.setPurchaseType(pr.getPurchaseType());
-        finalPr.setOrganization(pr.getOrganization());
-        finalPr.setBranch(pr.getBranch());
-        finalPr.setOverallDiscount(request.getOverallDiscount());
-        finalPr.setPurchaseInvoices(request.getPurchaseInvoices());
-        finalPr.setPurchaseInvoiceDocs(request.getPurchaseInvoiceDocs());
-        finalPr.setOrderRefs(request.getOrderRefs());
-        finalPr.setPurchaseRequisition(pr);
-        fprRepo.save(finalPr);
-        purchaseRequisitionRepository.save(pr);
+
+        pr.setPurchaseInvoices(request.getPurchaseInvoices());
+        pr.setPurchaseInvoiceDocs(request.getPurchaseInvoiceDocs());
+        pr.setOrderRefs(request.getOrderRefs());
+        pr.setOverallDiscount(request.getOverallDiscount());
+
+        prTransfer.setRequsitionRef(pr.getRequsitionRef());
+        prTransfer.setOverallDiscount(request.getOverallDiscount());
+        prTransfer.setPurchaseInvoices(request.getPurchaseInvoices());
+        prTransfer.setPurchaseInvoiceDocs(request.getPurchaseInvoiceDocs());
+        prTransfer.setOrderRefs(request.getOrderRefs());
+        prTransfer.setPurchaseRequisition(pr);
+        prTransferRepo.save(prTransfer);
+        prRepo.save(pr);
         return purchaseRequisitionMapper.toDto(pr);
     }
 
     public PurchaseRequisitionDto getPurchaseRequisition(Long purchaseRequisitionId) {
-        var pr = purchaseRequisitionRepository.findById(purchaseRequisitionId).orElseThrow(() -> new PurchaseRequisitionNotFoundException("PurchaseRequisition not found with ID: " + purchaseRequisitionId));
+        var pr = prRepo.findById(purchaseRequisitionId).orElseThrow(() -> new PurchaseRequisitionNotFoundException("PurchaseRequisition not found with ID: " + purchaseRequisitionId));
         List<PurchaseRequisitionItemDto> prilist = priRepostory.findPurchaseRequisitionItemsList(purchaseRequisitionId).stream()
                 .map(priMapper::toDto)
                 .toList();
@@ -363,7 +326,7 @@ public class PurchaseRequisitionService {
     }
 
     public PurchaseRequisitionReportDto findPurchaseRequisitionItemReportList(Long purchaseRequisitionId) {
-        var pr = purchaseRequisitionRepository.findById(purchaseRequisitionId).orElseThrow(() -> new PurchaseRequisitionNotFoundException("PurchaseRequisition not found with ID: " + purchaseRequisitionId));
+        var pr = prRepo.findById(purchaseRequisitionId).orElseThrow(() -> new PurchaseRequisitionNotFoundException("PurchaseRequisition not found with ID: " + purchaseRequisitionId));
         List<PurchaseRequisitionItemReportDTO> prilist = priRepostory.findPurchaseRequisitionItemReportList(purchaseRequisitionId);
         var prDto = purchaseRequisitionMapper.toReportDto(pr);
         prDto.setItems(prilist);
@@ -371,60 +334,64 @@ public class PurchaseRequisitionService {
     }
 
     public PurchaseRequisition getPurchaseRequisitionEntity(Long purchaseRequisitionId) {
-        return purchaseRequisitionRepository.findById(purchaseRequisitionId).orElseThrow(() -> new PurchaseRequisitionNotFoundException("PurchaseRequisition not found with ID: " + purchaseRequisitionId));
+        return prRepo.findById(purchaseRequisitionId).orElseThrow(() -> new PurchaseRequisitionNotFoundException("PurchaseRequisition not found with ID: " + purchaseRequisitionId));
     }
 
     public PurchaseRequisitionDto activePurchaseRequisition(Long purchaseRequisitionId) {
-        var pr = purchaseRequisitionRepository.findById(purchaseRequisitionId).orElseThrow(() -> new PurchaseRequisitionNotFoundException("PurchaseRequisition not found with ID: " + purchaseRequisitionId));
+        var pr = prRepo.findById(purchaseRequisitionId).orElseThrow(() -> new PurchaseRequisitionNotFoundException("PurchaseRequisition not found with ID: " + purchaseRequisitionId));
         var authUser = authService.getCurrentUser();
         pr.setStatus(1);
         pr.setUpdatedBy(authUser);
-        purchaseRequisitionRepository.save(pr);
+        prRepo.save(pr);
         return purchaseRequisitionMapper.toDto(pr);
     }
 
     public PurchaseRequisitionDto deactivatePurchaseRequisition(Long purchaseRequisitionId) {
-        var pr = purchaseRequisitionRepository.findById(purchaseRequisitionId).orElseThrow(() -> new PurchaseRequisitionNotFoundException("PurchaseRequisition not found with ID: " + purchaseRequisitionId));
+        var pr = prRepo.findById(purchaseRequisitionId).orElseThrow(() -> new PurchaseRequisitionNotFoundException("PurchaseRequisition not found with ID: " + purchaseRequisitionId));
         var authUser = authService.getCurrentUser();
         pr.setStatus(2);
         pr.setUpdatedBy(authUser);
-        purchaseRequisitionRepository.save(pr);
+        prRepo.save(pr);
         return purchaseRequisitionMapper.toDto(pr);
     }
 
     public PurchaseRequisitionDto deletePurchaseRequisition(Long purchaseRequisitionId) {
-        var pr = purchaseRequisitionRepository.findById(purchaseRequisitionId).orElseThrow(() -> new PurchaseRequisitionNotFoundException("PurchaseRequisition not found with ID: " + purchaseRequisitionId));
+        var pr = prRepo.findById(purchaseRequisitionId).orElseThrow(() -> new PurchaseRequisitionNotFoundException("PurchaseRequisition not found with ID: " + purchaseRequisitionId));
         var authUser = authService.getCurrentUser();
         pr.setStatus(3);
         pr.setUpdatedBy(authUser);
-        purchaseRequisitionRepository.save(pr);
+        prRepo.save(pr);
         return purchaseRequisitionMapper.toDto(pr);
     }
 
     public int deleteBulkPurchaseRequisition(List<Long> purchaseRequisitionIds) {
-        return purchaseRequisitionRepository.deleteBulkPurchaseRequisition(purchaseRequisitionIds, 3L);
+        return prRepo.deleteBulkPurchaseRequisition(purchaseRequisitionIds, 3L);
     }
 
     //    For Purchase Requisition Item
-    public PurchaseRequisitionWithItemPageResponse getPurchaseRequisitionWithItemPagination(Long purchaseRequisitionId, Pageable pageable, PurchaseRequisitionItemFilter filter) {
-        PurchaseRequisition pr = purchaseRequisitionRepository.findPurchaseRequisitionById(purchaseRequisitionId).orElseThrow(PurchaseRequisitionNotFoundException::new);
+    public PurchaseRequisitionWithItemPageResponse filterWithItemPagination(Long purchaseRequisitionId, Pageable pageable, PurchaseRequisitionItemFilter filter) {
+        PurchaseRequisition pr = prRepo.findPurchaseRequisitionById(purchaseRequisitionId).orElseThrow(PurchaseRequisitionNotFoundException::new);
         Page<PurchaseRequisitionItemDto> result = priRepostory.findPurchaseRequisitionItems(purchaseRequisitionId, filter.getName(), pageable).map(priMapper::toDto);
         return purchaseRequisitionMapper.toMinDto(pr, result);
     }
 
     //    For Purchase Requisition Item
     public PurchaseRequisitionWithItemPageResponse filterAddablePurchaseRequisitionItems(Long purchaseRequisitionId, Pageable pageable, PurchaseRequisitionItemFilter filter) {
-        PurchaseRequisition pr = purchaseRequisitionRepository.findPurchaseRequisitionById(purchaseRequisitionId).orElseThrow(PurchaseRequisitionNotFoundException::new);
+        PurchaseRequisition pr = prRepo.findPurchaseRequisitionById(purchaseRequisitionId).orElseThrow(PurchaseRequisitionNotFoundException::new);
         Page<PurchaseRequisitionItem> resultBase = priRepostory.filterAddablePurchaseRequisitionItems(purchaseRequisitionId, filter.getName(), pageable);
         Page<PurchaseRequisitionItemDto> result = resultBase.map(priMapper::toDto);
         pr.setItems(resultBase.getContent());
         return purchaseRequisitionMapper.toMinDto(pr, result);
     }
 
+    @Transactional
     public PurchaseRequisitionItemDto addPurchaseRequisitionItem(Long purchaseRequisitionId, PurchaseRequisitionItemAddRequest request) {
-        PurchaseRequisition pr = purchaseRequisitionRepository.findById(purchaseRequisitionId).orElse(null);
+        PurchaseRequisition pr = prRepo.findById(purchaseRequisitionId).orElse(null);
         if (pr == null) {
             throw new PurchaseRequisitionNotFoundException();
+        }
+        if (pr.getIsFinal()) {
+            throw new PurchaseRequisitionException("Purchase Requisition is not possible to processed further");
         }
         var product = productRepository.findById(request.getProductId()).orElse(null);
         if (product == null) {
@@ -464,7 +431,7 @@ public class PurchaseRequisitionService {
     }
 
     public PurchaseRequisitionItemDto updatePurchaseRequisitionItem(Long purchaseRequisitionId, Long purchaseRequisitionItemId, PurchaseRequisitionItemUpdateRequest request) {
-        PurchaseRequisition pr = purchaseRequisitionRepository.findById(purchaseRequisitionId).orElse(null);
+        PurchaseRequisition pr = prRepo.findById(purchaseRequisitionId).orElse(null);
         if (pr == null) {
             throw new PurchaseRequisitionNotFoundException();
         }
@@ -472,8 +439,11 @@ public class PurchaseRequisitionService {
         if (prItem == null) {
             throw new PurchaseRequisitionItemNotFoundException();
         }
+        var product = productRepository.findById(prItem.getProduct().getId()).orElse(null);
+        if (product == null) {
+            throw new ProductNotFoundException();
+        }
         var authUser = authService.getCurrentUser();
-        prItem.setPurchaseProductUnit(prItem.getProduct().getPurchaseProductUnit());
         if (request.getPurchaseQty() != null) {
             prItem.setPurchaseQty(request.getPurchaseQty());
             prItem.setActualQty(request.getPurchaseQty());
@@ -486,12 +456,13 @@ public class PurchaseRequisitionService {
                         .subtract(prItem.getProductDetail().getPurchasePrice()));
             }
         }
+        prItem.setPurchaseProductUnit(product.getPurchaseProductUnit());
         priRepostory.save(prItem);
         return priMapper.toDto(prItem);
     }
 
     public PurchaseRequisitionItemDto CheckInvoiceAndUpdatePurchaseRequisitionItem(Long purchaseRequisitionId, Long purchaseRequisitionItemId, PurchaseRequisitionItemUpdateRequest request) {
-        PurchaseRequisition pr = purchaseRequisitionRepository.findById(purchaseRequisitionId).orElse(null);
+        PurchaseRequisition pr = prRepo.findById(purchaseRequisitionId).orElse(null);
         if (pr == null) {
             throw new PurchaseRequisitionNotFoundException();
         }
@@ -502,7 +473,6 @@ public class PurchaseRequisitionService {
         if (pr.getRequisition().getRequisitionStatus() != 3) {
             throw new RequisitionItemNotApprovedException();
         }
-        prItem.setPurchaseProductUnit(prItem.getProduct().getPurchaseProductUnit());
         if (pr.getRequisition().getRequisitionStatus() == 3) {
             if (request.getActualQty() != null) {
                 prItem.setActualQty(request.getActualQty());
@@ -535,7 +505,7 @@ public class PurchaseRequisitionService {
     }
 
     public PurchaseRequisitionItemDto removePurchaseRequisitionItem(Long purchaseRequisitionId, Long purchaseRequisitionItemId) {
-        PurchaseRequisition purchaseRequisition = purchaseRequisitionRepository.findById(purchaseRequisitionId).orElse(null);
+        PurchaseRequisition purchaseRequisition = prRepo.findById(purchaseRequisitionId).orElse(null);
         if (purchaseRequisition == null) {
             throw new PurchaseRequisitionNotFoundException();
         }
@@ -545,7 +515,7 @@ public class PurchaseRequisitionService {
         }
         purchaseRequisition.getItems().remove(purchaseRequisitionItem);
         purchaseRequisitionItem.setPurchaseRequisition(null);
-        purchaseRequisitionRepository.save(purchaseRequisition);
+        prRepo.save(purchaseRequisition);
         return priMapper.toDto(purchaseRequisitionItem);
     }
 
@@ -555,114 +525,64 @@ public class PurchaseRequisitionService {
 
     @Transactional
     public int updateBulkForAddableItem(Long purchaseRequisitionId, List<Long> purchaseRequisitionItemIds, Integer addableStatus) {
-        PurchaseRequisition pr = purchaseRequisitionRepository.findById(purchaseRequisitionId).orElse(null);
+        PurchaseRequisition pr = prRepo.findById(purchaseRequisitionId).orElse(null);
         if (pr == null) {
             throw new PurchaseRequisitionNotFoundException();
         }
-        var finalPr = fprRepo.findFinalPurchaseRequisitionByPrIDAndTransfer(purchaseRequisitionId, 1).orElse(null);
-        if (finalPr == null) {
-            finalPr = new FinalPurchaseRequisition();
-            finalPr.setRequsitionRef(pr.getRequsitionRef());
-            finalPr.setPurchaseType(pr.getPurchaseType());
-            finalPr.setOrganization(pr.getOrganization());
-            finalPr.setBranch(pr.getBranch());
-            finalPr.setOverallDiscount(pr.getOverallDiscount());
-            finalPr.setPurchaseInvoices(pr.getPurchaseInvoices());
-            finalPr.setPurchaseInvoiceDocs(pr.getPurchaseInvoiceDocs());
-            finalPr.setOrderRefs(pr.getOrderRefs());
-            finalPr.setPurchaseRequisition(pr);
-            fprRepo.save(finalPr);
+        if (pr.getIsFinal()) {
+            throw new PurchaseRequisitionException("Purchase Requisition is not possible to processed further");
         }
-        List<FinalPurchaseRequisitionItem> items = new ArrayList<>();
+        if (pr.getPurchaseInvoices() == null && pr.getPurchaseInvoiceDocs() == null) {
+            throw new PurchaseRequisitionException("Purchase Invoices and Docs input first");
+        }
+        var priList = pr.getItems();
         for (Long purchaseRequisitionItemId : purchaseRequisitionItemIds) {
-            var finalPrItem = fprItemRepo.findByFinalPurchaseRequisitionIdAndPurchaseRequisitionItemId(finalPr.getId(), purchaseRequisitionItemId).orElse(null);
-            if (finalPrItem == null) {
-                finalPrItem = new FinalPurchaseRequisitionItem();
-                finalPrItem.setFinalPurchaseRequisition(finalPr);
+            var findPri = priList.stream().filter((item) -> {
+                return Objects.equals(item.getId(), purchaseRequisitionItemId) && (item.getAddableStatus() != null && item.getAddableStatus() == 2);
+            }).findFirst();
+            if (findPri.isPresent()) {
+                throw new PurchaseRequisitionItemException("One of them item you have already send");
+            }
+        }
+        var prTransfer = prTransferRepo.findFinalPurchaseRequisitionByPrIDAndTransfer(purchaseRequisitionId, 1).orElse(null);
+        if (prTransfer == null) {
+            prTransfer = new PurchaseRequisitionTransfer();
+            prTransfer.setRequsitionRef(pr.getRequsitionRef());
+            prTransfer.setOverallDiscount(pr.getOverallDiscount());
+            prTransfer.setPurchaseInvoices(pr.getPurchaseInvoices());
+            prTransfer.setPurchaseInvoiceDocs(pr.getPurchaseInvoiceDocs());
+            prTransfer.setOrderRefs(pr.getOrderRefs());
+            prTransfer.setPurchaseRequisition(pr);
+            prTransferRepo.save(prTransfer);
+        }
+        List<PurchaseRequisitionItemTransfer> items = new ArrayList<>();
+        for (Long purchaseRequisitionItemId : purchaseRequisitionItemIds) {
+            var prTransferItem = prItemTransferRepo.findByPurchaseRequisitionTransferIdAndPurchaseRequisitionItemId(prTransfer.getId(), purchaseRequisitionItemId).orElse(null);
+            if (prTransferItem == null) {
+                prTransferItem = new PurchaseRequisitionItemTransfer();
+                prTransferItem.setPurchaseRequisitionTransfer(prTransfer);
                 PurchaseRequisitionItem prItem = priRepostory.findById(purchaseRequisitionItemId).orElse(null);
                 if (prItem == null) {
                     throw new PurchaseRequisitionItemNotFoundException();
                 }
-                finalPrItem.setPurchaseRequisitionItem(prItem);
-                finalPrItem.setProduct(prItem.getProduct());
-                finalPrItem.setProductDetail(prItem.getProductDetail());
-                finalPrItem.setMrpPrice(prItem.getMrpPrice());
-                finalPrItem.setPurchaseProductUnit(prItem.getPurchaseProductUnit());
-                finalPrItem.setPurchasePrice(prItem.getPurchasePrice());
-                finalPrItem.setPurchaseQty(prItem.getPurchaseQty());
-                finalPrItem.setDiscount(prItem.getDiscount());
-                finalPrItem.setGiftOrBonusQty(prItem.getGiftOrBonusQty());
+                prTransferItem.setPurchaseRequisition(pr);
+                prTransferItem.setPurchaseRequisitionItem(prItem);
+                prTransferItem.setProduct(prItem.getProduct());
+                prTransferItem.setProductDetail(prItem.getProductDetail());
+                prTransferItem.setMrpPrice(prItem.getMrpPrice());
+                prTransferItem.setPurchasePrice(prItem.getPurchasePrice());
+                prTransferItem.setPurchaseQty(prItem.getPurchaseQty());
+                prTransferItem.setDiscount(prItem.getDiscount());
+                prTransferItem.setGiftOrBonusQty(prItem.getGiftOrBonusQty());
             }
-            items.add(finalPrItem);
+            items.add(prTransferItem);
         }
-        fprItemRepo.saveAll(items);
+        prItemTransferRepo.saveAll(items);
         return priRepostory.updateBulkForAddableItem(purchaseRequisitionId, purchaseRequisitionItemIds, addableStatus);
     }
 
-    @Transactional
-    public PurchaseRequisitionDto assignToVehicle(Long purchaseRequisitionId, AssignToVehicleRequest request) {
-        var pr = purchaseRequisitionRepository.findById(purchaseRequisitionId).orElseThrow(PurchaseRequisitionNotFoundException::new);
-        var r = requisitionRepository.findById(pr.getRequisition().getId()).orElseThrow(RequsitionNotFoundException::new);
-//        if (r.getDeliveryStatus() != 1) {
-//            throw new DuplicateVehicleException("Vehicle Trip already Assign");
-//        }
-        Branch sourceBranch = branchRepository.findById(1L).orElseThrow(BranchNotFoundException::new);
-        Branch destBranch = pr.getBranch();
-        VehicleTrip vehicleTrip = null;
-        var authUser = authService.getCurrentUser();
-        if (request.getTripRef() != null) {
-            vehicleTrip = vehicleTripRepository.findByTripRef(request.getTripRef()).orElseThrow(VehicleTripNotFoundException::new);
-            if (vehicleTrip.getTripStatus() == TripStatus.PENDING) {
-                vehicleTrip.setTripStatus(TripStatus.SCHEDULED);
-                vehicleTripRepository.save(vehicleTrip);
-            }
-        }
-        if (request.getTripRef() == null && request.getVehicleId() != null && request.getDriverId() != null) {
-            String tripRef = generateTripRef();
-            if (vehicleTripRepository.existsByTripRef(tripRef)) {
-                throw new DuplicateVehicleException("Vehicle Trip already exists");
-            }
-            var vehicle = vehicleRepository.findById(request.getVehicleId()).orElseThrow(VehicleNotFoundException::new);
-            var driver = driverRepository.findById(request.getDriverId()).orElseThrow(DriverNotFoundException::new);
-            vehicleTrip = new VehicleTrip();
-            vehicleTrip.setTripRef(generateTripRef());
-            vehicleTrip.setVehicle(vehicle);
-            vehicleTrip.setDriver(driver);
-            vehicleTrip.setTripStatus(TripStatus.SCHEDULED);
-            vehicleTrip.setCreatedBy(authUser);
-            vehicleTripRepository.save(vehicleTrip);
-        }
-        GoodsOnTrip goodsOnTrip = new GoodsOnTrip();
-        goodsOnTrip.setGoodsRef(generateGoodsRef());
-        goodsOnTrip.setVehicleTrip(vehicleTrip);
-        goodsOnTrip.setGoodsType(GoodsType.INVOICE);
-        goodsOnTrip.setGoodsReference(pr.getPurchaseInvoices());
-        goodsOnTrip.setGoodsReferenceDocs(pr.getPurchaseInvoiceDocs());
-        goodsOnTrip.setGoodsStatus(GoodsStatus.ASSIGN_TO_VEHICLE);
-        goodsOnTrip.setSourceAddress(request.getSourceAddress());
-        goodsOnTrip.setDestAddress(request.getDestAddress());
-        goodsOnTrip.setSourceBranch(sourceBranch);
-        Location source = new Location();
-        source.setLatitude(sourceBranch.getLatitude());
-        source.setLongitude(sourceBranch.getLongitude());
-        goodsOnTrip.setSource(source);
-        goodsOnTrip.setDestBranch(destBranch);
-        Location destination = new Location();
-        destination.setLatitude(destBranch.getLatitude());
-        destination.setLongitude(destBranch.getLongitude());
-        goodsOnTrip.setDestination(destination);
-        goodsOnTrip.setLoadedAt(LocalDateTime.now());
-        goodsOnTrip.setAssignBy(authUser);
-        goodsOnTrip.setCreatedBy(authUser);
-        goodsOnTrip.setRequisition(r);
-        goodsOnTripRepository.save(goodsOnTrip);
-        pr.setRequisition(r);
-        purchaseRequisitionRepository.save(pr);
-        return purchaseRequisitionMapper.toDto(pr);
-    }
-
     private String generateRequisitionRef() {
-        PurchaseRequisition pr = purchaseRequisitionRepository.findTopByOrderByCreatedAtDesc();
+        PurchaseRequisition pr = prRepo.findTopByOrderByCreatedAtDesc();
         String prefix = "OSPRE";
         // Extract sequence number from last code
         long nextSeq = 1;

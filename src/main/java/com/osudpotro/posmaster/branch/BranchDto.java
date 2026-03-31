@@ -19,5 +19,5 @@ public class BranchDto {
     private String licenceNo;
     private MultimediaDto media;
     private OrganizationDto organization;
-    private Boolean isMain;
+    private Boolean isRoot;
 }

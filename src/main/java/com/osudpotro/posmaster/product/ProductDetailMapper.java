@@ -19,6 +19,9 @@ public class ProductDetailMapper {
     //Mapping Here
     //Entity → DTO
     public ProductDetailDto toDto(ProductDetail productDetail) {
+        if (productDetail == null) {
+            return null;
+        }
         ProductDetailDto productDetailDto = new ProductDetailDto();
         productDetailDto.setId(productDetail.getId());
         productDetailDto.setProductDetailCode(productDetail.getProductDetailCode());

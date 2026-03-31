@@ -16,4 +16,5 @@ public class UpdateEmployeeRequest {
     private String provider;
     private String providerId;
     private Long multimediaId;
+    private Long branchId;
 }

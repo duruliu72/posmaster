@@ -22,5 +22,4 @@ public class PurchaseRequisitionItemDto {
     private BigDecimal actualLinePrice;
     private BigDecimal giftOrBonusLinePrice;
     private Integer addableStatus;
-    private ProductDetailDto purchaseProductUnit;
 }

@@ -2,6 +2,7 @@ package com.osudpotro.posmaster.requisition;
 
 import com.osudpotro.posmaster.common.BaseEntity;
 import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisition;
+import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisitionItem;
 import com.osudpotro.posmaster.requisitiontype.RequisitionType;
 import com.osudpotro.posmaster.tms.goodsontrip.GoodsOnTrip;
 import jakarta.persistence.*;
@@ -10,6 +11,7 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -17,6 +19,7 @@ import java.util.List;
 public class Requisition extends BaseEntity {
     @OneToOne(mappedBy = "requisition", cascade = CascadeType.ALL)
     private PurchaseRequisition purchaseRequisition;
+    @Column(unique = true)
     private String requsitionRef;
     @ManyToOne
     private RequisitionType requisitionType;
@@ -26,10 +29,11 @@ public class Requisition extends BaseEntity {
     //    Like draft=1, Submitted=2,3=Approved,4=Rejected,5=Review,6=Cancelled,7=Closed(After all finally process done)
     private Integer requisitionStatus = 1;
     private String note;
-    //    @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @OneToMany(mappedBy = "requisition", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<GoodsOnTrip> goodsOnTrips = new ArrayList<>();
     public int getTotalPaths() {
-        return requisitionOnPaths.size();
+       return requisitionOnPaths.stream()
+                .filter(i ->
+                        Objects.equals(i.getReviewCount(), this.reviewCount)
+                ).toList().size();
+//        return requisitionOnPaths.size();
     }
 }

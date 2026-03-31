@@ -1,13 +1,17 @@
 package com.osudpotro.posmaster.purchase.requisition;
 
+import com.osudpotro.posmaster.branch.BranchDto;
 import com.osudpotro.posmaster.organization.OrganizationDto;
-import com.osudpotro.posmaster.purchase.dto.BranchDto;
+import com.osudpotro.posmaster.product.ProductDetailMapper;
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 @Component
 public class PurchaseRequisitionMapper {
+    @Autowired
+    private ProductDetailMapper detailMapper;
     //Mapping Here
     //Entity → DTO
     public PurchaseRequisitionDto toDto(PurchaseRequisition pr) {
@@ -18,14 +22,21 @@ public class PurchaseRequisitionMapper {
         String purchaseKey = pr.getPurchaseType().getCode();
         prDto.setPurchaseType(purchaseCode);
         prDto.setPurchaseKey(purchaseKey);
+//        Organization
         OrganizationDto orgDto = new OrganizationDto();
         orgDto.setId(pr.getOrganization().getId());
         orgDto.setName(pr.getOrganization().getName());
         prDto.setOrganization(orgDto);
-        BranchDto branchDto = new BranchDto();
-        branchDto.setId(pr.getBranch().getId());
-        branchDto.setName(pr.getBranch().getName());
-        prDto.setBranch(branchDto);
+//        rootBranch
+        BranchDto rootBranchDto = new BranchDto();
+        rootBranchDto.setId(pr.getRootBranch().getId());
+        rootBranchDto.setName(pr.getRootBranch().getName());
+        prDto.setRootBranch(rootBranchDto);
+//        reqBranch
+        BranchDto reqBranchDto = new BranchDto();
+        reqBranchDto.setId(pr.getReqBranch().getId());
+        reqBranchDto.setName(pr.getReqBranch().getName());
+        prDto.setReqBranch(reqBranchDto);
         prDto.setCreatedAt(pr.getCreatedAt());
         if(pr.getRequisition()!=null){
             prDto.setRequisitionStatus(pr.getRequisition().getRequisitionStatus());
@@ -42,10 +53,6 @@ public class PurchaseRequisitionMapper {
         prDto.setPurchaseInvoices(pr.getPurchaseInvoices());
         prDto.setPurchaseInvoiceDocs(pr.getPurchaseInvoiceDocs());
         prDto.setOrderRefs(pr.getOrderRefs());
-        prDto.setTempPurchaseInvoices(pr.getTempPurchaseInvoices());
-        prDto.setTempPurchaseInvoiceDocs(pr.getTempPurchaseInvoiceDocs());
-        prDto.setTempOrderRefs(pr.getTempOrderRefs());
-        prDto.setTempOverallDiscount(pr.getTempOverallDiscount());
         prDto.setIsFinal(pr.getIsFinal());
         return prDto;
     }
@@ -58,14 +65,21 @@ public class PurchaseRequisitionMapper {
         String purchaseKey = pr.getPurchaseType().getCode();
         pageResponse.setPurchaseType(purchaseCode);
         pageResponse.setPurchaseKey(purchaseKey);
+//        Organization
         OrganizationDto orgDto = new OrganizationDto();
         orgDto.setId(pr.getOrganization().getId());
         orgDto.setName(pr.getOrganization().getName());
         pageResponse.setOrganization(orgDto);
-        BranchDto branchDto = new BranchDto();
-        branchDto.setId(pr.getBranch().getId());
-        branchDto.setName(pr.getBranch().getName());
-        pageResponse.setBranch(branchDto);
+        //        rootBranch
+        BranchDto rootBranchDto = new BranchDto();
+        rootBranchDto.setId(pr.getRootBranch().getId());
+        rootBranchDto.setName(pr.getRootBranch().getName());
+        pageResponse.setRootBranch(rootBranchDto);
+//        reqBranch
+        BranchDto reqBranchDto = new BranchDto();
+        reqBranchDto.setId(pr.getReqBranch().getId());
+        reqBranchDto.setName(pr.getReqBranch().getName());
+        pageResponse.setReqBranch(reqBranchDto);
         pageResponse.setCreatedAt(pr.getCreatedAt());
         if(pr.getRequisition()!=null){
             pageResponse.setRequisitionStatus(pr.getRequisition().getRequisitionStatus());
@@ -82,12 +96,7 @@ public class PurchaseRequisitionMapper {
         pageResponse.setPurchaseInvoices(pr.getPurchaseInvoices());
         pageResponse.setPurchaseInvoiceDocs(pr.getPurchaseInvoiceDocs());
         pageResponse.setOrderRefs(pr.getOrderRefs());
-        pageResponse.setTempPurchaseInvoices(pr.getTempPurchaseInvoices());
-        pageResponse.setTempPurchaseInvoiceDocs(pr.getTempPurchaseInvoiceDocs());
-        pageResponse.setTempOrderRefs(pr.getTempOrderRefs());
-        pageResponse.setTempOverallDiscount(pr.getTempOverallDiscount());
         pageResponse.setIsFinal(pr.getIsFinal());
-
         //For Item Pagination
         pageResponse.setItems(page.getContent());
         pageResponse.setTotalElements(page.getTotalElements());
@@ -109,10 +118,16 @@ public class PurchaseRequisitionMapper {
         orgDto.setId(pr.getOrganization().getId());
         orgDto.setName(pr.getOrganization().getName());
         prDto.setOrganization(orgDto);
-        BranchDto branchDto = new BranchDto();
-        branchDto.setId(pr.getBranch().getId());
-        branchDto.setName(pr.getBranch().getName());
-        prDto.setBranch(branchDto);
+        //        rootBranch
+        BranchDto rootBranchDto = new BranchDto();
+        rootBranchDto.setId(pr.getRootBranch().getId());
+        rootBranchDto.setName(pr.getRootBranch().getName());
+        prDto.setRootBranch(rootBranchDto);
+//        reqBranch
+        BranchDto reqBranchDto = new BranchDto();
+        reqBranchDto.setId(pr.getReqBranch().getId());
+        reqBranchDto.setName(pr.getReqBranch().getName());
+        prDto.setReqBranch(reqBranchDto);
         prDto.setCreatedAt(pr.getCreatedAt());
         if(pr.getRequisition()!=null){
             prDto.setRequisitionStatus(pr.getRequisition().getRequisitionStatus());

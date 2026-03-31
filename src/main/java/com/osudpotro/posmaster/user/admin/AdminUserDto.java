@@ -1,6 +1,7 @@
 package com.osudpotro.posmaster.user.admin;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.osudpotro.posmaster.branch.BranchDto;
 import com.osudpotro.posmaster.multimedia.MultimediaDto;
 import lombok.Data;
 
@@ -18,6 +19,8 @@ public class AdminUserDto {
     private String secondaryMobile;
     private Integer gender;
     private MultimediaDto profilePic;
+    private BranchDto branch;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;
+    private Long userId;
 }

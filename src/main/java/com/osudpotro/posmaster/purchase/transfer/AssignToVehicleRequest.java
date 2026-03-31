@@ -1,4 +1,4 @@
-package com.osudpotro.posmaster.purchase.requisition;
+package com.osudpotro.posmaster.purchase.transfer;
 
 import lombok.Data;
 

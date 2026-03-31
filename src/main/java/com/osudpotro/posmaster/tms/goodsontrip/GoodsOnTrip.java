@@ -3,7 +3,7 @@ package com.osudpotro.posmaster.tms.goodsontrip;
 import com.osudpotro.posmaster.branch.Branch;
 import com.osudpotro.posmaster.common.BaseEntity;
 import com.osudpotro.posmaster.common.Location;
-import com.osudpotro.posmaster.requisition.Requisition;
+import com.osudpotro.posmaster.purchase.transfer.PurchaseRequisitionTransfer;
 import com.osudpotro.posmaster.tms.vehicletrip.VehicleTrip;
 import com.osudpotro.posmaster.user.User;
 import jakarta.persistence.*;
@@ -28,31 +28,27 @@ public class GoodsOnTrip extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vehicle_trip_id", nullable = false)
     private VehicleTrip vehicleTrip;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "purchase_requisition_transfer_id")
+    private PurchaseRequisitionTransfer purchaseRequisitionTransfer;
     @Column(nullable = false, unique = true, length = 50)
     private String goodsRef;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private GoodsType goodsType = GoodsType.INVOICE;
-    private String goodsReference; // Invoice/GRN/DN number
-    private String goodsReferenceDocs;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private GoodsStatus goodsStatus = GoodsStatus.LOADED;
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "assign_by")
     private User assignBy;
+    private Boolean isReceived=false;
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "received_by")
     private User receivedBy;
-    @ManyToOne
-    @JoinColumn(name = "requisition_id")
-    private Requisition requisition;
+    private LocalDateTime receivedAt;
     @Column(nullable = false, length = 500)
     private String sourceAddress;
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Branch sourceBranch;
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Branch destBranch;
     @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "latitude", column = @Column(name = "source_latitude")),
@@ -73,33 +69,34 @@ public class GoodsOnTrip extends BaseEntity {
     @Column(length = 2000)
     private String remarks;
     private LocalDateTime loadedAt;
-    private LocalDateTime unloadedAt;
-    @Column(length = 500)
-    private String loadedBy;
-    @Column(length = 500)
-    private String unloadedBy;
+    private LocalDateTime unLoadedAt;
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "loaded_by")
+    private User loadedBy;
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "un_loaded_by")
+    private User unLoadedBy;
     // Business logic methods
     public boolean isLoaded() {
         return goodsStatus == GoodsStatus.LOADED;
     }
-
     public boolean isDelivered() {
         return goodsStatus == GoodsStatus.DELIVERED;
     }
-
-    public void markAsLoaded(String loadedByUser) {
+    public void markAsLoaded(User loadedByUser) {
         this.loadedAt = LocalDateTime.now();
         this.loadedBy = loadedByUser;
         this.goodsStatus = GoodsStatus.LOADED;
     }
     public void markAsDelivered(String receivedByPerson, String signaturePath) {
-        this.unloadedAt = LocalDateTime.now();
+        this.unLoadedAt = LocalDateTime.now();
         this.signaturePath = signaturePath;
         this.goodsStatus = GoodsStatus.DELIVERED;
-        this.unloadedBy = "Driver"; // Or capture from context
+        this.unLoadedBy = null;
     }
+
     public String getGeneratedGoodsRef() {
-        String tripPrefix="SL";
+        String tripPrefix = "SL";
         String datePart = new SimpleDateFormat("yyyyMMdd").format(new Date());
         long nextSeq = 1;
         if (this.getGoodsRef() != null) {
@@ -114,6 +111,6 @@ public class GoodsOnTrip extends BaseEntity {
             }
         }
         //Format String
-        return String.format("%s-%s-%09d",tripPrefix, datePart, nextSeq);
+        return String.format("%s-%s-%09d", tripPrefix, datePart, nextSeq);
     }
 }
