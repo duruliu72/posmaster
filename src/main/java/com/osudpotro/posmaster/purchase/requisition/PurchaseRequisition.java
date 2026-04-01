@@ -30,6 +30,8 @@ public class PurchaseRequisition extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Organization organization;
     @ManyToOne(fetch = FetchType.LAZY)
+    private Branch branch;
+    @ManyToOne(fetch = FetchType.LAZY)
     private Branch rootBranch;
     @ManyToOne(fetch = FetchType.LAZY)
     private Branch reqBranch;

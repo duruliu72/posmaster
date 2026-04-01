@@ -78,7 +78,8 @@ public class PurchaseRequisitionService {
     }
 
     public Page<PurchaseRequisitionDto> filterPrEntities(PurchaseRequisitionFilter filter, Pageable pageable) {
-        return prRepo.findAll(PurchaseRequisitionSpecification.filter(filter), pageable).map(purchaseRequisitionMapper::toDto);
+        var authUser = authService.getCurrentUser();
+        return prRepo.findAll(PurchaseRequisitionSpecification.filter(filter,authUser), pageable).map(purchaseRequisitionMapper::toDto);
     }
 
     @Transactional
@@ -88,9 +89,8 @@ public class PurchaseRequisitionService {
         if (prRepo.existsByRequsitionRef(requisitionRef)) {
             throw new DuplicatePurchaseRequisitionException();
         }
-        Branch rootBranch = branchRepository.findByIsRoot(true).orElseThrow(BranchNotFoundException::new);
-        Branch reqBranch = branchRepository.findById(authUser.getBranch().getId()).orElseThrow(BranchNotFoundException::new);
-        var organization = organizationRepository.findById(reqBranch.getOrganization().getId()).orElse(null);
+        Branch branch = branchRepository.findById(authUser.getBranch().getId()).orElseThrow(BranchNotFoundException::new);
+        var organization = organizationRepository.findById(branch.getOrganization().getId()).orElse(null);
         if (organization == null) {
             throw new OrganizationNotFoundException();
         }
@@ -98,8 +98,7 @@ public class PurchaseRequisitionService {
         pr.setRequsitionRef(requisitionRef);
         pr.setPurchaseType(PurchaseType.fromCode(request.getPurchaseType()));
         pr.setOrganization(organization);
-        pr.setReqBranch(reqBranch);
-        pr.setRootBranch(rootBranch);
+        pr.setBranch(branch);
         pr.setCreatedBy(authUser);
         pr = prRepo.save(pr);
         //Common Requsition Start Here

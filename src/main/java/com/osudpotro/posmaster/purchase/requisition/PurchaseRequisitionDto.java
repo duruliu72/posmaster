@@ -18,6 +18,7 @@ public class PurchaseRequisitionDto {
     private String purchaseType;
     private String purchaseKey;
     private OrganizationDto organization;
+    private BranchDto branch;
     private BranchDto rootBranch;
     private BranchDto reqBranch;
     private BigDecimal overallDiscount;
