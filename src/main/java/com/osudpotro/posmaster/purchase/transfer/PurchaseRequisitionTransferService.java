@@ -268,7 +268,6 @@ public class PurchaseRequisitionTransferService {
         purchase.setPurchaseType(prt.getPurchaseRequisition().getPurchaseType());
         purchase.setOrganization(prt.getPurchaseRequisition().getOrganization());
         purchase.setBranch(prt.getPurchaseRequisition().getRootBranch());
-        purchase.setReqBranch(prt.getPurchaseRequisition().getReqBranch());
         purchase.setPurchaseBatchNo(purchaseReference.getPurchaseBatchNo());
         purchase.setOverallDiscount(prt.getOverallDiscount());
         purchase.setPurchaseInvoices(prt.getPurchaseInvoices());
@@ -320,7 +319,6 @@ public class PurchaseRequisitionTransferService {
         dispatch.setOrganization(purchase.getOrganization());
         dispatch.setRootBranch(purchase.getBranch());//Main Branch
         dispatch.setSenderBranch(purchase.getBranch());
-        dispatch.setReceiverBranch(purchase.getReqBranch());
         dispatch.setWarehouse(null);
         dispatch.setSupplier(purchase.getSupplier());
         dispatch.setDispatchBy(authUser);

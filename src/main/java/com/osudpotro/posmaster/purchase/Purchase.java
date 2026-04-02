@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.osudpotro.posmaster.branch.Branch;
 import com.osudpotro.posmaster.organization.Organization;
+import com.osudpotro.posmaster.purchase.checked.CheckedPurchaseRequisition;
 import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisition;
 import com.osudpotro.posmaster.purchase.transfer.PurchaseRequisitionTransfer;
 import com.osudpotro.posmaster.supplier.Supplier;
@@ -37,6 +38,9 @@ public class Purchase {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "purchase_requisition_id")
     private PurchaseRequisition purchaseRequisition;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "checked_purchase_requisition_id")
+    private CheckedPurchaseRequisition checkedPurchaseRequisition;
     private String requsitionRef;
     @Enumerated(EnumType.STRING)
     @Column(name = "purchase_type", nullable = false)
@@ -45,12 +49,6 @@ public class Purchase {
     private Organization organization;
     @ManyToOne(fetch = FetchType.LAZY)
     private Branch branch;
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Branch reqBranch;
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Branch senderBranch;
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Branch receiverBranch;
     @ManyToOne(fetch = FetchType.LAZY)
     private Warehouse warehouse;
     @ManyToOne(fetch = FetchType.LAZY)

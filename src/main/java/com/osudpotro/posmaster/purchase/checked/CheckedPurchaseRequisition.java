@@ -1,4 +1,4 @@
-package com.osudpotro.posmaster.purchase.check;
+package com.osudpotro.posmaster.purchase.checked;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.osudpotro.posmaster.common.BaseEntity;
@@ -38,7 +38,7 @@ public class CheckedPurchaseRequisition extends BaseEntity {
     private User addByInventoryMan;
     private LocalDateTime addByInventoryManAt;
     //1=Checked By Branch,2=Checked By Admin,3=Added to Inventory By InventoryMan
-//    private Integer checkedStatus = 1;
+    private Integer checkedStatus = 1;
     @JsonIgnore
     @OneToMany(mappedBy = "checkedPurchaseRequisition", cascade = CascadeType.MERGE, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<CheckedPurchaseRequisitionItem> items = new ArrayList<>();

@@ -1,6 +1,10 @@
 package com.osudpotro.posmaster.purchase.requisition;
 
 import com.osudpotro.posmaster.branch.Branch;
+import com.osudpotro.posmaster.purchase.checked.CheckedPurchaseRequisition;
+import com.osudpotro.posmaster.purchase.checked.CheckedPurchaseRequisitionItem;
+import com.osudpotro.posmaster.purchase.checked.CheckedPurchaseRequisitionItemRepository;
+import com.osudpotro.posmaster.purchase.checked.CheckedPurchaseRequisitionRepository;
 import com.osudpotro.posmaster.purchase.transfer.*;
 import com.osudpotro.posmaster.tms.driver.DriverRepository;
 import com.osudpotro.posmaster.tms.goodsontrip.GoodsOnTrip;
@@ -27,6 +31,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -35,6 +40,10 @@ public class PurchaseRequisitionService {
     private PurchaseRequisitionRepository prRepo;
     @Autowired
     private PurchaseRequisitionItemRepository priRepostory;
+    @Autowired
+    private CheckedPurchaseRequisitionRepository cprRepo;
+    @Autowired
+    private CheckedPurchaseRequisitionItemRepository cprItemRepo;
     @Autowired
     private PurchaseRequisitionTransferRepository prTransferRepo;
     @Autowired
@@ -79,7 +88,7 @@ public class PurchaseRequisitionService {
 
     public Page<PurchaseRequisitionDto> filterPrEntities(PurchaseRequisitionFilter filter, Pageable pageable) {
         var authUser = authService.getCurrentUser();
-        return prRepo.findAll(PurchaseRequisitionSpecification.filter(filter,authUser), pageable).map(purchaseRequisitionMapper::toDto);
+        return prRepo.findAll(PurchaseRequisitionSpecification.filter(filter, authUser), pageable).map(purchaseRequisitionMapper::toDto);
     }
 
     @Transactional
@@ -166,18 +175,18 @@ public class PurchaseRequisitionService {
         Set<Integer> checkRequisitionStatus = Set.of(1, 5);
         if (pr.getRequisition() != null) {
             requisitionStatus = pr.getRequisition().getRequisitionStatus();
-            if(!checkRequisitionStatus.contains(requisitionStatus)){
+            if (!checkRequisitionStatus.contains(requisitionStatus)) {
                 throw new RequisitionUpdateException("Already Processed! ");
             }
             requisition = requisitionRepository.findById(pr.getRequisition().getId()).orElse(null);
-        }else {
-            requisitionStatus=1;
+        } else {
+            requisitionStatus = 1;
         }
         if (requisition != null) {
             requisition.setPurchaseRequisition(pr);
             requisition.setRequsitionRef(pr.getRequsitionRef());
             requisition.setRequisitionType(requisitionType);
-            if(requisition.getReviewCount()==1){
+            if (requisition.getReviewCount() == 1) {
                 requisition.setReviewCount(1);
             }
             if (request.getRequisitionStatus() != null) {
@@ -261,15 +270,15 @@ public class PurchaseRequisitionService {
                 throw new DuplicatePurchaseRequisitionException("Duplicate Purchase Invoice Found");
             }
         }
-//        Check here transferStatus is DELIVERED or not in PurchaseRequisitionTransfer
-        var prTransfer = prTransferRepo.findFinalPurchaseRequisitionByPrIDAndTransfer(purchaseRequisitionId, 1).orElse(null);
-        if (prTransfer != null) {
+//        Check here IsAdmin Checked or not in CheckedPurchaseRequisition
+        var cpr = cprRepo.findCheckPurchaseRequisitionByPrIDAndCheckedStatus(purchaseRequisitionId, 1).orElse(null);
+        if (cpr != null) {
             boolean hasTempInvoice = false;
             if (request.getPurchaseInvoices() != null) {
                 String[] reqInvoices = request.getPurchaseInvoices().split(",");
                 for (String invoice : reqInvoices) {
                     if (!hasTempInvoice) {
-                        var findFinalPr = prTransferRepo.findFinalPurchaseRequisitionByInvoiceExceptprId(purchaseRequisitionId, invoice).orElse(null);
+                        var findFinalPr = cprRepo.findCheckedPurchaseRequisitionByInvoiceExceptprId(purchaseRequisitionId, invoice).orElse(null);
                         if (findFinalPr != null) {
                             hasTempInvoice = true;
                         }
@@ -285,22 +294,22 @@ public class PurchaseRequisitionService {
         if (request.getIsFinal() != null && request.getIsFinal()) {
             pr.setIsFinal(true);
         }
-        if (prTransfer == null) {
-            prTransfer = new PurchaseRequisitionTransfer();
+        if (cpr == null) {
+            cpr = new CheckedPurchaseRequisition();
+            cpr.setCheckByBranchMan(authUser);
+            cpr.setCheckByBranchAt(LocalDateTime.now());
         }
-
         pr.setPurchaseInvoices(request.getPurchaseInvoices());
         pr.setPurchaseInvoiceDocs(request.getPurchaseInvoiceDocs());
         pr.setOrderRefs(request.getOrderRefs());
         pr.setOverallDiscount(request.getOverallDiscount());
-
-        prTransfer.setRequsitionRef(pr.getRequsitionRef());
-        prTransfer.setOverallDiscount(request.getOverallDiscount());
-        prTransfer.setPurchaseInvoices(request.getPurchaseInvoices());
-        prTransfer.setPurchaseInvoiceDocs(request.getPurchaseInvoiceDocs());
-        prTransfer.setOrderRefs(request.getOrderRefs());
-        prTransfer.setPurchaseRequisition(pr);
-        prTransferRepo.save(prTransfer);
+        cpr.setRequsitionRef(pr.getRequsitionRef());
+        cpr.setOverallDiscount(request.getOverallDiscount());
+        cpr.setPurchaseInvoices(request.getPurchaseInvoices());
+        cpr.setPurchaseInvoiceDocs(request.getPurchaseInvoiceDocs());
+        cpr.setOrderRefs(request.getOrderRefs());
+        cpr.setPurchaseRequisition(pr);
+        cprRepo.save(cpr);
         prRepo.save(pr);
         return purchaseRequisitionMapper.toDto(pr);
     }
@@ -534,40 +543,40 @@ public class PurchaseRequisitionService {
                 throw new PurchaseRequisitionItemException("One of them item you have already send");
             }
         }
-        var prTransfer = prTransferRepo.findFinalPurchaseRequisitionByPrIDAndTransfer(purchaseRequisitionId, 1).orElse(null);
-        if (prTransfer == null) {
-            prTransfer = new PurchaseRequisitionTransfer();
-            prTransfer.setRequsitionRef(pr.getRequsitionRef());
-            prTransfer.setOverallDiscount(pr.getOverallDiscount());
-            prTransfer.setPurchaseInvoices(pr.getPurchaseInvoices());
-            prTransfer.setPurchaseInvoiceDocs(pr.getPurchaseInvoiceDocs());
-            prTransfer.setOrderRefs(pr.getOrderRefs());
-            prTransfer.setPurchaseRequisition(pr);
-            prTransferRepo.save(prTransfer);
+        var cpr = cprRepo.findCheckPurchaseRequisitionByPrIDAndCheckedStatus(purchaseRequisitionId, 1).orElse(null);
+        if (cpr == null) {
+            cpr = new CheckedPurchaseRequisition();
+            cpr.setRequsitionRef(pr.getRequsitionRef());
+            cpr.setOverallDiscount(pr.getOverallDiscount());
+            cpr.setPurchaseInvoices(pr.getPurchaseInvoices());
+            cpr.setPurchaseInvoiceDocs(pr.getPurchaseInvoiceDocs());
+            cpr.setOrderRefs(pr.getOrderRefs());
+            cpr.setPurchaseRequisition(pr);
+            cprRepo.save(cpr);
         }
-        List<PurchaseRequisitionItemTransfer> items = new ArrayList<>();
+        List<CheckedPurchaseRequisitionItem> items = new ArrayList<>();
         for (Long purchaseRequisitionItemId : purchaseRequisitionItemIds) {
-            var prTransferItem = prItemTransferRepo.findByPurchaseRequisitionTransferIdAndPurchaseRequisitionItemId(prTransfer.getId(), purchaseRequisitionItemId).orElse(null);
-            if (prTransferItem == null) {
-                prTransferItem = new PurchaseRequisitionItemTransfer();
-                prTransferItem.setPurchaseRequisitionTransfer(prTransfer);
+            var cprItem = cprItemRepo.findByCheckedPurchaseRequisitionIdAndPurchaseRequisitionItemId(cpr.getId(), purchaseRequisitionItemId).orElse(null);
+            if (cprItem == null) {
+                cprItem = new CheckedPurchaseRequisitionItem();
+                cprItem.setCheckedPurchaseRequisition(cpr);
                 PurchaseRequisitionItem prItem = priRepostory.findById(purchaseRequisitionItemId).orElse(null);
                 if (prItem == null) {
                     throw new PurchaseRequisitionItemNotFoundException();
                 }
-                prTransferItem.setPurchaseRequisition(pr);
-                prTransferItem.setPurchaseRequisitionItem(prItem);
-                prTransferItem.setProduct(prItem.getProduct());
-                prTransferItem.setProductDetail(prItem.getProductDetail());
-                prTransferItem.setMrpPrice(prItem.getMrpPrice());
-                prTransferItem.setPurchasePrice(prItem.getPurchasePrice());
-                prTransferItem.setPurchaseQty(prItem.getPurchaseQty());
-                prTransferItem.setDiscount(prItem.getDiscount());
-                prTransferItem.setGiftOrBonusQty(prItem.getGiftOrBonusQty());
+                cprItem.setPurchaseRequisition(pr);
+                cprItem.setPurchaseRequisitionItem(prItem);
+                cprItem.setProduct(prItem.getProduct());
+                cprItem.setProductDetail(prItem.getProductDetail());
+                cprItem.setMrpPrice(prItem.getMrpPrice());
+                cprItem.setPurchasePrice(prItem.getPurchasePrice());
+                cprItem.setPurchaseQty(prItem.getPurchaseQty());
+                cprItem.setDiscount(prItem.getDiscount());
+                cprItem.setGiftOrBonusQty(prItem.getGiftOrBonusQty());
             }
-            items.add(prTransferItem);
+            items.add(cprItem);
         }
-        prItemTransferRepo.saveAll(items);
+        cprItemRepo.saveAll(items);
         return priRepostory.updateBulkForAddableItem(purchaseRequisitionId, purchaseRequisitionItemIds, addableStatus);
     }
 

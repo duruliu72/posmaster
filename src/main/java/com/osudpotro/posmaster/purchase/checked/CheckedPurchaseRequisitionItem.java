@@ -1,4 +1,4 @@
-package com.osudpotro.posmaster.purchase.check;
+package com.osudpotro.posmaster.purchase.checked;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.osudpotro.posmaster.product.Product;
@@ -28,7 +28,7 @@ public class CheckedPurchaseRequisitionItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "purchase_requisition_transfer_id")
+    @JoinColumn(name = "checked_purchase_requisition_id")
     private CheckedPurchaseRequisition checkedPurchaseRequisition;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "purchase_requisition_id")
