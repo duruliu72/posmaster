@@ -1,6 +1,7 @@
 package com.osudpotro.posmaster.inventory;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.osudpotro.posmaster.branch.Branch;
 import com.osudpotro.posmaster.organization.Organization;
 import com.osudpotro.posmaster.product.Product;
@@ -17,6 +18,8 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -46,7 +49,6 @@ public class InventorySummary {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "purchase_details_id")
     private PurchaseDetail purchaseDetail;
-    private String purchaseRef;
     private String purchaseBatchNo;
     private String productionBatchNo;
     private LocalDateTime manufactureDate;
@@ -72,4 +74,17 @@ public class InventorySummary {
     @CreationTimestamp
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
+    @JsonIgnore
+    @OneToMany(mappedBy = "inventorySummary", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
+    private List<InventorySummaryItem> items = new ArrayList<>();
+
+
+//    @Transient
+//    public Long getInvoiceId() {
+//        if (invoiceType == null) return null;
+//        switch (invoiceType) {
+//            default:
+//                return this.invoiceId;
+//        }
+//    }
 }

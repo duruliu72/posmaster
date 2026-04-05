@@ -96,10 +96,10 @@ public class CheckedPurchaseRequisitionService {
         var cpr = cprRepo.findById(cprId).orElseThrow(CheckedPurchaseRequisitionNotFoundException::new);
         var purchaseFind = purchaseRepo.findByCheckedPurchaseRequisition(cpr).orElse(null);
         if (cpr.getCheckedStatus() == 3 || purchaseFind != null) {
-            throw new PurchaseRequisitionException("As you Already Added to Inventory. Not to possible update");
+            throw new PurchaseRequisitionException("As you Already Added to InventorySummary. Not to possible update");
         }
         var prtItem = cprItemRepo.findById(cprItemId).orElseThrow(CheckedPurchaseRequisitionItemNotFoundException::new);
-        prtItem = getPurchaseRequisitionItemTransfer(prtItem, request);
+        prtItem = getCheckedPurchaseRequisitionItem(prtItem, request);
         cprItemRepo.save(prtItem);
         return cprMapper.toDto(cpr);
     }
@@ -109,7 +109,7 @@ public class CheckedPurchaseRequisitionService {
         var crp = cprRepo.findById(cprId).orElseThrow(PurchaseRequisitionNotFoundException::new);
         var purchaseFind = purchaseRepo.findByCheckedPurchaseRequisition(crp).orElse(null);
         if (crp.getCheckedStatus() == 3 || purchaseFind != null) {
-            throw new PurchaseRequisitionException("Already Added to Inventory!");
+            throw new PurchaseRequisitionException("Already Added to InventorySummary!");
         }
 //        crp.setCheckedStatus(3);
         var authUser = authService.getCurrentUser();
@@ -120,7 +120,7 @@ public class CheckedPurchaseRequisitionService {
                 throw new PurchaseRequisitionException("Item id will not Empty!");
             }
             var prtItem = cprItemRepo.findById(item.getCheckedPurchaseRequisitionItemId()).orElseThrow(CheckedPurchaseRequisitionItemNotFoundException::new);
-            prtItem = getPurchaseRequisitionItemTransfer(prtItem, item);
+            prtItem = getCheckedPurchaseRequisitionItem(prtItem, item);
             cprItemList.add(prtItem);
         }
         crp.getItems().clear();
@@ -149,7 +149,7 @@ public class CheckedPurchaseRequisitionService {
         }
         purchase.setItems(purchaseDetailList);
         purchase = purchaseRepo.save(purchase);
-//        Inventory Summary add here
+//        InventorySummary Summary add here
         List<InventorySummary> inventorySummaryList = new ArrayList<>();
         for (var purchaseDetail : purchaseDetailList) {
             InventorySummary invSummary = getInventorySummary(purchaseDetail, purchase);
@@ -173,7 +173,6 @@ public class CheckedPurchaseRequisitionService {
         invSummary.setStockIn(qty);
         invSummary.setBranch(purchase.getBranch());
         invSummary.setInvoiceDate(purchase.getPurchaseAt());
-        invSummary.setPurchaseRef(purchase.getPurchaseRef());
         invSummary.setPurchaseBatchNo(purchase.getPurchaseBatchNo());
         invSummary.setProductionBatchNo(purchaseDetail.getProductionBatchNo());
         invSummary.setManufactureDate(purchaseDetail.getManufactureDate());
@@ -204,7 +203,7 @@ public class CheckedPurchaseRequisitionService {
         pd.setPurchase(purchase);
         return  pd;
     }
-    public CheckedPurchaseRequisitionItem getPurchaseRequisitionItemTransfer(CheckedPurchaseRequisitionItem prtItem, UpdateFromBranchRequest request) {
+    public CheckedPurchaseRequisitionItem getCheckedPurchaseRequisitionItem(CheckedPurchaseRequisitionItem prtItem, UpdateFromBranchRequest request) {
         prtItem.setProductionBatchNo(request.getProductionBatchNo());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         if (request.getManufactureDate() != null) {

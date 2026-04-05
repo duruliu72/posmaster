@@ -37,7 +37,7 @@ public class CheckedPurchaseRequisition extends BaseEntity {
     @JoinColumn(name = "add_by_inventory_man")
     private User addByInventoryMan;
     private LocalDateTime addByInventoryManAt;
-    //1=Checked By Branch,2=Checked By Admin,3=Added to Inventory By InventoryMan
+    //1=Checked By Branch,2=Checked By Admin,3=Added to InventorySummary By InventoryMan
     private Integer checkedStatus = 1;
     @JsonIgnore
     @OneToMany(mappedBy = "checkedPurchaseRequisition", cascade = CascadeType.MERGE, orphanRemoval = true, fetch = FetchType.LAZY)

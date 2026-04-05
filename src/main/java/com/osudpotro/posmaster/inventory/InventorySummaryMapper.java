@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class InventorySummaryMapper {
     public InventorySummaryDto toDto(InventorySummary inventorySummary) {
-        if(inventorySummary==null){
+        if(inventorySummary ==null){
             return null;
         }
         InventorySummaryDto invSummaryDto = new InventorySummaryDto();
@@ -22,20 +22,19 @@ public class InventorySummaryMapper {
         invSummaryDto.setInvoiceId(inventorySummary.getInvoiceId());
         invSummaryDto.setInvoiceDetailId(inventorySummary.getInvoiceDetailId());
         invSummaryDto.setInvoiceType(inventorySummary.getInvoiceType());
-        invSummaryDto.setPurchaseRef(inventorySummary.getPurchaseRef());
         invSummaryDto.setPurchaseBatchNo(inventorySummary.getPurchaseBatchNo());
         invSummaryDto.setProductionBatchNo(inventorySummary.getProductionBatchNo());
         invSummaryDto.setManufactureDate(inventorySummary.getManufactureDate());
         invSummaryDto.setExpiredDate(inventorySummary.getExpiredDate());
         if(inventorySummary.getProduct()!=null){
-            Product product=inventorySummary.getProduct();
+            Product product= inventorySummary.getProduct();
             invSummaryDto.setProductId(product.getId());
             invSummaryDto.setProductName(product.getProductName());
             invSummaryDto.setProductCode(product.getProductCode());
             invSummaryDto.setProductBarCode(product.getProductBarCode());
         }
         if(inventorySummary.getProductDetail()!=null){
-            ProductDetail productDetail=inventorySummary.getProductDetail();
+            ProductDetail productDetail= inventorySummary.getProductDetail();
             invSummaryDto.setProductDetailId(productDetail.getId());
             invSummaryDto.setProductDetailCode(productDetail.getProductDetailCode());
             invSummaryDto.setProductDetailBarCode(productDetail.getProductDetailBarCode());
@@ -48,7 +47,8 @@ public class InventorySummaryMapper {
             }
         }
         if(inventorySummary.getPurchase()!=null){
-            Purchase purchase=inventorySummary.getPurchase();
+            Purchase purchase= inventorySummary.getPurchase();
+            invSummaryDto.setPurchaseRef(purchase.getPurchaseRef());
         }
         if(inventorySummary.getPurchaseDetail()!=null){
             PurchaseDetail purchaseDetail = inventorySummary.getPurchaseDetail();
@@ -56,22 +56,22 @@ public class InventorySummaryMapper {
             invSummaryDto.setPurchasePrice(purchaseDetail.getPurchasePrice());
         }
         if(inventorySummary.getOrganization()!=null){
-            Organization org=inventorySummary.getOrganization();
+            Organization org= inventorySummary.getOrganization();
             invSummaryDto.setOrganizationId(org.getId());
             invSummaryDto.setOrganizationName(org.getName());
         }
         if(inventorySummary.getBranch()!=null){
-            Branch branch=inventorySummary.getBranch();
+            Branch branch= inventorySummary.getBranch();
             invSummaryDto.setBranchId(branch.getId());
             invSummaryDto.setBranchName(branch.getName());
         }
         if(inventorySummary.getWarehouse()!=null){
-            Warehouse warehouse=inventorySummary.getWarehouse();
+            Warehouse warehouse= inventorySummary.getWarehouse();
             invSummaryDto.setWarehouseId(warehouse.getId());
             invSummaryDto.setWarehouseName(warehouse.getName());
         }
         if(inventorySummary.getSupplier()!=null){
-            Supplier supplier=inventorySummary.getSupplier();
+            Supplier supplier= inventorySummary.getSupplier();
             invSummaryDto.setSupplierId(supplier.getId());
             invSummaryDto.setSupplierName(supplier.getName());
         }
