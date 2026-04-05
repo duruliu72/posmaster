@@ -30,7 +30,7 @@ public class Dispatch {
     @ManyToOne(fetch = FetchType.LAZY)
     private Organization organization;
     @ManyToOne(fetch = FetchType.LAZY)
-    private Branch reqestedBranch;
+    private Branch requestedBranch;
     @ManyToOne(fetch = FetchType.LAZY)
     private Branch requestReceivedBranch;
     @ManyToOne(fetch = FetchType.LAZY)

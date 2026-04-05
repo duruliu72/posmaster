@@ -32,7 +32,6 @@ public class BranchService {
                 .map(customBranchMapper::toDto)
                 .toList();
     }
-
     public BranchDto createBranch(BranchCreateRequest request) {
         if (branchRepository.existsByName(request.getName())) {
             throw new DuplicateBranchException();

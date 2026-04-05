@@ -9,7 +9,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class DispatchService {
@@ -41,13 +43,18 @@ public class DispatchService {
         if (dispatchRepo.existsByDispatchRef(dispatchRef)) {
             throw new DuplicateDispatchException();
         }
+        if(Objects.equals(request.getRequestReceivedBranchId(), authUser.getBranch().getId())){
+            throw new DispatchException("Branch is not valid");
+        }
         var reqBranch = branchRepository.findById(authUser.getBranch().getId()).orElseThrow(BranchNotFoundException::new);
         var senderBranch = branchRepository.findById(request.getRequestReceivedBranchId()).orElseThrow(BranchNotFoundException::new);
         Dispatch dispatch = new Dispatch();
         dispatch.setDispatchRef(dispatchRef);
-        dispatch.setReqestedBranch(reqBranch);
+        dispatch.setRequestedBranch(reqBranch);
+        dispatch.setOrganization(reqBranch.getOrganization());
+        dispatch.setRequestedBy(authUser);
+        dispatch.setRequestedAt(LocalDateTime.now());
         dispatch.setRequestReceivedBranch(senderBranch);
-        dispatch.setDispatchBy(authUser);
         dispatchRepo.save(dispatch);
         return dispatchMapper.toDto(dispatch);
     }

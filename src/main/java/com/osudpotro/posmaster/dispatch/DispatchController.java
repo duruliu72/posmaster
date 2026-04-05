@@ -1,8 +1,6 @@
 package com.osudpotro.posmaster.dispatch;
 
 import com.osudpotro.posmaster.common.PagedResponse;
-import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisitionCreateRequest;
-import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisitionDto;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
+import java.util.Map;
 
 
 @AllArgsConstructor
@@ -48,4 +47,11 @@ public class DispatchController {
         var uri = uriBuilder.path("/dispatches/{id}").buildAndExpand(dispatchDto.getId()).toUri();
         return ResponseEntity.created(uri).body(dispatchDto);
     }
+    @ExceptionHandler(DispatchException.class)
+    public ResponseEntity<Map<String, String>> handleDispatchException(Exception e) {
+        return ResponseEntity.badRequest().body(
+                Map.of("error", e.getMessage())
+        );
+    }
+
 }
