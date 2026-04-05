@@ -5,13 +5,6 @@ import com.osudpotro.posmaster.purchase.checked.CheckedPurchaseRequisition;
 import com.osudpotro.posmaster.purchase.checked.CheckedPurchaseRequisitionItem;
 import com.osudpotro.posmaster.purchase.checked.CheckedPurchaseRequisitionItemRepository;
 import com.osudpotro.posmaster.purchase.checked.CheckedPurchaseRequisitionRepository;
-import com.osudpotro.posmaster.purchase.transfer.*;
-import com.osudpotro.posmaster.tms.driver.DriverRepository;
-import com.osudpotro.posmaster.tms.goodsontrip.GoodsOnTrip;
-import com.osudpotro.posmaster.tms.goodsontrip.GoodsOnTripRepository;
-import com.osudpotro.posmaster.tms.vechile.VehicleRepository;
-import com.osudpotro.posmaster.tms.vehicletrip.VehicleTrip;
-import com.osudpotro.posmaster.tms.vehicletrip.VehicleTripRepository;
 import com.osudpotro.posmaster.user.auth.AuthService;
 import com.osudpotro.posmaster.branch.BranchNotFoundException;
 import com.osudpotro.posmaster.branch.BranchRepository;
@@ -45,10 +38,6 @@ public class PurchaseRequisitionService {
     @Autowired
     private CheckedPurchaseRequisitionItemRepository cprItemRepo;
     @Autowired
-    private PurchaseRequisitionTransferRepository prTransferRepo;
-    @Autowired
-    private PurchaseRequisitionItemTransferRepository prItemTransferRepo;
-    @Autowired
     private RequisitionRepository requisitionRepository;
     @Autowired
     private AuthService authService;
@@ -70,15 +59,6 @@ public class PurchaseRequisitionService {
     private RequisitionApproverRepository requisitionApproverRepository;
     @Autowired
     private RequisitionOnPathRepository ropRepository;
-    @Autowired
-    private VehicleTripRepository vehicleTripRepository;
-    @Autowired
-    private VehicleRepository vehicleRepository;
-    @Autowired
-    private DriverRepository driverRepository;
-    @Autowired
-    private GoodsOnTripRepository goodsOnTripRepository;
-
     public List<PurchaseRequisitionDto> getAllPurchaseRequisitions() {
         return prRepo.findAll()
                 .stream()
@@ -598,21 +578,5 @@ public class PurchaseRequisitionService {
         }
         //Format code
         return String.format("%s%06d", prefix, nextSeq);
-    }
-
-    public String generateTripRef() {
-        VehicleTrip vehicleTrip = vehicleTripRepository.findTopByOrderByCreatedAtDesc();
-        if (vehicleTrip == null) {
-            vehicleTrip = new VehicleTrip();
-        }
-        return vehicleTrip.getGeneratedTripRef();
-    }
-
-    public String generateGoodsRef() {
-        GoodsOnTrip goodsOnTrip = goodsOnTripRepository.findTopByOrderByCreatedAtDesc();
-        if (goodsOnTrip == null) {
-            goodsOnTrip = new GoodsOnTrip();
-        }
-        return goodsOnTrip.getGeneratedGoodsRef();
     }
 }

@@ -24,15 +24,14 @@ public class CheckedPurchaseRequisitionSpecification {
                         cb.equal(root.get("purchaseRequisition").get("purchaseType"), purchaseType)
                 );
             }
-            if (filter.getCheckedStatus() != null) {
-                predicates.add(cb.equal(root.get("checkedStatus"), 2));
-            }
+
             if (filter.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status"), filter.getStatus()));
             }
             return cb.and(predicates.toArray(new Predicate[0]));
         };
     }
+
     public static Specification<CheckedPurchaseRequisition> filterByBranch(CheckedPurchaseRequisitionFilter filter, User user) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
@@ -47,15 +46,13 @@ public class CheckedPurchaseRequisitionSpecification {
                         cb.equal(root.get("purchaseRequisition").get("purchaseType"), purchaseType)
                 );
             }
-            if (filter.getCheckedStatus() != null) {
-                predicates.add(cb.equal(root.get("checkedStatus"), filter.getCheckedStatus()));
-            }
+            predicates.add(cb.equal(root.get("checkedStatus"), 2));
             if (filter.getStatus() != null) {
                 predicates.add(cb.equal(root.get("status"), filter.getStatus()));
             }
             if (user != null) {
-                Long branchId=user.getBranch().getId();
-                predicates.add(cb.equal(root.get("purchaseRequisition").get("branch").get("id"),branchId ));
+                Long branchId = user.getBranch().getId();
+                predicates.add(cb.equal(root.get("purchaseRequisition").get("branch").get("id"), branchId));
             }
             return cb.and(predicates.toArray(new Predicate[0]));
         };

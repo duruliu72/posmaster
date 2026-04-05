@@ -2,7 +2,6 @@ package com.osudpotro.posmaster.user;
 
 import com.osudpotro.posmaster.branch.Branch;
 import com.osudpotro.posmaster.multimedia.Multimedia;
-import com.osudpotro.posmaster.tms.driver.Driver;
 import com.osudpotro.posmaster.user.Employee.Employee;
 import com.osudpotro.posmaster.user.admin.AdminUser;
 import com.osudpotro.posmaster.common.BaseEntity;
@@ -62,6 +61,4 @@ public class User extends BaseEntity {
     private Employee employee;
     @OneToOne(mappedBy = "user")
     private Customer customer;
-    @OneToOne(mappedBy = "user")
-    private Driver driver;
 }

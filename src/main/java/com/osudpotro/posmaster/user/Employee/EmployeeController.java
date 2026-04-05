@@ -1,7 +1,6 @@
 package com.osudpotro.posmaster.user.Employee;
 
 import com.osudpotro.posmaster.common.PagedResponse;
-import com.osudpotro.posmaster.tms.goodsontrip.GoodsOnTripDeliveryException;
 import com.osudpotro.posmaster.user.DuplicateUserException;
 import com.osudpotro.posmaster.user.UserMapper;
 import com.osudpotro.posmaster.user.UserRepository;

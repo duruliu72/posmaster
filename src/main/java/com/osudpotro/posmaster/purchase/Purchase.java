@@ -6,7 +6,6 @@ import com.osudpotro.posmaster.branch.Branch;
 import com.osudpotro.posmaster.organization.Organization;
 import com.osudpotro.posmaster.purchase.checked.CheckedPurchaseRequisition;
 import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisition;
-import com.osudpotro.posmaster.purchase.transfer.PurchaseRequisitionTransfer;
 import com.osudpotro.posmaster.supplier.Supplier;
 import com.osudpotro.posmaster.user.User;
 import com.osudpotro.posmaster.warehouse.Warehouse;
@@ -32,9 +31,6 @@ public class Purchase {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String purchaseRef;//invoice
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "purchase_requisition_transfer_id")
-    private PurchaseRequisitionTransfer purchaseRequisitionTransfer;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "purchase_requisition_id")
     private PurchaseRequisition purchaseRequisition;

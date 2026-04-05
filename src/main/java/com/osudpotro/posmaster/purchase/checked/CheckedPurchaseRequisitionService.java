@@ -9,8 +9,7 @@ import com.osudpotro.posmaster.purchase.PurchaseReferenceDto;
 import com.osudpotro.posmaster.purchase.PurchaseRepository;
 import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisitionException;
 import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisitionNotFoundException;
-import com.osudpotro.posmaster.purchase.transfer.PurchaseRequisitionItemTransfer;
-import com.osudpotro.posmaster.purchase.transfer.PurchaseRequisitionItemTransferNotFoundException;
+import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisitionRepository;
 import com.osudpotro.posmaster.user.User;
 import com.osudpotro.posmaster.user.auth.AuthService;
 import jakarta.transaction.Transactional;
@@ -26,6 +25,8 @@ import java.util.List;
 
 @Service
 public class CheckedPurchaseRequisitionService {
+    @Autowired
+    private PurchaseRequisitionRepository prRepo;
     @Autowired
     private PurchaseRepository purchaseRepo;
     @Autowired
@@ -64,18 +65,29 @@ public class CheckedPurchaseRequisitionService {
         Page<CheckedPurchaseRequisitionItemDto> result = cprItemRepo.findAllWithFilterItems(checkedPurchaseRequisitionId, filter.getName(), pageable).map(cprItemMapper::toDto);
         return cprMapper.toMinDto(cpr, result);
     }
-
+    @Transactional
     public CheckedPurchaseRequisitionDto updateByAdmin(Long checkedPurchaseRequisitionId, CheckedPurchaseRequisitionRequest request) {
         CheckedPurchaseRequisition cpr = cprRepo.findById(checkedPurchaseRequisitionId).orElseThrow(CheckedPurchaseRequisitionNotFoundException::new);
+        var pr = cpr.getPurchaseRequisition();
         var authUser = authService.getCurrentUser();
         if (cpr.getCheckedStatus() == 2) {
             throw new PurchaseRequisitionException("Not processed further");
         }
         if (cpr.getCheckedStatus() == 1 && request.getCheckedStatus() == 2) {
             cpr.setCheckedStatus(2);
+            //update Purchase requisition table
+            pr.setOrderRefs(pr.getOrderRefs());
+            pr.setOrderRefs("");
+            pr.setPurchaseInvoices(pr.getPurchaseInvoices());
+            pr.setPurchaseInvoices("");
+            pr.setPurchaseInvoiceDocs(pr.getPurchaseInvoiceDocs());
+            pr.setPurchaseInvoiceDocs("");
+            pr.setOverallDiscount(pr.getOverallDiscount());
+            pr.setOverallDiscount(null);
             cpr.setCheckByAdmin(authUser);
             cpr.setCheckByAdminAt(LocalDateTime.now());
         }
+        prRepo.save(pr);
         cprRepo.save(cpr);
         return cprMapper.toDto(cpr);
     }
