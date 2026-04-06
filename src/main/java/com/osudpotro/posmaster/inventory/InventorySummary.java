@@ -74,9 +74,9 @@ public class InventorySummary {
     @CreationTimestamp
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
-    @JsonIgnore
-    @OneToMany(mappedBy = "inventorySummary", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
-    private List<InventorySummaryItem> items = new ArrayList<>();
+//    @JsonIgnore
+//    @OneToMany(mappedBy = "inventorySummary", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
+//    private List<InventorySummaryItem> items = new ArrayList<>();
 
 
 //    @Transient

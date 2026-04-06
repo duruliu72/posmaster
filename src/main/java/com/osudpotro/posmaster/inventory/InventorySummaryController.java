@@ -64,4 +64,19 @@ public class InventorySummaryController {
         Page<InventorySummaryGroupProjection> result = invSummaryService.filterGroupInventorySummaryProjection(filter, pageable);
         return new PagedResponse<>(result);
     }
+    @PostMapping("/filter-by-branch")
+    public PagedResponse<InventorySummaryGroupProjection> filterGroupInventoryListByBranch(
+            @RequestBody InventorySummaryFilter filter,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "productId") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir
+    ) {
+        Sort sort = sortDir.equalsIgnoreCase("asc") ?
+                Sort.by(sortBy).ascending() :
+                Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<InventorySummaryGroupProjection> result = invSummaryService.filterGroupInventorySummaryProjection(filter, pageable);
+        return new PagedResponse<>(result);
+    }
 }

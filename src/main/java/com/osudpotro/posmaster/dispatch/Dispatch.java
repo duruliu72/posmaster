@@ -10,6 +10,10 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.domain.Page;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -53,8 +57,6 @@ public class Dispatch {
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "updated_by")
     private User updatedBy;
-    @OneToMany(mappedBy = "dispatch", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<DispatchDetail> items = new ArrayList<>();
     @ManyToOne(fetch = FetchType.LAZY ,optional = true)
     @JoinColumn(name = "created_by", nullable = true)
     private User createdBy;
@@ -64,8 +66,29 @@ public class Dispatch {
     @UpdateTimestamp
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private  LocalDateTime updatedAt;
-    //1=Send Dispatch Req By reqBranch,2=Accept Dispatch By senderBranch,3=Accept By  and to InventorySummary By
+    //1,Dispatch Req created By Requested Branch,2=Send Dispatch Req By reqBranch,3=Accept Dispatch By senderBranch,4=Accept By  and to InventorySummary By
     private Integer dispatchStatus = 1;
+    @OneToMany(mappedBy = "dispatch", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<DispatchItem> items = new ArrayList<>();
+    public int getTotalQty() {
+        return items.stream()
+                .filter(i ->
+                        i.getDispatchQty() != null
+                )
+                .mapToInt(DispatchItem::getDispatchQty)
+                .sum();
+    }
+    public BigDecimal getTotalPurchasePrice() {
+        return items.stream()
+                .filter(i ->
+                        i.getDispatchQty() != null && i.getProductDetail().getPurchasePrice() != null
+                )
+                .map(i ->
+                        i.getProductDetail().getPurchasePrice()
+                                .multiply(BigDecimal.valueOf(i.getDispatchQty()))
+                )
+                .reduce(BigDecimal.ZERO, BigDecimal::add).setScale(2, RoundingMode.HALF_UP);
+    }
     public String getGenerateDispatchInvoice() {
         String tripPrefix = "DIS";
         String datePart = new SimpleDateFormat("yyyyMMdd").format(new Date());
@@ -102,4 +125,6 @@ public class Dispatch {
         //Format String
         return String.format("%s-%s-%06d", tripPrefix, datePart, nextSeq);
     }
+
+
 }

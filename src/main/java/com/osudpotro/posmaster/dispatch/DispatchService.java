@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -18,9 +17,13 @@ public class DispatchService {
     @Autowired
     private DispatchRepository dispatchRepo;
     @Autowired
+    private  DispatchItemRepository dispatchItemRepo;
+    @Autowired
     private BranchRepository branchRepository;
     @Autowired
     private DispatchMapper dispatchMapper;
+    @Autowired
+    private DispatchItemMapper dispatchItemMapper;
     @Autowired
     private AuthService authService;
 
@@ -30,10 +33,17 @@ public class DispatchService {
                 .map(dispatchMapper::toDto)
                 .toList();
     }
-
     public Page<DispatchDto> getAllDispatches(DispatchFilter filter, Pageable pageable) {
         var authUser = authService.getCurrentUser();
         return dispatchRepo.findAll(DispatchSpecification.filter(filter, authUser), pageable).map(dispatchMapper::toDto);
+    }
+    public Page<DispatchDto> getAllDispatchesByRequestedBranch(DispatchFilter filter, Pageable pageable) {
+        var authUser = authService.getCurrentUser();
+        return dispatchRepo.findAll(DispatchSpecification.filterByRequestedBranch(filter, authUser), pageable).map(dispatchMapper::toDto);
+    }
+    public Page<DispatchDto> getAllDispatchesByRequestReceivedBranch(DispatchFilter filter, Pageable pageable) {
+        var authUser = authService.getCurrentUser();
+        return dispatchRepo.findAll(DispatchSpecification.filterByRequestReceivedBranch(filter, authUser), pageable).map(dispatchMapper::toDto);
     }
 
     @Transactional
@@ -63,6 +73,13 @@ public class DispatchService {
     public DispatchDto updateDispatch(Long dispatchId, DispatchUpdateRequest request) {
         return null;
     }
+    public DispatchWithItemPageResponse filterWithItemPagination(Long dispatchId, Pageable pageable, DispatchItemFilter filter) {
+        var authUser = authService.getCurrentUser();
+        Dispatch dispatch = dispatchRepo.findById(dispatchId).orElseThrow(DispatchNotFoundException::new);
+        Page<DispatchItemDto> result = dispatchItemRepo.findAll(DispatchItemSpecification.filter(filter,dispatchId),pageable).map(dispatchItemMapper::toDto);
+        return dispatchMapper.toMinDto(dispatch, result);
+    }
+
     private String getGenerateDispatchRef() {
         Dispatch dispatch = dispatchRepo.findTopByOrderByCreatedAtDesc();
         if(dispatch==null){
@@ -77,4 +94,9 @@ public class DispatchService {
         }
         return dispatch.getGenerateDispatchInvoice();
     }
+
+    public DispatchDto getDispatch(Long dispatchId) {
+        return null;
+    }
+
 }

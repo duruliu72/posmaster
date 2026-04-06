@@ -5,4 +5,5 @@ import lombok.Data;
 @Data
 public class InventorySummaryFilter {
     private String productName;
+    private Long branchId;
 }

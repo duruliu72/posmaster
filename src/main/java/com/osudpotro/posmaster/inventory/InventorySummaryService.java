@@ -35,4 +35,7 @@ public class InventorySummaryService {
         var authUser = authService.getCurrentUser();
         return invSummaryRepo.findAllGroupInventorySummaryByProjection(authUser.getBranch().getId(), pageable);
     }
+    public Page<InventorySummaryGroupProjection> filterGroupInventorySummaryByBranch(InventorySummaryFilter filter, Pageable pageable) {
+        return invSummaryRepo.findAllGroupInventorySummaryByProjection(filter.getBranchId(), pageable);
+    }
 }

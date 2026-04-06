@@ -10,14 +10,14 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "dispatch_details", uniqueConstraints = @UniqueConstraint(
+@Table(name = "dispatch_items", uniqueConstraints = @UniqueConstraint(
         columnNames = {
                 "dispatch_id",
                 "product_id",
                 "product_detail_id"
         }
 ))
-public class DispatchDetail {
+public class DispatchItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

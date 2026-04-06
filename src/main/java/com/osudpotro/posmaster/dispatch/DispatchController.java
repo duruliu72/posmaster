@@ -41,11 +41,55 @@ public class DispatchController {
         Page<DispatchDto> result = dispatchService.getAllDispatches(filter, pageable);
         return new PagedResponse<>(result);
     }
+    @PostMapping("/filter-by-requested-branch")
+    public PagedResponse<DispatchDto> getAllDispatchesByRequestedBranch(
+            @RequestBody DispatchFilter filter,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "dispatchAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir
+    ) {
+        Sort sort = sortDir.equalsIgnoreCase("asc") ?
+                Sort.by(sortBy).ascending() :
+                Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<DispatchDto> result = dispatchService.getAllDispatchesByRequestedBranch(filter, pageable);
+        return new PagedResponse<>(result);
+    }
+    @PostMapping("/filter-by-request-received-branch")
+    public PagedResponse<DispatchDto> getAllDispatchesByRequestReceivedBranch(
+            @RequestBody DispatchFilter filter,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "dispatchAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir
+    ) {
+        Sort sort = sortDir.equalsIgnoreCase("asc") ?
+                Sort.by(sortBy).ascending() :
+                Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<DispatchDto> result = dispatchService.getAllDispatchesByRequestReceivedBranch(filter, pageable);
+        return new PagedResponse<>(result);
+    }
     @PostMapping
     public ResponseEntity<DispatchDto> createDispatch(@Valid @RequestBody DispatchCreateRequest request, UriComponentsBuilder uriBuilder) {
         var dispatchDto = dispatchService.createDispatch(request);
         var uri = uriBuilder.path("/dispatches/{id}").buildAndExpand(dispatchDto.getId()).toUri();
         return ResponseEntity.created(uri).body(dispatchDto);
+    }
+    //  For Get  Dispatch with item Pagination
+    @PostMapping("/{id}/filter")
+    public DispatchWithItemPageResponse filterWithItemPagination(@PathVariable Long id,
+                                                                            @RequestBody DispatchItemFilter filter,
+                                                                            @RequestParam(defaultValue = "0") int page,
+                                                                            @RequestParam(defaultValue = "10") int size,
+                                                                            @RequestParam(defaultValue = "id") String sortBy,
+                                                                            @RequestParam(defaultValue = "desc") String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase("asc") ?
+                Sort.by(sortBy).ascending() :
+                Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return dispatchService.filterWithItemPagination(id, pageable, filter);
     }
     @ExceptionHandler(DispatchException.class)
     public ResponseEntity<Map<String, String>> handleDispatchException(Exception e) {

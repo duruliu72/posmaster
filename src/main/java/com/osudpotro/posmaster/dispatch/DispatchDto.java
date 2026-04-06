@@ -6,7 +6,10 @@ import com.osudpotro.posmaster.user.UserPlainDto;
 import com.osudpotro.posmaster.warehouse.WarehouseDto;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 public class DispatchDto {
@@ -24,4 +27,8 @@ public class DispatchDto {
     private UserPlainDto dispatchBy;
     private LocalDateTime dispatchAt;
     private Integer dispatchStatus;
+    private LocalDateTime createdAt;
+    private Integer totalDispatchQty;
+    private BigDecimal totalPurchasePrice;
+    private List<DispatchItemDto> items = new ArrayList<>();
 }

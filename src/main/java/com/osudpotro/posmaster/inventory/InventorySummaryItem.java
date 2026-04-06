@@ -14,16 +14,16 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@Entity
-@Table(name = "inventory_summary_items", uniqueConstraints = @UniqueConstraint(
-        columnNames = {
-                "inventory_summary_id",
-                "purchase_id",
-                "purchase_details_id",
-                "product_id",
-                "product_detail_id"
-        }
-))
+//@Entity
+//@Table(name = "inventory_summary_items", uniqueConstraints = @UniqueConstraint(
+//        columnNames = {
+//                "inventory_summary_id",
+//                "purchase_id",
+//                "purchase_details_id",
+//                "product_id",
+//                "product_detail_id"
+//        }
+//))
 public class InventorySummaryItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
