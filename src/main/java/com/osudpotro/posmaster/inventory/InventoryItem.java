@@ -24,13 +24,13 @@ import java.time.LocalDateTime;
 //                "product_detail_id"
 //        }
 //))
-public class InventorySummaryItem {
+public class InventoryItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne
     @JoinColumn(name = "inventory_summary_id")
-    private InventorySummary inventorySummary;
+    private Inventory inventory;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "purchase_id")
     private Purchase purchase;

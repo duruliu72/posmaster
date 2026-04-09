@@ -66,7 +66,7 @@ public class Purchase {
     @UpdateTimestamp
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime updatedAt;
-    //1 or Null=Assign to Transport,2=Received Via Transport,3=Added to InventorySummary
+    //1 or Null=Assign to Transport,2=Received Via Transport,3=Added to Inventory
     private Integer purchaseStatus = 1;
     @JsonIgnore
     @OneToMany(mappedBy = "purchase", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)

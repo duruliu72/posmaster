@@ -17,6 +17,7 @@ public class DispatchMapper {
         dispatchDto.setId(dispatch.getId());
         dispatchDto.setDispatchRef(dispatch.getDispatchRef());
         dispatchDto.setDispatchInvoice(dispatch.getDispatchInvoice());
+        dispatchDto.setDispatchStatus(dispatch.getDispatchStatus());
         if (dispatch.getOrganization() != null) {
             Organization org=dispatch.getOrganization();
             OrganizationDto orgDto=new OrganizationDto();
@@ -24,19 +25,19 @@ public class DispatchMapper {
             orgDto.setName(org.getName());
             dispatchDto.setOrganization(orgDto);
         }
-        if (dispatch.getRequestedBranch() != null) {
-            Branch requestedBranch=dispatch.getRequestedBranch();
+        if (dispatch.getRequesterBranch() != null) {
+            Branch requestedBranch=dispatch.getRequesterBranch();
             BranchDto requestedBranchDto=new BranchDto();
             requestedBranchDto.setId(requestedBranch.getId());
             requestedBranchDto.setName(requestedBranch.getName());
-            dispatchDto.setRequestedBranch(requestedBranchDto);
+            dispatchDto.setRequesterBranch(requestedBranchDto);
         }
-        if (dispatch.getRequestReceivedBranch() != null) {
-            Branch requestReceivedBranch=dispatch.getRequestReceivedBranch();
+        if (dispatch.getAcceptorBranch() != null) {
+            Branch requestReceivedBranch=dispatch.getAcceptorBranch();
             BranchDto requestReceivedBranchDto=new BranchDto();
             requestReceivedBranchDto.setId(requestReceivedBranch.getId());
             requestReceivedBranchDto.setName(requestReceivedBranch.getName());
-            dispatchDto.setRequestReceivedBranch(requestReceivedBranchDto);
+            dispatchDto.setAcceptorBranch(requestReceivedBranchDto);
         }
 //        if (dispatch.getLoadedBy() != null) {
 //            var loadedBy = goodsOnTrip.getLoadedBy();
@@ -52,11 +53,42 @@ public class DispatchMapper {
         dispatchDto.setTotalPurchasePrice(dispatch.getTotalPurchasePrice());
         return dispatchDto;
     }
-    public DispatchWithItemPageResponse toMinDto(Dispatch dispatch, Page<DispatchItemDto> result) {
+    public DispatchWithItemPageResponse toMinDto(Dispatch dispatch, Page<DispatchItemDto> page) {
         DispatchWithItemPageResponse pageResponse=new DispatchWithItemPageResponse();
         pageResponse.setId(dispatch.getId());
         pageResponse.setDispatchRef(dispatch.getDispatchRef());
         pageResponse.setDispatchInvoice(dispatch.getDispatchInvoice());
+        pageResponse.setDispatchStatus(dispatch.getDispatchStatus());
+        if (dispatch.getOrganization() != null) {
+            Organization org=dispatch.getOrganization();
+            OrganizationDto orgDto=new OrganizationDto();
+            orgDto.setId(org.getId());
+            orgDto.setName(org.getName());
+            pageResponse.setOrganization(orgDto);
+        }
+        if (dispatch.getRequesterBranch() != null) {
+            Branch requestedBranch=dispatch.getRequesterBranch();
+            BranchDto requestedBranchDto=new BranchDto();
+            requestedBranchDto.setId(requestedBranch.getId());
+            requestedBranchDto.setName(requestedBranch.getName());
+            pageResponse.setRequesterBranch(requestedBranchDto);
+        }
+        if (dispatch.getAcceptorBranch() != null) {
+            Branch requestReceivedBranch=dispatch.getAcceptorBranch();
+            BranchDto requestReceivedBranchDto=new BranchDto();
+            requestReceivedBranchDto.setId(requestReceivedBranch.getId());
+            requestReceivedBranchDto.setName(requestReceivedBranch.getName());
+            pageResponse.setAcceptorBranch(requestReceivedBranchDto);
+        }
+        pageResponse.setTotalDispatchQty(dispatch.getTotalQty());
+        pageResponse.setCreatedAt(dispatch.getCreatedAt());
+        pageResponse.setTotalPurchasePrice(dispatch.getTotalPurchasePrice());
+        //For Item Pagination
+        pageResponse.setItems(page.getContent());
+        pageResponse.setTotalElements(page.getTotalElements());
+        pageResponse.setPageNumber(page.getNumber());
+        pageResponse.setPageSize(page.getSize());
+        pageResponse.setTotalPages(page.getTotalPages());
         return pageResponse;
     }
 }

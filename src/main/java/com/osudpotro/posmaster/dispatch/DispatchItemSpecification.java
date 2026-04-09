@@ -10,6 +10,10 @@ public class DispatchItemSpecification {
     public static Specification<DispatchItem> filter(DispatchItemFilter filter, Long dispatchId) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+            if (filter.getName() != null && !filter.getName().isEmpty()) {
+                predicates.add(cb.like(cb.lower(root.get("product").get("productName")),
+                        "%" + filter.getName().toLowerCase() + "%"));
+            }
             if (dispatchId != null) {
 //                System.out.println(dispatchId);
 //                predicates.add(cb.equal(root.get("dispatch.id"), dispatchId));

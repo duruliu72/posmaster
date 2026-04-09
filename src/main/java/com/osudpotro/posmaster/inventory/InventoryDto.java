@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
-public class InventorySummaryDto {
+public class InventoryDto {
     private Long id;
     private Long invoiceId;
     private Long invoiceDetailId;

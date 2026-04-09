@@ -21,20 +21,20 @@ public class DispatchSpecification {
             return cb.and(predicates.toArray(new Predicate[0]));
         };
     }
-    public static Specification<Dispatch> filterByRequestedBranch(DispatchFilter filter, User user) {
+    public static Specification<Dispatch> filterByRequesterBranch(DispatchFilter filter, User user) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             if (user != null && user.getBranch() != null) {
-                predicates.add(cb.equal(root.get("requestedBranch").get("id"), user.getBranch().getId()));
+                predicates.add(cb.equal(root.get("requesterBranch").get("id"), user.getBranch().getId()));
             }
             return cb.and(predicates.toArray(new Predicate[0]));
         };
     }
-    public static Specification<Dispatch> filterByRequestReceivedBranch(DispatchFilter filter, User user) {
+    public static Specification<Dispatch> filterByAcceptorBranch(DispatchFilter filter, User user) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             if (user != null && user.getBranch() != null) {
-                predicates.add(cb.equal(root.get("requestReceivedBranch").get("id"), user.getBranch().getId()));
+                predicates.add(cb.equal(root.get("acceptorBranch").get("id"), user.getBranch().getId()));
             }
             return cb.and(predicates.toArray(new Predicate[0]));
         };

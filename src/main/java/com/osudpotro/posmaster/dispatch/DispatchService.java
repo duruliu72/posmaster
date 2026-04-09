@@ -2,12 +2,14 @@ package com.osudpotro.posmaster.dispatch;
 
 import com.osudpotro.posmaster.branch.BranchNotFoundException;
 import com.osudpotro.posmaster.branch.BranchRepository;
+import com.osudpotro.posmaster.product.*;
 import com.osudpotro.posmaster.user.auth.AuthService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -17,7 +19,7 @@ public class DispatchService {
     @Autowired
     private DispatchRepository dispatchRepo;
     @Autowired
-    private  DispatchItemRepository dispatchItemRepo;
+    private DispatchItemRepository dispatchItemRepo;
     @Autowired
     private BranchRepository branchRepository;
     @Autowired
@@ -26,6 +28,10 @@ public class DispatchService {
     private DispatchItemMapper dispatchItemMapper;
     @Autowired
     private AuthService authService;
+    @Autowired
+    private ProductDetailRepository productDetailRepo;
+    @Autowired
+    private ProductRepository productRepo;
 
     public List<DispatchDto> getAllDispatches() {
         return dispatchRepo.findAll()
@@ -33,17 +39,20 @@ public class DispatchService {
                 .map(dispatchMapper::toDto)
                 .toList();
     }
+
     public Page<DispatchDto> getAllDispatches(DispatchFilter filter, Pageable pageable) {
         var authUser = authService.getCurrentUser();
         return dispatchRepo.findAll(DispatchSpecification.filter(filter, authUser), pageable).map(dispatchMapper::toDto);
     }
+
     public Page<DispatchDto> getAllDispatchesByRequestedBranch(DispatchFilter filter, Pageable pageable) {
         var authUser = authService.getCurrentUser();
-        return dispatchRepo.findAll(DispatchSpecification.filterByRequestedBranch(filter, authUser), pageable).map(dispatchMapper::toDto);
+        return dispatchRepo.findAll(DispatchSpecification.filterByRequesterBranch(filter, authUser), pageable).map(dispatchMapper::toDto);
     }
+
     public Page<DispatchDto> getAllDispatchesByRequestReceivedBranch(DispatchFilter filter, Pageable pageable) {
         var authUser = authService.getCurrentUser();
-        return dispatchRepo.findAll(DispatchSpecification.filterByRequestReceivedBranch(filter, authUser), pageable).map(dispatchMapper::toDto);
+        return dispatchRepo.findAll(DispatchSpecification.filterByAcceptorBranch(filter, authUser), pageable).map(dispatchMapper::toDto);
     }
 
     @Transactional
@@ -53,50 +62,123 @@ public class DispatchService {
         if (dispatchRepo.existsByDispatchRef(dispatchRef)) {
             throw new DuplicateDispatchException();
         }
-        if(Objects.equals(request.getRequestReceivedBranchId(), authUser.getBranch().getId())){
+        if (Objects.equals(request.getRequestReceivedBranchId(), authUser.getBranch().getId())) {
             throw new DispatchException("Branch is not valid");
         }
         var reqBranch = branchRepository.findById(authUser.getBranch().getId()).orElseThrow(BranchNotFoundException::new);
         var senderBranch = branchRepository.findById(request.getRequestReceivedBranchId()).orElseThrow(BranchNotFoundException::new);
         Dispatch dispatch = new Dispatch();
         dispatch.setDispatchRef(dispatchRef);
-        dispatch.setRequestedBranch(reqBranch);
+        dispatch.setRequesterBranch(reqBranch);
         dispatch.setOrganization(reqBranch.getOrganization());
-        dispatch.setRequestedBy(authUser);
-        dispatch.setRequestedAt(LocalDateTime.now());
-        dispatch.setRequestReceivedBranch(senderBranch);
+        dispatch.setAcceptorBranch(senderBranch);
+        dispatch.setCreatedBy(authUser);
         dispatchRepo.save(dispatch);
         return dispatchMapper.toDto(dispatch);
     }
 
     @Transactional
-    public DispatchDto updateDispatch(Long dispatchId, DispatchUpdateRequest request) {
-        return null;
+    public DispatchDto sendByRequesterBranch(Long dispatchId, DispatchUpdateRequest request) {
+        Dispatch dispatch = dispatchRepo.findById(dispatchId).orElseThrow(DispatchNotFoundException::new);
+        if (dispatch.getDispatchStatus() != 1) {
+            throw new DispatchException("You already done!");
+        }
+        var authUser = authService.getCurrentUser();
+        String dispatchInvoice = getGenerateDispatchInvoice();
+        dispatch.setDispatchInvoice(dispatchInvoice);
+        dispatch.setSendByRequester(authUser);
+        dispatch.setSendAtByRequester(LocalDateTime.now());
+        dispatch.setSendNoteByRequester(request.getNote());
+        dispatch.setDispatchStatus(2);
+        return dispatchMapper.toDto(dispatch);
     }
+    @Transactional
+    public DispatchDto acceptByRequesterBranch(Long dispatchId, DispatchUpdateRequest request) {
+        Dispatch dispatch = dispatchRepo.findById(dispatchId).orElseThrow(DispatchNotFoundException::new);
+        if (dispatch.getDispatchStatus() != 4) {
+            throw new DispatchException("You already done!");
+        }
+        var authUser = authService.getCurrentUser();
+//        dispatch.setAcceptByRequester(authUser);
+//        dispatch.setAcceptAtByRequester(LocalDateTime.now());
+//        dispatch.setAcceptNoteByRequester(request.getNote());
+//        dispatch.setDispatchStatus(5);
+        return dispatchMapper.toDto(dispatch);
+    }
+
+    @Transactional
+    public DispatchDto acceptByAcceptorBranch(Long dispatchId, DispatchUpdateRequest request) {
+        Dispatch dispatch = dispatchRepo.findById(dispatchId).orElseThrow(DispatchNotFoundException::new);
+        if (dispatch.getDispatchStatus() != 2) {
+            throw new DispatchException("You already done!");
+        }
+        var authUser = authService.getCurrentUser();
+        dispatch.setAcceptByAcceptor(authUser);
+        dispatch.setAcceptAtByAcceptor(LocalDateTime.now());
+        dispatch.setAcceptNoteByAcceptor(request.getNote());
+        dispatch.setDispatchStatus(3);
+        return dispatchMapper.toDto(dispatch);
+    }
+
+    @Transactional
+    public DispatchDto sendByAcceptorBranch(Long dispatchId, DispatchUpdateRequest request) {
+        Dispatch dispatch = dispatchRepo.findById(dispatchId).orElseThrow(DispatchNotFoundException::new);
+        if (dispatch.getDispatchStatus() != 3) {
+            throw new DispatchException("You already done!");
+        }
+        var authUser = authService.getCurrentUser();
+        dispatch.setSendByAcceptor(authUser);
+        dispatch.setSendAtByAcceptor(LocalDateTime.now());
+        dispatch.setSendNoteByAcceptor(request.getNote());
+        dispatch.setDispatchStatus(4);
+        return dispatchMapper.toDto(dispatch);
+    }
+
     public DispatchWithItemPageResponse filterWithItemPagination(Long dispatchId, Pageable pageable, DispatchItemFilter filter) {
         var authUser = authService.getCurrentUser();
         Dispatch dispatch = dispatchRepo.findById(dispatchId).orElseThrow(DispatchNotFoundException::new);
-        Page<DispatchItemDto> result = dispatchItemRepo.findAll(DispatchItemSpecification.filter(filter,dispatchId),pageable).map(dispatchItemMapper::toDto);
+        Page<DispatchItemDto> result = dispatchItemRepo.findAll(DispatchItemSpecification.filter(filter, dispatchId), pageable).map(dispatchItemMapper::toDto);
         return dispatchMapper.toMinDto(dispatch, result);
     }
 
-    private String getGenerateDispatchRef() {
-        Dispatch dispatch = dispatchRepo.findTopByOrderByCreatedAtDesc();
-        if(dispatch==null){
-            dispatch=new Dispatch();
-        }
-        return dispatch.getGenerateDispatchRef();
-    }
-    private String getGenerateDispatchInvoice() {
-        Dispatch dispatch = dispatchRepo.findTopByOrderByDispatchInvoiceDesc();
-        if(dispatch==null){
-            dispatch=new Dispatch();
-        }
-        return dispatch.getGenerateDispatchInvoice();
+    public DispatchDto addDispatchItem(Long dispatchId, DispatchItemAddRequest request) {
+        Dispatch dispatch = dispatchRepo.findById(dispatchId).orElseThrow(DispatchNotFoundException::new);
+        
+        DispatchItem dispatchItem = new DispatchItem();
+        Product product = productRepo.findById(request.getProductId()).orElseThrow(ProductNotFoundException::new);
+        ProductDetail productDetail = productDetailRepo.findById(request.getProductDetailId()).orElseThrow(ProductDetailNotFoundException::new);
+        dispatchItem.setProduct(product);
+        dispatchItem.setProductDetail(productDetail);
+        dispatchItem.setDispatchQty(request.getQty());
+        dispatchItem.setRequestedQty(request.getQty());
+        dispatchItem.setUpdatedQty(request.getQty());
+        List<DispatchItem> list = dispatch.getItems();
+        list.add(dispatchItem);
+        dispatch.setItems(list);
+        dispatchItem.setDispatch(dispatch);
+        dispatchRepo.save(dispatch);
+        return dispatchMapper.toDto(dispatch);
     }
 
     public DispatchDto getDispatch(Long dispatchId) {
         return null;
     }
+
+    private String getGenerateDispatchRef() {
+        Dispatch dispatch = dispatchRepo.findTopByOrderByCreatedAtDesc();
+        if (dispatch == null) {
+            dispatch = new Dispatch();
+        }
+        return dispatch.getGenerateDispatchRef();
+    }
+
+    private String getGenerateDispatchInvoice() {
+        Dispatch dispatch = dispatchRepo.findTopByOrderByDispatchInvoiceDesc();
+        if (dispatch == null) {
+            dispatch = new Dispatch();
+        }
+        return dispatch.getGenerateDispatchInvoice();
+    }
+
 
 }

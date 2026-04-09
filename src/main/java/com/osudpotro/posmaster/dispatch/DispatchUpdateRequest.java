@@ -4,6 +4,5 @@ import lombok.Data;
 
 @Data
 public class DispatchUpdateRequest {
-    private String purchaseType;
     private String note;
 }

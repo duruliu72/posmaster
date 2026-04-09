@@ -1,7 +1,7 @@
 package com.osudpotro.posmaster.purchase.checked;
 
-import com.osudpotro.posmaster.inventory.InventorySummary;
-import com.osudpotro.posmaster.inventory.InventorySummaryRepository;
+import com.osudpotro.posmaster.inventory.Inventory;
+import com.osudpotro.posmaster.inventory.InventoryRepository;
 import com.osudpotro.posmaster.inventory.InvoiceType;
 import com.osudpotro.posmaster.purchase.Purchase;
 import com.osudpotro.posmaster.purchase.PurchaseDetail;
@@ -34,7 +34,7 @@ public class CheckedPurchaseRequisitionService {
     @Autowired
     private CheckedPurchaseRequisitionItemRepository cprItemRepo;
     @Autowired
-    private InventorySummaryRepository invSummaryRepo;
+    private InventoryRepository invSummaryRepo;
     @Autowired
     private AuthService authService;
     @Autowired
@@ -96,7 +96,7 @@ public class CheckedPurchaseRequisitionService {
         var cpr = cprRepo.findById(cprId).orElseThrow(CheckedPurchaseRequisitionNotFoundException::new);
         var purchaseFind = purchaseRepo.findByCheckedPurchaseRequisition(cpr).orElse(null);
         if (cpr.getCheckedStatus() == 3 || purchaseFind != null) {
-            throw new PurchaseRequisitionException("As you Already Added to InventorySummary. Not to possible update");
+            throw new PurchaseRequisitionException("As you Already Added to Inventory. Not to possible update");
         }
         var prtItem = cprItemRepo.findById(cprItemId).orElseThrow(CheckedPurchaseRequisitionItemNotFoundException::new);
         prtItem = getCheckedPurchaseRequisitionItem(prtItem, request);
@@ -109,7 +109,7 @@ public class CheckedPurchaseRequisitionService {
         var crp = cprRepo.findById(cprId).orElseThrow(PurchaseRequisitionNotFoundException::new);
         var purchaseFind = purchaseRepo.findByCheckedPurchaseRequisition(crp).orElse(null);
         if (crp.getCheckedStatus() == 3 || purchaseFind != null) {
-            throw new PurchaseRequisitionException("Already Added to InventorySummary!");
+            throw new PurchaseRequisitionException("Already Added to Inventory!");
         }
 //        crp.setCheckedStatus(3);
         var authUser = authService.getCurrentUser();
@@ -149,18 +149,18 @@ public class CheckedPurchaseRequisitionService {
         }
         purchase.setItems(purchaseDetailList);
         purchase = purchaseRepo.save(purchase);
-//        InventorySummary Summary add here
-        List<InventorySummary> inventorySummaryList = new ArrayList<>();
+//        Inventory Summary add here
+        List<Inventory> inventoryList = new ArrayList<>();
         for (var purchaseDetail : purchaseDetailList) {
-            InventorySummary invSummary = getInventorySummary(purchaseDetail, purchase);
-            inventorySummaryList.add(invSummary);
+            Inventory invSummary = getInventorySummary(purchaseDetail, purchase);
+            inventoryList.add(invSummary);
         }
-        invSummaryRepo.saveAll(inventorySummaryList);
+        invSummaryRepo.saveAll(inventoryList);
         cprRepo.save(crp);
         return cprMapper.toDto(crp);
     }
-    private InventorySummary getInventorySummary(PurchaseDetail purchaseDetail, Purchase purchase) {
-        InventorySummary invSummary = new InventorySummary();
+    private Inventory getInventorySummary(PurchaseDetail purchaseDetail, Purchase purchase) {
+        Inventory invSummary = new Inventory();
         invSummary.setInvoiceId(purchase.getId());
         invSummary.setInvoiceDetailId(purchaseDetail.getId());
         invSummary.setPurchase(purchase);

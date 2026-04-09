@@ -9,33 +9,33 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class InventorySummaryService {
+public class InventoryService {
     @Autowired
-    private InventorySummaryRepository invSummaryRepo;
+    private InventoryRepository invSummaryRepo;
     @Autowired
     private AuthService authService;
     @Autowired
-    InventorySummaryMapper invSummaryMapper;
-    public List<InventorySummaryGroupDto> getGroupInventorySummary() {
+    InventoryMapper invSummaryMapper;
+    public List<InventoryGroupDto> getGroupInventorySummary() {
         var authUser = authService.getCurrentUser();
         return invSummaryRepo.findAllGroupInventorySummary(authUser.getBranch().getId())
                 .stream()
                 .toList();
     }
-    public Page<InventorySummaryGroupDto> filterGroupInventorySummary(InventorySummaryFilter filter, Pageable pageable) {
+    public Page<InventoryGroupDto> filterGroupInventorySummary(InventoryFilter filter, Pageable pageable) {
         var authUser = authService.getCurrentUser();
         var x=InventorySummarySpecification.filter(filter,authUser);
         return invSummaryRepo.findAllGroupInventorySummary(x, pageable);
     }
-    public Page<InventorySummaryGroupDto> filterEntitiesWithOnlyPage(InventorySummaryFilter filter, Pageable pageable) {
+    public Page<InventoryGroupDto> filterEntitiesWithOnlyPage(InventoryFilter filter, Pageable pageable) {
         var authUser = authService.getCurrentUser();
         return invSummaryRepo.findAllGroupInventorySummaryPage(pageable);
     }
-    public Page<InventorySummaryGroupProjection> filterGroupInventorySummaryProjection(InventorySummaryFilter filter, Pageable pageable) {
+    public Page<InventoryByGroupProjection> filterGroupInventorySummaryProjection(InventoryFilter filter, Pageable pageable) {
         var authUser = authService.getCurrentUser();
-        return invSummaryRepo.findAllGroupInventorySummaryByProjection(authUser.getBranch().getId(), pageable);
+        return invSummaryRepo.findAllGroupInventorySummaryByProjection(authUser.getBranch().getId(),"", pageable);
     }
-    public Page<InventorySummaryGroupProjection> filterGroupInventorySummaryByBranch(InventorySummaryFilter filter, Pageable pageable) {
-        return invSummaryRepo.findAllGroupInventorySummaryByProjection(filter.getBranchId(), pageable);
+    public Page<InventoryByGroupProjection> filterGroupInvSummaryByBranch(InventoryFilter filter, Pageable pageable) {
+        return invSummaryRepo.findAllGroupInventorySummaryByProjection(filter.getBranchId(),filter.getSearchKey(), pageable);
     }
 }

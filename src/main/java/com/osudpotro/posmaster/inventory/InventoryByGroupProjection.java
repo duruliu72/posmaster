@@ -3,7 +3,7 @@ package com.osudpotro.posmaster.inventory;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public interface InventorySummaryGroupProjection {
+public interface InventoryByGroupProjection {
     Long getProductId();
     String getProductName();
     String getProductCode();

@@ -1,7 +1,6 @@
 package com.osudpotro.posmaster.inventory;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.osudpotro.posmaster.branch.Branch;
 import com.osudpotro.posmaster.organization.Organization;
 import com.osudpotro.posmaster.product.Product;
@@ -18,15 +17,13 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @Entity
-@Table(name = "inventory_summary", indexes = {
+@Table(name = "inventory", indexes = {
         @Index(name = "idx_inventory_product", columnList = "product_id"),
         @Index(name = "idx_inventory_product_detail", columnList = "product_detail_id"),
         @Index(name = "idx_inventory_warehouse", columnList = "warehouse_id"),
@@ -34,7 +31,7 @@ import java.util.List;
         @Index(name = "idx_inventory_supplier", columnList = "supplier_id"),
         @Index(name = "idx_inventory_invoice", columnList = "invoice_type, invoice_id")
 })
-public class InventorySummary {
+public class Inventory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -76,7 +73,7 @@ public class InventorySummary {
     private LocalDateTime createdAt;
 //    @JsonIgnore
 //    @OneToMany(mappedBy = "inventorySummary", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
-//    private List<InventorySummaryItem> items = new ArrayList<>();
+//    private List<InventoryItem> items = new ArrayList<>();
 
 
 //    @Transient

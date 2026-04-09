@@ -37,4 +37,6 @@ public class DispatchItem {
     @JoinColumn(name = "product_detail_id")
     private ProductDetail productDetail;
     private Integer dispatchQty;
+    private Integer requestedQty;
+    private Integer updatedQty;
 }

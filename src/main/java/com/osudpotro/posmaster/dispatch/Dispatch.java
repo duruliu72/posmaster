@@ -34,30 +34,39 @@ public class Dispatch {
     @ManyToOne(fetch = FetchType.LAZY)
     private Organization organization;
     @ManyToOne(fetch = FetchType.LAZY)
-    private Branch requestedBranch;
+    private Branch requesterBranch;
     @ManyToOne(fetch = FetchType.LAZY)
-    private Branch requestReceivedBranch;
+    private Branch acceptorBranch;
     @ManyToOne(fetch = FetchType.LAZY)
     private Warehouse warehouse;
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "requested_by", nullable = true)
-    private User requestedBy;
+    @JoinColumn(name = "send_by_requester", nullable = true)
+    private User sendByRequester;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime requestedAt;
+    private LocalDateTime sendAtByRequester;
+    private String sendNoteByRequester;
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "request_received_by", nullable = true)
-    private User requestReceivedBy;
+    @JoinColumn(name = "accept_by_requester", nullable = true)
+    private User acceptByRequester;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime acceptAtByRequester;
+    private String acceptNoteByRequester;
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "dispatch_by", nullable = true)
-    private User dispatchBy;
+    @JoinColumn(name = "accept_by_acceptor", nullable = true)
+    private User acceptByAcceptor;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime dispatchAt;
+    private LocalDateTime acceptAtByAcceptor;
+    private String acceptNoteByAcceptor;
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "send_by_acceptor", nullable = true)
+    private User sendByAcceptor;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime requestReceivedAt;
+    private LocalDateTime sendAtByAcceptor;
+    private String sendNoteByAcceptor;
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "updated_by")
     private User updatedBy;
-    @ManyToOne(fetch = FetchType.LAZY ,optional = true)
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "created_by", nullable = true)
     private User createdBy;
     @CreationTimestamp
@@ -65,11 +74,12 @@ public class Dispatch {
     private LocalDateTime createdAt;
     @UpdateTimestamp
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private  LocalDateTime updatedAt;
-    //1,Dispatch Req created By Requested Branch,2=Send Dispatch Req By reqBranch,3=Accept Dispatch By senderBranch,4=Accept By  and to InventorySummary By
+    private LocalDateTime updatedAt;
+    //1,Dispatch Req created By Requested Branch,2=Send Dispatch Req By reqBranch,3=Accept Dispatch By request Receive Branch,4=Send Dispatch By request Receive Branch,5=Accept and Add to Inventory By Requester Branch
     private Integer dispatchStatus = 1;
     @OneToMany(mappedBy = "dispatch", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<DispatchItem> items = new ArrayList<>();
+
     public int getTotalQty() {
         return items.stream()
                 .filter(i ->
@@ -78,6 +88,7 @@ public class Dispatch {
                 .mapToInt(DispatchItem::getDispatchQty)
                 .sum();
     }
+
     public BigDecimal getTotalPurchasePrice() {
         return items.stream()
                 .filter(i ->
@@ -89,8 +100,9 @@ public class Dispatch {
                 )
                 .reduce(BigDecimal.ZERO, BigDecimal::add).setScale(2, RoundingMode.HALF_UP);
     }
+
     public String getGenerateDispatchInvoice() {
-        String tripPrefix = "DIS";
+        String tripPrefix = "INV";
         String datePart = new SimpleDateFormat("yyyyMMdd").format(new Date());
         long nextSeq = 1;
         if (this.getDispatchInvoice() != null) {
@@ -107,6 +119,7 @@ public class Dispatch {
         //Format String
         return String.format("%s-%s-%06d", tripPrefix, datePart, nextSeq);
     }
+
     public String getGenerateDispatchRef() {
         String tripPrefix = "DIS";
         String datePart = new SimpleDateFormat("yyyyMMdd").format(new Date());

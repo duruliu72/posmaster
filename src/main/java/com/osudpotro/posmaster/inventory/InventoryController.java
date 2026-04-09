@@ -12,16 +12,16 @@ import java.util.List;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/inventory-summary")
-public class InventorySummaryController {
-    private final InventorySummaryService invSummaryService;
+@RequestMapping("/inventory")
+public class InventoryController {
+    private final InventoryService invSummaryService;
     @GetMapping
-    public List<InventorySummaryGroupDto> getGroupInventorySummary() {
+    public List<InventoryGroupDto> getGroupInventorySummary() {
         return invSummaryService.getGroupInventorySummary();
     }
     @PostMapping("/filter-page")
-    public PagedResponse<InventorySummaryGroupDto> filterEntitiesWithOnlyPage(
-            @RequestBody InventorySummaryFilter filter,
+    public PagedResponse<InventoryGroupDto> filterEntitiesWithOnlyPage(
+            @RequestBody InventoryFilter filter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
@@ -31,12 +31,12 @@ public class InventorySummaryController {
                 Sort.by(sortBy).ascending() :
                 Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<InventorySummaryGroupDto> result = invSummaryService.filterEntitiesWithOnlyPage(filter, pageable);
+        Page<InventoryGroupDto> result = invSummaryService.filterEntitiesWithOnlyPage(filter, pageable);
         return new PagedResponse<>(result);
     }
     @PostMapping("/filter")
-    public PagedResponse<InventorySummaryGroupDto> filterEntities(
-            @RequestBody InventorySummaryFilter filter,
+    public PagedResponse<InventoryGroupDto> filterEntities(
+            @RequestBody InventoryFilter filter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
@@ -46,12 +46,12 @@ public class InventorySummaryController {
                 Sort.by(sortBy).ascending() :
                 Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<InventorySummaryGroupDto> result = invSummaryService.filterGroupInventorySummary(filter, pageable);
+        Page<InventoryGroupDto> result = invSummaryService.filterGroupInventorySummary(filter, pageable);
         return new PagedResponse<>(result);
     }
     @PostMapping("/projection-filter")
-    public PagedResponse<InventorySummaryGroupProjection> filterEntitiesWithProjection(
-            @RequestBody InventorySummaryFilter filter,
+    public PagedResponse<InventoryByGroupProjection> filterEntitiesWithProjection(
+            @RequestBody InventoryFilter filter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "productId") String sortBy,
@@ -61,12 +61,12 @@ public class InventorySummaryController {
                 Sort.by(sortBy).ascending() :
                 Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<InventorySummaryGroupProjection> result = invSummaryService.filterGroupInventorySummaryProjection(filter, pageable);
+        Page<InventoryByGroupProjection> result = invSummaryService.filterGroupInventorySummaryProjection(filter, pageable);
         return new PagedResponse<>(result);
     }
     @PostMapping("/filter-by-branch")
-    public PagedResponse<InventorySummaryGroupProjection> filterGroupInventoryListByBranch(
-            @RequestBody InventorySummaryFilter filter,
+    public PagedResponse<InventoryByGroupProjection> filterGroupInvSummaryByBranch(
+            @RequestBody InventoryFilter filter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "productId") String sortBy,
@@ -76,7 +76,7 @@ public class InventorySummaryController {
                 Sort.by(sortBy).ascending() :
                 Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<InventorySummaryGroupProjection> result = invSummaryService.filterGroupInventorySummaryProjection(filter, pageable);
+        Page<InventoryByGroupProjection> result = invSummaryService.filterGroupInvSummaryByBranch(filter, pageable);
         return new PagedResponse<>(result);
     }
 }

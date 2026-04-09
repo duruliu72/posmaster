@@ -11,9 +11,9 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface InventorySummaryRepository extends JpaSpecificationExecutor<InventorySummary>, JpaRepository<InventorySummary, Long> {
-    List<InventorySummary> findAllByBranch(Branch branch);
-    @Query("SELECT new com.osudpotro.posmaster.inventory.InventorySummaryGroupDto(" +
+public interface InventoryRepository extends JpaSpecificationExecutor<Inventory>, JpaRepository<Inventory, Long> {
+    List<Inventory> findAllByBranch(Branch branch);
+    @Query("SELECT new com.osudpotro.posmaster.inventory.InventoryGroupDto(" +
             "i.product.id, " +
             "i.product.productName as productName, " +
             "i.product.productCode as productCode, " +
@@ -29,14 +29,14 @@ public interface InventorySummaryRepository extends JpaSpecificationExecutor<Inv
             "COALESCE(SUM(i.stockIn), 0), " +
             "COALESCE(SUM(i.stockOut), 0), " +
             "COALESCE(SUM(i.stockIn), 0) - COALESCE(SUM(i.stockOut), 0)) " +
-            "FROM InventorySummary i " +
+            "FROM Inventory i " +
             "WHERE i.branch.id = :branchId " +
             "GROUP BY i.product.id,i.product.productName,i.product.productCode,i.product.productBarCode," +
             "i.productDetail.id,i.productDetail.productDetailCode,i.productDetail.productDetailBarCode,i.productDetail.productDetailSku," +
             "i.productDetail.size.id,i.productDetail.size.name," +
             "i.branch.id,i.branch.name,i.product.id,i.productDetail.id")
-    List<InventorySummaryGroupDto> findAllGroupInventorySummary(@Param("branchId") Long branchId);
-    @Query("SELECT new com.osudpotro.posmaster.inventory.InventorySummaryGroupDto(" +
+    List<InventoryGroupDto> findAllGroupInventorySummary(@Param("branchId") Long branchId);
+    @Query("SELECT new com.osudpotro.posmaster.inventory.InventoryGroupDto(" +
             "i.product.id, " +
             "i.product.productName as productName, " +
             "i.product.productCode as productCode, " +
@@ -52,13 +52,13 @@ public interface InventorySummaryRepository extends JpaSpecificationExecutor<Inv
             "COALESCE(SUM(i.stockIn), 0), " +
             "COALESCE(SUM(i.stockOut), 0), " +
             "COALESCE(SUM(i.stockIn), 0) - COALESCE(SUM(i.stockOut), 0)) " +
-            "FROM InventorySummary i " +
+            "FROM Inventory i " +
             "GROUP BY i.product.id,i.product.productName,i.product.productCode,i.product.productBarCode," +
             "i.productDetail.id,i.productDetail.productDetailCode,i.productDetail.productDetailBarCode,i.productDetail.productDetailSku," +
             "i.productDetail.size.id,i.productDetail.size.name," +
             "i.branch.id,i.branch.name,i.product.id,i.productDetail.id")
-    Page<InventorySummaryGroupDto> findAllGroupInventorySummaryPage(Pageable pageable);
-    @Query("SELECT new com.osudpotro.posmaster.inventory.InventorySummaryGroupDto(" +
+    Page<InventoryGroupDto> findAllGroupInventorySummaryPage(Pageable pageable);
+    @Query("SELECT new com.osudpotro.posmaster.inventory.InventoryGroupDto(" +
             "i.product.id, " +
             "i.product.productName as productName, " +
             "i.product.productCode as productCode, " +
@@ -74,12 +74,12 @@ public interface InventorySummaryRepository extends JpaSpecificationExecutor<Inv
             "COALESCE(SUM(i.stockIn), 0), " +
             "COALESCE(SUM(i.stockOut), 0), " +
             "COALESCE(SUM(i.stockIn), 0) - COALESCE(SUM(i.stockOut), 0)) " +
-            "FROM InventorySummary i " +
+            "FROM Inventory i " +
             "GROUP BY i.product.id,i.product.productName,i.product.productCode,i.product.productBarCode," +
             "i.productDetail.id,i.productDetail.productDetailCode,i.productDetail.productDetailBarCode,i.productDetail.productDetailSku," +
             "i.productDetail.size.id,i.productDetail.size.name," +
             "i.branch.id,i.branch.name,i.product.id,i.productDetail.id")
-    Page<InventorySummaryGroupDto> findAllGroupInventorySummary(Specification<InventorySummary> spec, Pageable pageable);
+    Page<InventoryGroupDto> findAllGroupInventorySummary(Specification<Inventory> spec, Pageable pageable);
     @Query("SELECT i.product.id as productId," +
             "i.product.productName as productName," +
             "i.product.productCode as productCode, " +
@@ -103,8 +103,9 @@ public interface InventorySummaryRepository extends JpaSpecificationExecutor<Inv
             "COALESCE(SUM(i.stockIn), 0) as totalStockIn, " +
             "COALESCE(SUM(i.stockOut), 0) as totalStockOut, " +
             "COALESCE(SUM(i.stockIn), 0) - COALESCE(SUM(i.stockOut), 0) as currentStock " +
-            "FROM InventorySummary i " +
+            "FROM Inventory i " +
             "WHERE (:branchId IS NULL OR i.branch.id = :branchId) " +
+            "AND (:searchKey IS NULL OR LOWER(i.product.productName) LIKE LOWER(CONCAT('%', :searchKey, '%'))) " +
             "GROUP BY " +
             "i.product.id," +
             "i.product.productName," +
@@ -125,5 +126,5 @@ public interface InventorySummaryRepository extends JpaSpecificationExecutor<Inv
             "i.branch.id,i.branch.name," +
             "i.productDetail.size.id, " +
             "i.productDetail.size.name")
-    Page<InventorySummaryGroupProjection> findAllGroupInventorySummaryByProjection(@Param("branchId") Long branchId,Pageable pageable);
+    Page<InventoryByGroupProjection> findAllGroupInventorySummaryByProjection(@Param("branchId") Long branchId, @Param("searchKey") String searchKey, Pageable pageable);
 }
