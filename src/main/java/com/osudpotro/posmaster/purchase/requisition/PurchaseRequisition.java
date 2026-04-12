@@ -5,7 +5,6 @@ import com.osudpotro.posmaster.branch.Branch;
 import com.osudpotro.posmaster.common.BaseEntity;
 import com.osudpotro.posmaster.organization.Organization;
 import com.osudpotro.posmaster.purchase.PurchaseType;
-import com.osudpotro.posmaster.purchase.transfer.PurchaseRequisitionTransfer;
 import com.osudpotro.posmaster.requisition.Requisition;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -30,6 +29,8 @@ public class PurchaseRequisition extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Organization organization;
     @ManyToOne(fetch = FetchType.LAZY)
+    private Branch branch;
+    @ManyToOne(fetch = FetchType.LAZY)
     private Branch rootBranch;
     @ManyToOne(fetch = FetchType.LAZY)
     private Branch reqBranch;
@@ -45,9 +46,6 @@ public class PurchaseRequisition extends BaseEntity {
     @JsonIgnore
     @OneToMany(mappedBy = "purchaseRequisition", cascade = CascadeType.MERGE, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<PurchaseRequisitionItem> items = new ArrayList<>();
-
-    @OneToMany(mappedBy = "purchaseRequisition", cascade = CascadeType.MERGE, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<PurchaseRequisitionTransfer> prTransferList = new ArrayList<>();
     @OneToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(
             name = "requisition_id",
