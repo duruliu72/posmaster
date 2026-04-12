@@ -18,6 +18,10 @@ public class InventoryDto {
     private String productName;
     private String productCode;
     private String productBarCode;
+    private Long productTypeId;
+    private String productTypeName;
+    private Long manufacturerId;
+    private String manufacturerName;
     private Long productDetailId;
     private String productDetailCode;
     private String productDetailBarCode;
@@ -39,4 +43,8 @@ public class InventoryDto {
     private Integer stockIn;
     private Integer stockOut;
     private LocalDateTime createdAt;
+    private BigDecimal lastPurchasePrice;
+    private BigDecimal lastMrpPrice;
+    private BigDecimal lastSellPrice;
+    private LocalDateTime lastUpdatedAt;
 }

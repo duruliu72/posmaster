@@ -11,31 +11,28 @@ import java.util.List;
 @Service
 public class InventoryService {
     @Autowired
-    private InventoryRepository invSummaryRepo;
+    private InventoryRepository invRepo;
     @Autowired
     private AuthService authService;
     @Autowired
-    InventoryMapper invSummaryMapper;
-    public List<InventoryGroupDto> getGroupInventorySummary() {
-        var authUser = authService.getCurrentUser();
-        return invSummaryRepo.findAllGroupInventorySummary(authUser.getBranch().getId())
-                .stream()
-                .toList();
+    InventoryMapper invMapper;
+
+    List<InventoryByBatchNo> getInvListByBatch(Long productId,Long productDetailId){
+        return invRepo.getInvListByBatch(productId,productDetailId);
     }
-    public Page<InventoryGroupDto> filterGroupInventorySummary(InventoryFilter filter, Pageable pageable) {
+    public Page<InventoryDto> filterGroupInventorySummary(InventoryFilter filter, Pageable pageable) {
         var authUser = authService.getCurrentUser();
-        var x=InventorySummarySpecification.filter(filter,authUser);
-        return invSummaryRepo.findAllGroupInventorySummary(x, pageable);
+        return invRepo.findAll(InventorySpecification.filter(filter,authUser),pageable).map(invMapper::toDto);
     }
-    public Page<InventoryGroupDto> filterEntitiesWithOnlyPage(InventoryFilter filter, Pageable pageable) {
+    public Page<InventoryByBatchNo> filterInvGroupBatchByAuthBranch(InventoryFilter filter, Pageable pageable) {
         var authUser = authService.getCurrentUser();
-        return invSummaryRepo.findAllGroupInventorySummaryPage(pageable);
+        return invRepo.filterInvGroupBatchByBranch(authUser.getBranch().getId(),"", pageable);
     }
-    public Page<InventoryByGroupProjection> filterGroupInventorySummaryProjection(InventoryFilter filter, Pageable pageable) {
+    public Page<InventoryByProductDetail> filterInvGroupProductDetailByAuthBranch(InventoryFilter filter, Pageable pageable) {
         var authUser = authService.getCurrentUser();
-        return invSummaryRepo.findAllGroupInventorySummaryByProjection(authUser.getBranch().getId(),"", pageable);
+        return invRepo.filterInvGroupProductDetailByBranch(authUser.getBranch().getId(),"", pageable);
     }
-    public Page<InventoryByGroupProjection> filterGroupInvSummaryByBranch(InventoryFilter filter, Pageable pageable) {
-        return invSummaryRepo.findAllGroupInventorySummaryByProjection(filter.getBranchId(),filter.getSearchKey(), pageable);
+    public Page<InventoryByProductDetail> filterInvGroupProductDetailByBranch(InventoryFilter filter, Pageable pageable) {
+        return invRepo.filterInvGroupProductDetailByBranch(filter.getBranchId(),filter.getSearchKey(), pageable);
     }
 }
