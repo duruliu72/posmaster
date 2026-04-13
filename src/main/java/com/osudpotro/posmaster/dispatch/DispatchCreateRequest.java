@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class DispatchCreateRequest {
-    private Long requestReceivedBranchId;
+    private Long requesterBranchId;
     private String note;
 }

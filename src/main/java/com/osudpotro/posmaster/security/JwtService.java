@@ -41,6 +41,7 @@ public class JwtService {
                 .add("email", user.getEmail());
         if (user.getBranch() != null) {
             claimsBuilder = claimsBuilder.add("branchId", user.getBranch().getId());
+            claimsBuilder = claimsBuilder.add("branchName", user.getBranch().getName());
         }
         Claims claims = claimsBuilder
                 .issuedAt(new Date())

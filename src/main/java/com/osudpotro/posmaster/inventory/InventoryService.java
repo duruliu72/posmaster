@@ -20,7 +20,7 @@ public class InventoryService {
     List<InventoryByBatchNo> getInvListByBatch(Long productId,Long productDetailId){
         return invRepo.getInvListByBatch(productId,productDetailId);
     }
-    public Page<InventoryDto> filterGroupInventorySummary(InventoryFilter filter, Pageable pageable) {
+    public Page<InventoryDto> filterEntities(InventoryFilter filter, Pageable pageable) {
         var authUser = authService.getCurrentUser();
         return invRepo.findAll(InventorySpecification.filter(filter,authUser),pageable).map(invMapper::toDto);
     }

@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public interface InventoryByBatchNo {
+    Long getPurchaseId();
+    Long getPurchaseDetailId();
     String getPurchaseBatchNo();
     String getProductionBatchNo();
     Long getProductId();
@@ -29,4 +31,5 @@ public interface InventoryByBatchNo {
     BigDecimal getLastMrpPrice();
     BigDecimal getLastSellPrice();
     LocalDateTime getLastUpdatedAt();
+    LocalDateTime getCreatedAt();
 }

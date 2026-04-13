@@ -14,6 +14,8 @@ public interface InventoryRepository extends JpaSpecificationExecutor<Inventory>
     List<Inventory> findAllByBranch(Branch branch);
 
     @Query("SELECT " +
+            "i.purchase.id as purchaseId," +
+            "i.purchaseDetail.id as purchaseDetailId," +
             "i.purchaseBatchNo as purchaseBatchNo," +
             "i.productionBatchNo as productionBatchNo," +
             "i.product.id as productId," +
@@ -38,11 +40,14 @@ public interface InventoryRepository extends JpaSpecificationExecutor<Inventory>
             "i.productDetail.size.name as sizeName, " +
             "COALESCE(SUM(i.stockIn), 0) as totalStockIn, " +
             "COALESCE(SUM(i.stockOut), 0) as totalStockOut, " +
-            "COALESCE(SUM(i.stockIn), 0) - COALESCE(SUM(i.stockOut), 0) as currentStock " +
+            "COALESCE(SUM(i.stockIn), 0) - COALESCE(SUM(i.stockOut), 0) as currentStock, " +
+            "i.createdAt as createdAt " +
             "FROM Inventory i " +
             "WHERE (:productId IS NULL OR i.product.id = :productId) " +
             "AND (:productDetailId IS NULL OR i.productDetail.id = :productDetailId) " +
             "GROUP BY " +
+            "i.purchase.id," +
+            "i.purchaseDetail.id," +
             "i.purchaseBatchNo," +
             "i.productionBatchNo," +
             "i.product.id," +
@@ -63,7 +68,8 @@ public interface InventoryRepository extends JpaSpecificationExecutor<Inventory>
             "i.productDetail.updatedAt," +
             "i.branch.id,i.branch.name," +
             "i.productDetail.size.id, " +
-            "i.productDetail.size.name")
+            "i.productDetail.size.name," +
+            "i.createdAt")
     List<InventoryByBatchNo> getInvListByBatch(@Param("productId") Long productId, @Param("productDetailId") Long productDetailId);
 
     @Query("SELECT " +

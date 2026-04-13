@@ -44,8 +44,8 @@ public class DispatchController {
         return new PagedResponse<>(result);
     }
 
-    @PostMapping("/filter-requested-by-branch")
-    public PagedResponse<DispatchDto> getAllDispatchesByRequestedBranch(
+    @PostMapping("/filter-dispatch-by-requester")
+    public PagedResponse<DispatchDto> filterDispatchByRequester(
             @RequestBody DispatchFilter filter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -56,7 +56,7 @@ public class DispatchController {
                 Sort.by(sortBy).ascending() :
                 Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<DispatchDto> result = dispatchService.getAllDispatchesByRequestedBranch(filter, pageable);
+        Page<DispatchDto> result = dispatchService.filterDispatchByRequester(filter, pageable);
         return new PagedResponse<>(result);
     }
 

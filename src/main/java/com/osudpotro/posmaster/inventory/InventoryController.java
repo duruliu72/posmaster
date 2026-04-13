@@ -8,14 +8,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @AllArgsConstructor
 @RestController
 @RequestMapping("/inventory")
 public class InventoryController {
     private final InventoryService invSummaryService;
-    @GetMapping
     @PostMapping("/filter")
     public PagedResponse<InventoryDto> filterEntities(
             @RequestBody InventoryFilter filter,
@@ -28,7 +26,7 @@ public class InventoryController {
                 Sort.by(sortBy).ascending() :
                 Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<InventoryDto> result = invSummaryService.filterGroupInventorySummary(filter, pageable);
+        Page<InventoryDto> result = invSummaryService.filterEntities(filter, pageable);
         return new PagedResponse<>(result);
     }
     @PostMapping("/filter-group-batch-by-auth-branch")

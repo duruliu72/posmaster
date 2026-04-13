@@ -1,4 +1,4 @@
-package com.osudpotro.posmaster.dispatch;
+package com.osudpotro.posmaster.sale;
 
 import com.osudpotro.posmaster.product.Product;
 import com.osudpotro.posmaster.product.ProductDetail;
@@ -7,25 +7,27 @@ import com.osudpotro.posmaster.purchase.PurchaseDetail;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.math.BigDecimal;
 @Getter
 @Setter
 @Entity
 @Table(name = "dispatch_items", uniqueConstraints = @UniqueConstraint(
         columnNames = {
-                "dispatch_id",
+                "sale_id",
                 "purchase_id",
                 "purchase_details_id",
                 "product_id",
                 "product_detail_id"
         }
 ))
-public class DispatchItem {
+public class SaleItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "dispatch_id")
-    private Dispatch dispatch;
+    @JoinColumn(name = "sale_id")
+    private Sale sale;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "purchase_id")
     private Purchase purchase;
@@ -38,7 +40,16 @@ public class DispatchItem {
     @ManyToOne
     @JoinColumn(name = "product_detail_id")
     private ProductDetail productDetail;
-    private Integer dispatchQty;
-    private Integer requestedQty;
-    private Integer updatedQty;
+    private Integer saleQty;
+    private BigDecimal salePrice;
+//    offer_id
+//            discountType
+//    discountValue
+//            offerStartDate
+//    offerEndDate
+//            promotion_Id
+//    promotionType
+//            promotionValue
+//    promoStartDate
+//            promoEndDate
 }
