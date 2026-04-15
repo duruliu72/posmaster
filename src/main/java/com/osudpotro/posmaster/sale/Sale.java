@@ -2,6 +2,7 @@ package com.osudpotro.posmaster.sale;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.osudpotro.posmaster.branch.Branch;
+import com.osudpotro.posmaster.deliverymethod.DeliveryMethod;
 import com.osudpotro.posmaster.organization.Organization;
 import com.osudpotro.posmaster.user.User;
 import com.osudpotro.posmaster.warehouse.Warehouse;
@@ -10,7 +11,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -41,6 +41,28 @@ public class Sale {
     private User saleMan;
     Boolean isStoreOut;
     BigDecimal offerMinOrderValue;
+    private BigDecimal vatAmount;
+    private Integer saleStatus;
+    private Integer saleType;
+    private Integer paymentStatus;
+    String billingAddress;
+    String deliveryAddress;
+//    1=Through Pos 2=Through Website
+    private Integer saleChannel;
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "delivery_method_id", nullable = true)
+    private DeliveryMethod deliveryMethod;
+//    private BigDecimal deliveryFee;
+//    private BigDecimal minSaleAmountForDeliveryFee;
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "delivery_man_id", nullable = true)
+    private User deliveryMan;
+    private LocalDateTime deliveryAt;
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "customer_care_man_id", nullable = true)
+    private User customerCareMan;
+    private LocalDateTime customerCareAt;
+    private String prescriptionDocs;
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "created_by", nullable = true)
     private User createdBy;
@@ -53,4 +75,5 @@ public class Sale {
     @UpdateTimestamp
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime updatedAt;
+
 }

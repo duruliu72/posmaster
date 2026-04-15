@@ -1,4 +1,5 @@
-package com.osudpotro.posmaster.membership;
+package com.osudpotro.posmaster.offer;
+
 
 import com.osudpotro.posmaster.common.BaseEntity;
 import jakarta.persistence.Entity;
@@ -8,17 +9,18 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter
 @Getter
 @Entity
-@Table(name = "memberships")
-public class Membership extends BaseEntity {
+@Table(name = "offers")
+public class Offer extends BaseEntity {
     private String title;
-    private Double discount;
-    private int isPercentage;
-    private Double maxDiscount;
-
+    private BigDecimal offerValue;
+    private LocalDateTime offerStartDate;
+    private LocalDateTime offerEndDate;
 }

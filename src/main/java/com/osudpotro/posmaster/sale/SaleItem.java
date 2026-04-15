@@ -1,7 +1,10 @@
 package com.osudpotro.posmaster.sale;
 
+import com.osudpotro.posmaster.membership.Membership;
+import com.osudpotro.posmaster.offer.Offer;
 import com.osudpotro.posmaster.product.Product;
 import com.osudpotro.posmaster.product.ProductDetail;
+import com.osudpotro.posmaster.promotion.PromotionOffer;
 import com.osudpotro.posmaster.purchase.Purchase;
 import com.osudpotro.posmaster.purchase.PurchaseDetail;
 import jakarta.persistence.*;
@@ -9,10 +12,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @Entity
-@Table(name = "dispatch_items", uniqueConstraints = @UniqueConstraint(
+@Table(name = "sale_items", uniqueConstraints = @UniqueConstraint(
         columnNames = {
                 "sale_id",
                 "purchase_id",
@@ -42,14 +47,20 @@ public class SaleItem {
     private ProductDetail productDetail;
     private Integer saleQty;
     private BigDecimal salePrice;
-//    offer_id
-//            discountType
-//    discountValue
-//            offerStartDate
-//    offerEndDate
-//            promotion_Id
-//    promotionType
-//            promotionValue
-//    promoStartDate
-//            promoEndDate
+    @ManyToOne
+    @JoinColumn(name = "offer_id")
+    private Offer offer;
+    private BigDecimal offerValue;
+    private LocalDateTime offerStartDate;
+    private LocalDateTime offerEndDate;
+    @ManyToOne
+    @JoinColumn(name = "promotion_offer_id")
+    private PromotionOffer promotionOffer;
+    private BigDecimal promotionValue;
+    private LocalDateTime promoStartDate;
+    private LocalDateTime promoEndDate;
+    @ManyToOne
+    @JoinColumn(name = "membership_id")
+    private Membership membership;
+    private BigDecimal membershipDiscount;
 }
