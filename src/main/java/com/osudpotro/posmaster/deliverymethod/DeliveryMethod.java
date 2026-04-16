@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
@@ -23,10 +22,4 @@ public class DeliveryMethod extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "multimedia_id")
     private Multimedia media;
-    private BigDecimal deliveryFee;
-    private BigDecimal minSaleAmount;
-    @OneToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "parent_delivery_method_id", nullable = true)
-    private DeliveryMethod parent;
-    private Boolean isActive;
 }

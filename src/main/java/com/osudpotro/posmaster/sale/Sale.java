@@ -2,6 +2,7 @@ package com.osudpotro.posmaster.sale;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.osudpotro.posmaster.branch.Branch;
+import com.osudpotro.posmaster.category.Category;
 import com.osudpotro.posmaster.deliverymethod.DeliveryMethod;
 import com.osudpotro.posmaster.organization.Organization;
 import com.osudpotro.posmaster.user.User;
@@ -11,6 +12,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -42,27 +44,36 @@ public class Sale {
     Boolean isStoreOut;
     BigDecimal offerMinOrderValue;
     private BigDecimal vatAmount;
+    //    1=Pending,2=Processing (After review by customer care) ,3=Accepted by Pharmacy,4=Packaging by Pharmacy,5=Dispatch by Rider(Head)/fleet(head),5=On the way by rider(through Apps),6=Delivered On the way by rider(App),7=CancelledAfter review by customer care
     private Integer saleStatus;
-    private Integer saleType;
+    //    1=Pending,2=Partial,3=Success 4=Credit (For employee due)
     private Integer paymentStatus;
-    String billingAddress;
-    String deliveryAddress;
-//    1=Through Pos 2=Through Website
+    private String paymentMethod;
+    private String trxId;
+    private String billingAddress;
+    private String deliveryAddress;
+    private BigDecimal reAwardAmount;
+    //    1=Through Pos 2=Through Website
     private Integer saleChannel;
-    @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "delivery_method_id", nullable = true)
-    private DeliveryMethod deliveryMethod;
-//    private BigDecimal deliveryFee;
-//    private BigDecimal minSaleAmountForDeliveryFee;
-    @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "delivery_man_id", nullable = true)
-    private User deliveryMan;
-    private LocalDateTime deliveryAt;
+    //    private Integer saleType;
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "customer_care_man_id", nullable = true)
     private User customerCareMan;
     private LocalDateTime customerCareAt;
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "delivery_method_id", nullable = true)
+    private DeliveryMethod deliveryMethod;
+    private BigDecimal deliveryFee;
+    private BigDecimal minSaleAmountForDeliveryFree;
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "delivery_man_id", nullable = true)
+    private User deliveryMan;
+    private LocalDateTime deliveryAt;
     private String prescriptionDocs;
+    private BigDecimal specialDiscount;
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "special_discount_on_id", nullable = true)
+    private Category specialDiscountON;
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "created_by", nullable = true)
     private User createdBy;
