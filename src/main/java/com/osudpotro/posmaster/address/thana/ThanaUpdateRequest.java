@@ -1,9 +1,9 @@
-package com.osudpotro.posmaster.address.area;
+package com.osudpotro.posmaster.address.thana;
 
 import lombok.Data;
 
 @Data
-public class AreaUpdateRequest {
+public class ThanaUpdateRequest {
     private String name;
     private Long districtId;
     private Long divisionId;

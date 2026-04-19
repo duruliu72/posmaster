@@ -1,4 +1,4 @@
-package com.osudpotro.posmaster.address.area;
+package com.osudpotro.posmaster.address.district;
 
 import com.osudpotro.posmaster.common.PagedResponse;
 import jakarta.validation.Valid;
@@ -17,19 +17,19 @@ import java.util.Map;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/areas")
-public class AreaController {
-    private final AreaService areaService;
+@RequestMapping("/districts")
+public class DistrictController {
+    private final DistrictService districtService;
 
     //    @PreAuthorize("hasAuthority('BRANCH_READ')")
     @GetMapping
-    public List<AreaDto> getAllEntities() {
-        return areaService.getAllEntities();
+    public List<DistrictDto> getAllEntities() {
+        return districtService.getAllEntities();
     }
 
     @PostMapping("/filter")
-    public PagedResponse<AreaDto> getAllEntities(
-            @RequestBody AreaFilter filter,
+    public PagedResponse<DistrictDto> getAllEntities(
+            @RequestBody DistrictFilter filter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
@@ -40,70 +40,70 @@ public class AreaController {
                 Sort.by(sortBy).ascending() :
                 Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<AreaDto> result = areaService.getAllEntities(filter, pageable);
+        Page<DistrictDto> result = districtService.getAllEntities(filter, pageable);
         return new PagedResponse<>(result);
     }
 
     @PostMapping("/upload_csv")
     public int uploadCsvFile(@RequestParam("filepond") MultipartFile file) {
-        return areaService.importEntities(file);
+        return districtService.importEntities(file);
     }
 
     @GetMapping("/{id}")
-    public AreaDto getEntity(@PathVariable Long id) {
-        return areaService.getEntity(id);
+    public DistrictDto getEntity(@PathVariable Long id) {
+        return districtService.getEntity(id);
     }
 
     @PostMapping
-    public ResponseEntity<AreaDto> createEntity(@Valid @RequestBody AreaCreateRequest request, UriComponentsBuilder uriBuilder) {
-        var entityDto = areaService.createEntity(request);
-        var uri = uriBuilder.path("/branches/{id}").buildAndExpand(entityDto.getId()).toUri();
+    public ResponseEntity<DistrictDto> createEntity(@Valid @RequestBody DistrictCreateRequest request, UriComponentsBuilder uriBuilder) {
+        var entityDto = districtService.createEntity(request);
+        var uri = uriBuilder.path("/districts/{id}").buildAndExpand(entityDto.getId()).toUri();
         return ResponseEntity.created(uri).body(entityDto);
     }
 
     @PutMapping("/{id}")
-    public AreaDto updateEntity(
+    public DistrictDto updateEntity(
             @PathVariable(name = "id") Long id,
-            @RequestBody AreaUpdateRequest request) {
-        return areaService.updateEntity(id, request);
+            @RequestBody DistrictUpdateRequest request) {
+        return districtService.updateEntity(id, request);
     }
 
     @DeleteMapping("/{id}")
-    public AreaDto deleteEntity(
+    public DistrictDto deleteEntity(
             @PathVariable(name = "id") Long id) {
-        return areaService.deleteEntity(id);
+        return districtService.deleteEntity(id);
     }
 
     @PostMapping("/delete-bulk")
-    public ResponseEntity<Map<String, Integer>> deleteBulkEntity(@RequestBody AreaBulkUpdateRequest request) {
-        var count = areaService.deleteBulkEntity(request.getAreaIds());
+    public ResponseEntity<Map<String, Integer>> deleteBulkEntity(@RequestBody DistrictBulkUpdateRequest request) {
+        var count = districtService.deleteBulkEntity(request.getDistrictIds());
         return ResponseEntity.ok().body(
                 Map.of("count", count)
         );
     }
 
     @GetMapping("/{id}/activate")
-    public AreaDto activateEntity(
+    public DistrictDto activateEntity(
             @PathVariable(name = "id") Long id) {
-        return areaService.activateEntity(id);
+        return districtService.activateEntity(id);
     }
 
     @GetMapping("/{id}/deactivate")
-    public AreaDto deactivateEntity(
+    public DistrictDto deactivateEntity(
             @PathVariable(name = "id") Long id) {
-        return areaService.deactivateEntity(id);
+        return districtService.deactivateEntity(id);
     }
 
 
-    @ExceptionHandler(DuplicateAreaException.class)
-    public ResponseEntity<Map<String, String>> handleDuplicateAreaException(Exception ex) {
+    @ExceptionHandler(DuplicateDistrictException.class)
+    public ResponseEntity<Map<String, String>> handleDuplicateDistrictException(Exception ex) {
         return ResponseEntity.badRequest().body(
                 Map.of("name", "Name is already exist.")
         );
     }
 
-    @ExceptionHandler(AreaNotFoundException.class)
-    public ResponseEntity<Void> handleAreaNotFound() {
+    @ExceptionHandler(DistrictNotFoundException.class)
+    public ResponseEntity<Void> handleDistrictNotFound() {
         return ResponseEntity.notFound().build();
     }
 

@@ -1,44 +1,48 @@
 package com.osudpotro.posmaster.address.area;
 
+import com.osudpotro.posmaster.user.auth.AuthService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
 import java.util.List;
 
+@Service
 public class AreaService {
+    @Autowired
+    private AuthService authService;
+    @Autowired
+    private AreaRepository areaRepo;
+    @Autowired
+    private AreaMapper areaMapper;
+
     public List<AreaDto> getAllEntities() {
-//        return branchRepository.findAll()
-//                .stream()
-//                .map(customBranchMapper::toDto)
-//                .toList();
-        return null;
+        return areaRepo.findAll()
+                .stream()
+                .map(areaMapper::toDto)
+                .toList();
     }
 
     public Page<AreaDto> getAllEntities(AreaFilter filter, Pageable pageable) {
-        return null;
-//        return branchRepository.findAll(BranchSpecification.filter(filter), pageable).map(customBranchMapper::toDto);
+        return areaRepo.findAll(AreaSpecification.filter(filter), pageable).map(areaMapper::toDto);
     }
 
     public AreaDto getEntity(Long entityId) {
-//        var branch = branchRepository.findById(branchId).orElseThrow(() -> new BranchNotFoundException("Branch not found with ID: " + branchId));
-//        return customBranchMapper.toDto(branch);
-        return null;
+        var entity = areaRepo.findById(entityId).orElseThrow(() -> new AreaNotFoundException("Area not found with ID: " + entityId));
+        return areaMapper.toDto(entity);
     }
 
     public AreaDto createEntity(AreaCreateRequest request) {
-//        if (branchRepository.existsByName(request.getName())) {
-//            throw new DuplicateBranchException();
-//        }
-//        var user = authService.getCurrentUser();
-//        var branch = branchMapper.toEntity(request);
-//        if (request.getMultimediaId() != null) {
-//            Multimedia media = multimediaRepository.findById(request.getMultimediaId()).orElse(null);
-//            if (media != null) {
-//                media.setLinked(true);
-//                branch.setMedia(media);
-//            }
+        if (areaRepo.existsByName(request.getName())) {
+            throw new DuplicateAreaException();
+        }
+        var user = authService.getCurrentUser();
+        Area area = new Area();
+        area.setName(request.getName());
+//        if (request.getDivisionId() != null) {
+//            Division division = multimediaRepository.findById(request.getMultimediaId()).orElse(null);
 //        }
 //        if (request.getOrganizationId() != null) {
 //            Organization organization = organizationRepository.findById(request.getOrganizationId()).orElse(null);
@@ -46,16 +50,15 @@ public class AreaService {
 //                branch.setOrganization(organization);
 //            }
 //        }
-//        branch.setCreatedBy(user);
-//        branchRepository.save(branch);
-//        return customBranchMapper.toDto(branch);
-        return null;
+        area.setCreatedBy(user);
+        areaRepo.save(area);
+        return areaMapper.toDto(area);
     }
 
     public AreaDto updateEntity(Long entityId, AreaUpdateRequest request) {
-//        var branch = branchRepository.findById(branchId).orElseThrow(BranchNotFoundException::new);
-//        var user = authService.getCurrentUser();
-//        branchMapper.update(request, branch);
+        var area = areaRepo.findById(entityId).orElseThrow(AreaNotFoundException::new);
+        var user = authService.getCurrentUser();
+        area.setName(request.getName());
 //        if (request.getMultimediaId() != null) {
 //            Multimedia media = multimediaRepository.findById(request.getMultimediaId()).orElse(null);
 //            if (media != null) {
@@ -63,52 +66,46 @@ public class AreaService {
 //                branch.setMedia(media);
 //            }
 //        }
-//        branch.setOrganization(null);
 //        if (request.getOrganizationId() != null) {
 //            Organization organization = organizationRepository.findById(request.getOrganizationId()).orElse(null);
 //            if (organization != null) {
 //                branch.setOrganization(organization);
 //            }
 //        }
-//        branch.setUpdatedBy(user);
-//        branchRepository.save(branch);
-//        return customBranchMapper.toDto(branch);
-        return null;
+        area.setUpdatedBy(user);
+        areaRepo.save(area);
+        return areaMapper.toDto(area);
     }
 
     public AreaDto deleteEntity(Long entityId) {
-//        var branch = branchRepository.findById(branchId).orElseThrow(() -> new BranchNotFoundException("Branch not found with ID: " + branchId));
-//        var user = authService.getCurrentUser();
-//        branch.setStatus(3);
-//        branch.setUpdatedBy(user);
-//        branchRepository.save(branch);
-//        return customBranchMapper.toDto(branch);
-        return null;
+        var area = areaRepo.findById(entityId).orElseThrow(() -> new AreaNotFoundException("Area not found with ID: " + entityId));
+        var user = authService.getCurrentUser();
+        area.setStatus(3);
+        area.setUpdatedBy(user);
+        areaRepo.save(area);
+        return areaMapper.toDto(area);
     }
 
-    public int deleteBulkEntity(List<Long> entityId) {
-//        return branchRepository.deleteBulkBranch(branchIds, 3L);
-        return 0;
+    public int deleteBulkEntity(List<Long> entityIds) {
+        return areaRepo.deleteBulkEntity(entityIds, 3L);
     }
 
     public AreaDto activateEntity(Long entityId) {
-//        var branch = branchRepository.findById(branchId).orElseThrow(() -> new BranchNotFoundException("Branch not found with ID: " + branchId));
-//        var user = authService.getCurrentUser();
-//        branch.setStatus(1);
-//        branch.setUpdatedBy(user);
-//        branchRepository.save(branch);
-//        return customBranchMapper.toDto(branch);
-        return null;
+        var area = areaRepo.findById(entityId).orElseThrow(() -> new AreaNotFoundException("Area not found with ID: " + entityId));
+        var user = authService.getCurrentUser();
+        area.setStatus(1);
+        area.setUpdatedBy(user);
+        areaRepo.save(area);
+        return areaMapper.toDto(area);
     }
 
     public AreaDto deactivateEntity(Long entityId) {
-//        var branch = branchRepository.findById(branchId).orElseThrow(() -> new BranchNotFoundException("Branch not found with ID: " + branchId));
-//        var user = authService.getCurrentUser();
-//        branch.setStatus(2);
-//        branch.setUpdatedBy(user);
-//        branchRepository.save(branch);
-//        return customBranchMapper.toDto(branch);
-        return null;
+        var branch = areaRepo.findById(entityId).orElseThrow(() -> new AreaNotFoundException("Area not found with ID: " + entityId));
+        var user = authService.getCurrentUser();
+        branch.setStatus(2);
+        branch.setUpdatedBy(user);
+        areaRepo.save(branch);
+        return areaMapper.toDto(branch);
     }
 
     public int importEntities(MultipartFile file) {
