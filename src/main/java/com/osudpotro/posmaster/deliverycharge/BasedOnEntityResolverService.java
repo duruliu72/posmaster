@@ -31,26 +31,26 @@ public class BasedOnEntityResolverService {
     private AreaRepository areaRepo;
 
     public Object getBasedOnEntity(DeliveryCharge deliveryCharge) {
-        if (deliveryCharge.getChargeBasedOn() == null ||
-                deliveryCharge.getBasedOnEntityId() == null) {
-            return null;
-        }
+//        if (deliveryCharge.getChargeBasedOn() == null ||
+//                deliveryCharge.getBasedOnEntityId() == null) {
+//            return null;
+//        }
         Integer chargeBasedOn = deliveryCharge.getChargeBasedOn();
-        Long entityId = deliveryCharge.getBasedOnEntityId();
+//        Long entityId = deliveryCharge.getBasedOnEntityId();
         //    1=For Distance,2=for Area,3=for Division,4=For District,5=For Thana,6=For Upozila,7= For City,8= For State
         switch (chargeBasedOn) {
             case 2:
-                return areaRepo.findById(entityId).orElse(null);
+//                return areaRepo.findById(entityId).orElse(null);
             case 3:
-                return divisionRepo.findById(entityId).orElse(null);
+//                return divisionRepo.findById(entityId).orElse(null);
             case 4:
-                return districtRepo.findById(entityId).orElse(null);
+//                return districtRepo.findById(entityId).orElse(null);
             case 5:
-                return thanaRepo.findById(entityId).orElse(null);
+//                return thanaRepo.findById(entityId).orElse(null);
             case 6:
-                return upozilaRepo.findById(entityId).orElse(null);
+//                return upozilaRepo.findById(entityId).orElse(null);
             case 7:
-                return cityRepo.findById(entityId).orElse(null);
+//                return cityRepo.findById(entityId).orElse(null);
 //            case 8:
 //                return null;
             default:

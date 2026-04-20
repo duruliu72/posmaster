@@ -6,4 +6,8 @@ import lombok.Data;
 public class AreaDto {
     private Long id;
     private String name;
+    private AreaDto parentArea;
+    private Boolean isSubArea;
+    private String fullPath;
+    private String parentPath;
 }

@@ -5,6 +5,6 @@ import lombok.Data;
 @Data
 public class AreaUpdateRequest {
     private String name;
-    private Long districtId;
-    private Long divisionId;
+    private Long parentAreaId;
+    private Boolean isSubArea;
 }

@@ -75,8 +75,8 @@ public class ThanaController {
     }
 
     @PostMapping("/delete-bulk")
-    public ResponseEntity<Map<String, Integer>> deleteBulkEntity(@RequestBody DistrictBulkUpdateRequest request) {
-        var count = thanaService.deleteBulkEntity(request.getDistrictIds());
+    public ResponseEntity<Map<String, Integer>> deleteBulkEntity(@RequestBody ThanaBulkUpdateRequest request) {
+        var count = thanaService.deleteBulkEntity(request.getThanaIds());
         return ResponseEntity.ok().body(
                 Map.of("count", count)
         );

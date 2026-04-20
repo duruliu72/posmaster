@@ -1,5 +1,6 @@
 package com.osudpotro.posmaster.deliverycharge;
 
+import com.osudpotro.posmaster.address.area.AreaDto;
 import com.osudpotro.posmaster.deliverymethod.DeliveryMethodDto;
 import lombok.Data;
 
@@ -12,8 +13,9 @@ public class DeliveryChargeDto {
     private BigDecimal minSaleAmountForDeliveryFree;
     private Integer chargeBasedOn;
     private Double minDistance;
-    private Long basedOnEntityId;
-    private String basedOnEntityName;
+    private AreaDto area;
+//    private Long basedOnEntityId;
+//    private String basedOnEntityName;
     private Boolean isFree;
     private Boolean isActive;
 }

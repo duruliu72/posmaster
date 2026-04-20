@@ -1,5 +1,5 @@
-package com.osudpotro.posmaster.address.area;
 
+package com.osudpotro.posmaster.address.upozila;
 import com.osudpotro.posmaster.common.PagedResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -17,19 +17,18 @@ import java.util.Map;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/areas")
-public class AreaController {
-    private final AreaService areaService;
-
+@RequestMapping("/upozilas")
+public class UpozilaController {
+    private final UpozilaService upozilaService;
     //    @PreAuthorize("hasAuthority('BRANCH_READ')")
     @GetMapping
-    public List<AreaDto> getAllEntities() {
-        return areaService.getAllEntities();
+    public List<UpozilaDto> getAllEntities() {
+        return upozilaService.getAllEntities();
     }
 
     @PostMapping("/filter")
-    public PagedResponse<AreaDto> getAllEntities(
-            @RequestBody AreaFilter filter,
+    public PagedResponse<UpozilaDto> getAllEntities(
+            @RequestBody UpozilaFilter filter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
@@ -40,75 +39,70 @@ public class AreaController {
                 Sort.by(sortBy).ascending() :
                 Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<AreaDto> result = areaService.getAllEntities(filter, pageable);
+        Page<UpozilaDto> result = upozilaService.getAllEntities(filter, pageable);
         return new PagedResponse<>(result);
     }
 
     @PostMapping("/upload_csv")
     public int uploadCsvFile(@RequestParam("filepond") MultipartFile file) {
-        return areaService.importEntities(file);
+        return upozilaService.importEntities(file);
     }
 
     @GetMapping("/{id}")
-    public AreaDto getEntity(@PathVariable Long id) {
-        return areaService.getEntity(id);
+    public UpozilaDto getEntity(@PathVariable Long id) {
+        return upozilaService.getEntity(id);
     }
 
     @PostMapping
-    public ResponseEntity<AreaDto> createEntity(@Valid @RequestBody AreaCreateRequest request, UriComponentsBuilder uriBuilder) {
-        var entityDto = areaService.createEntity(request);
-        var uri = uriBuilder.path("/branches/{id}").buildAndExpand(entityDto.getId()).toUri();
+    public ResponseEntity<UpozilaDto> createEntity(@Valid @RequestBody UpozilaCreateRequest request, UriComponentsBuilder uriBuilder) {
+        var entityDto = upozilaService.createEntity(request);
+        var uri = uriBuilder.path("/upozilas/{id}").buildAndExpand(entityDto.getId()).toUri();
         return ResponseEntity.created(uri).body(entityDto);
     }
 
     @PutMapping("/{id}")
-    public AreaDto updateEntity(
+    public UpozilaDto updateEntity(
             @PathVariable(name = "id") Long id,
-            @RequestBody AreaUpdateRequest request) {
-        return areaService.updateEntity(id, request);
+            @RequestBody UpozilaUpdateRequest request) {
+        return upozilaService.updateEntity(id, request);
     }
 
     @DeleteMapping("/{id}")
-    public AreaDto deleteEntity(
+    public UpozilaDto deleteEntity(
             @PathVariable(name = "id") Long id) {
-        return areaService.deleteEntity(id);
+        return upozilaService.deleteEntity(id);
     }
 
     @PostMapping("/delete-bulk")
-    public ResponseEntity<Map<String, Integer>> deleteBulkEntity(@RequestBody AreaBulkUpdateRequest request) {
-        var count = areaService.deleteBulkEntity(request.getAreaIds());
+    public ResponseEntity<Map<String, Integer>> deleteBulkEntity(@RequestBody UpozilaBulkUpdateRequest request) {
+        var count = upozilaService.deleteBulkEntity(request.getUpozilaIds());
         return ResponseEntity.ok().body(
                 Map.of("count", count)
         );
     }
 
     @GetMapping("/{id}/activate")
-    public AreaDto activateEntity(
+    public UpozilaDto activateEntity(
             @PathVariable(name = "id") Long id) {
-        return areaService.activateEntity(id);
+        return upozilaService.activateEntity(id);
     }
 
     @GetMapping("/{id}/deactivate")
-    public AreaDto deactivateEntity(
+    public UpozilaDto deactivateEntity(
             @PathVariable(name = "id") Long id) {
-        return areaService.deactivateEntity(id);
+        return upozilaService.deactivateEntity(id);
     }
 
 
-    @ExceptionHandler(DuplicateAreaException.class)
-    public ResponseEntity<Map<String, String>> handleDuplicateAreaException(Exception e) {
+    @ExceptionHandler(DuplicateUpozilaException.class)
+    public ResponseEntity<Map<String, String>> handleDuplicateUpozilaException(Exception ex) {
         return ResponseEntity.badRequest().body(
-                Map.of("error", e.getMessage())
+                Map.of("name", "Name is already exist.")
         );
     }
-    @ExceptionHandler(AreaException.class)
-    public ResponseEntity<Map<String, String>> handleAreaException(Exception e) {
-        return ResponseEntity.badRequest().body(
-                Map.of("error", e.getMessage())
-        );
-    }
-    @ExceptionHandler(AreaNotFoundException.class)
-    public ResponseEntity<Void> handleAreaNotFound() {
+
+    @ExceptionHandler(UpozilaNotFoundException.class)
+    public ResponseEntity<Void> handleUpozilaNotFound() {
         return ResponseEntity.notFound().build();
     }
 

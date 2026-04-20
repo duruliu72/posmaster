@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class AreaService {
@@ -38,18 +39,19 @@ public class AreaService {
         if (areaRepo.existsByName(request.getName())) {
             throw new DuplicateAreaException();
         }
+        if(request.getParentAreaId()==null&& request.getIsSubArea()){
+            throw new AreaException("Bad information");
+        }
         var user = authService.getCurrentUser();
         Area area = new Area();
         area.setName(request.getName());
-//        if (request.getDivisionId() != null) {
-//            Division division = multimediaRepository.findById(request.getMultimediaId()).orElse(null);
-//        }
-//        if (request.getOrganizationId() != null) {
-//            Organization organization = organizationRepository.findById(request.getOrganizationId()).orElse(null);
-//            if (organization != null) {
-//                branch.setOrganization(organization);
-//            }
-//        }
+        if (request.getParentAreaId() != null) {
+            var parentArea = areaRepo.findById(request.getParentAreaId()).orElseThrow(AreaNotFoundException::new);
+            area.setParentArea(parentArea);
+        }
+        if (request.getIsSubArea() != null) {
+            area.setIsSubArea(request.getIsSubArea());
+        }
         area.setCreatedBy(user);
         areaRepo.save(area);
         return areaMapper.toDto(area);
@@ -57,21 +59,21 @@ public class AreaService {
 
     public AreaDto updateEntity(Long entityId, AreaUpdateRequest request) {
         var area = areaRepo.findById(entityId).orElseThrow(AreaNotFoundException::new);
+        if(request.getParentAreaId()==null&& request.getIsSubArea()){
+            throw new AreaException("Bad information");
+        }
+        if(Objects.equals(request.getParentAreaId(), area.getId())){
+          throw new AreaException("Bad Parent information");
+        }
         var user = authService.getCurrentUser();
         area.setName(request.getName());
-//        if (request.getMultimediaId() != null) {
-//            Multimedia media = multimediaRepository.findById(request.getMultimediaId()).orElse(null);
-//            if (media != null) {
-//                media.setLinked(true);
-//                branch.setMedia(media);
-//            }
-//        }
-//        if (request.getOrganizationId() != null) {
-//            Organization organization = organizationRepository.findById(request.getOrganizationId()).orElse(null);
-//            if (organization != null) {
-//                branch.setOrganization(organization);
-//            }
-//        }
+        if (request.getParentAreaId() != null) {
+            var parentArea = areaRepo.findById(request.getParentAreaId()).orElseThrow(AreaNotFoundException::new);
+            area.setParentArea(parentArea);
+        }
+        if (request.getIsSubArea() != null) {
+            area.setIsSubArea(request.getIsSubArea());
+        }
         area.setUpdatedBy(user);
         areaRepo.save(area);
         return areaMapper.toDto(area);

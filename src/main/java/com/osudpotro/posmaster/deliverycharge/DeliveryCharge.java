@@ -31,9 +31,10 @@ public class DeliveryCharge extends BaseEntity {
     private BigDecimal minSaleAmountForDeliveryFree;
     //    1=For Distance,2=for Area,3=for Division,4=For District,5=For Thana,6=For Upozila,7= For City,8= For State
     private Integer chargeBasedOn;
+    //    Min Distance From Nearest Branch
     private Double minDistance;
-    private Long basedOnEntityId;
-//    @ManyToOne(fetch = FetchType.LAZY)
+//    private Long basedOnEntityId;
+    //    @ManyToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "division_id")
 //    private Division division;
 //    @ManyToOne(fetch = FetchType.LAZY)
@@ -48,12 +49,12 @@ public class DeliveryCharge extends BaseEntity {
 //    @ManyToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "city_id")
 //    private City city;
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "area_id")
-//    private Area area;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "area_id")
+    private Area area;
     private Boolean isFree = false;
     @OneToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "parent_delivery_id", nullable = true)
-    private DeliveryCharge parent;
+    @JoinColumn(name = "parent_delivery_charge_id", nullable = true)
+    private DeliveryCharge parentDeliveryCharge;
     private Boolean isActive;
 }
