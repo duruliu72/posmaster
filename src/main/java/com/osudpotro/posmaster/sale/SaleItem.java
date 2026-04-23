@@ -1,10 +1,10 @@
 package com.osudpotro.posmaster.sale;
 
-import com.osudpotro.posmaster.membership.Membership;
-import com.osudpotro.posmaster.offer.Offer;
+import com.osudpotro.posmaster.offerhub.membership.Membership;
+import com.osudpotro.posmaster.offerhub.offer.Offer;
 import com.osudpotro.posmaster.product.Product;
 import com.osudpotro.posmaster.product.ProductDetail;
-import com.osudpotro.posmaster.promotion.PromotionOffer;
+import com.osudpotro.posmaster.offerhub.promotion.PromotionOffer;
 import com.osudpotro.posmaster.purchase.Purchase;
 import com.osudpotro.posmaster.purchase.PurchaseDetail;
 import jakarta.persistence.*;

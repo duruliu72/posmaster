@@ -3,6 +3,7 @@ package com.osudpotro.posmaster.deliverymethod;
 import com.osudpotro.posmaster.multimedia.MultimediaDto;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -13,4 +14,6 @@ public class DeliveryMethodDto {
     private LocalDateTime fromDate;
     private LocalDateTime toDate;
     private MultimediaDto media;
+    private BigDecimal defaultDeliveryFee;
+    private BigDecimal defaultMinSaleAmountForDeliveryFree;
 }

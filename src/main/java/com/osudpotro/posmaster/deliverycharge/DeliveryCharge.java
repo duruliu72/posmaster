@@ -56,5 +56,5 @@ public class DeliveryCharge extends BaseEntity {
     @OneToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "parent_delivery_charge_id", nullable = true)
     private DeliveryCharge parentDeliveryCharge;
-    private Boolean isActive;
+    private Boolean isActive=true;
 }

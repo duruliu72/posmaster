@@ -1,4 +1,4 @@
-package com.osudpotro.posmaster.membership;
+package com.osudpotro.posmaster.offerhub.membership;
 
 import com.osudpotro.posmaster.common.BaseEntity;
 import jakarta.persistence.Entity;
@@ -16,9 +16,8 @@ import lombok.Setter;
 @Entity
 @Table(name = "memberships")
 public class Membership extends BaseEntity {
-    private String title;
+    private String name;
     private Double discount;
-    private int isPercentage;
+    private Boolean isPercentage;
     private Double maxDiscount;
-
 }

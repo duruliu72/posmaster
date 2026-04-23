@@ -48,12 +48,14 @@ public class DeliveryMethodService {
         DeliveryMethod dvm = new DeliveryMethod();
         dvm.setTitle(request.getTitle());
         dvm.setMessage(request.getMessage());
+        dvm.setDefaultDeliveryFee(request.getDefaultDeliveryFee());
+        dvm.setDefaultMinSaleAmountForDeliveryFree(request.getDefaultMinSaleAmountForDeliveryFree());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        if(request.getFromDate()!=null){
+        if (request.getFromDate() != null) {
             LocalDateTime fromDate = LocalDateTime.parse(request.getFromDate(), formatter);
             dvm.setFromDate(fromDate);
         }
-        if(request.getToDate()!=null){
+        if (request.getToDate() != null) {
             LocalDateTime toDate = LocalDateTime.parse(request.getToDate(), formatter);
             dvm.setToDate(toDate);
         }
@@ -74,11 +76,17 @@ public class DeliveryMethodService {
         var user = authService.getCurrentUser();
         dvm.setTitle(request.getTitle());
         dvm.setMessage(request.getMessage());
+        dvm.setDefaultDeliveryFee(request.getDefaultDeliveryFee());
+        dvm.setDefaultMinSaleAmountForDeliveryFree(request.getDefaultMinSaleAmountForDeliveryFree());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime fromDate = LocalDateTime.parse(request.getFromDate(), formatter);
-        dvm.setFromDate(fromDate);
-        LocalDateTime toDate = LocalDateTime.parse(request.getToDate(), formatter);
-        dvm.setToDate(toDate);
+        if (request.getFromDate() != null) {
+            LocalDateTime fromDate = LocalDateTime.parse(request.getFromDate(), formatter);
+            dvm.setFromDate(fromDate);
+        }
+        if (request.getToDate() != null) {
+            LocalDateTime toDate = LocalDateTime.parse(request.getToDate(), formatter);
+            dvm.setToDate(toDate);
+        }
         if (request.getMultimediaId() != null) {
             Multimedia multimedia = multimediaRepository.findById(request.getMultimediaId()).orElse(null);
             if (multimedia != null) {
@@ -92,12 +100,12 @@ public class DeliveryMethodService {
     }
 
     public DeliveryMethodDto deleteEntity(Long entityId) {
-        var area = dvmRepo.findById(entityId).orElseThrow(() -> new DeliveryMethodNotFoundException("Area not found with ID: " + entityId));
+        var entity = dvmRepo.findById(entityId).orElseThrow(() -> new DeliveryMethodNotFoundException("Area not found with ID: " + entityId));
         var user = authService.getCurrentUser();
-        area.setStatus(3);
-        area.setUpdatedBy(user);
-        dvmRepo.save(area);
-        return dvmMapper.toDto(area);
+        entity.setStatus(3);
+        entity.setUpdatedBy(user);
+        dvmRepo.save(entity);
+        return dvmMapper.toDto(entity);
     }
 
     public int deleteBulkEntity(List<Long> entityIds) {

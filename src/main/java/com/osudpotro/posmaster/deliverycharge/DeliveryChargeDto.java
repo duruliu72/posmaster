@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 
 @Data
 public class DeliveryChargeDto {
+    private Long id;
     private DeliveryMethodDto deliveryMethod;
     private BigDecimal deliveryFee;
     private BigDecimal minSaleAmountForDeliveryFree;

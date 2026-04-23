@@ -15,6 +15,8 @@ public class DeliveryMethodMapper {
         dvmDto.setMessage(dvm.getMessage());
         dvmDto.setFromDate(dvm.getFromDate());
         dvmDto.setToDate(dvm.getToDate());
+        dvmDto.setDefaultDeliveryFee(dvm.getDefaultDeliveryFee());
+        dvmDto.setDefaultMinSaleAmountForDeliveryFree(dvm.getDefaultMinSaleAmountForDeliveryFree());
         if(dvm.getMedia()!=null&&dvm.getMedia().getImageUrl()!=null){
             Multimedia multimedia=dvm.getMedia();
             MultimediaDto multimediaDto=new MultimediaDto();
