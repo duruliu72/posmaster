@@ -7,7 +7,7 @@ import org.springframework.data.jpa.domain.Specification;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InventorySummarySpecification {
+public class InventorySpecification {
     public static Specification<Inventory> filter(InventoryFilter filter, User user) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();

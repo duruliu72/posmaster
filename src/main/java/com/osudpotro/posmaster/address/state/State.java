@@ -1,4 +1,4 @@
-package com.osudpotro.posmaster.membership;
+package com.osudpotro.posmaster.address.state;
 
 import com.osudpotro.posmaster.common.BaseEntity;
 import jakarta.persistence.Entity;
@@ -8,17 +8,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Setter
 @Getter
 @Entity
-@Table(name = "memberships")
-public class Membership extends BaseEntity {
+@Table(name = "states")
+public class State extends BaseEntity {
     private String name;
-    private Double discount;
-    private int isPercentage;
-    private Double maxDiscount;
-
 }

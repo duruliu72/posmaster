@@ -15,8 +15,7 @@ public class DispatchItemSpecification {
                         "%" + filter.getName().toLowerCase() + "%"));
             }
             if (dispatchId != null) {
-//                System.out.println(dispatchId);
-//                predicates.add(cb.equal(root.get("dispatch.id"), dispatchId));
+                predicates.add(cb.equal(root.get("dispatch").get("id"), dispatchId));
             }
             return cb.and(predicates.toArray(new Predicate[0]));
         };

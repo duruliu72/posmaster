@@ -13,6 +13,8 @@ import lombok.Setter;
 @Table(name = "dispatch_items", uniqueConstraints = @UniqueConstraint(
         columnNames = {
                 "dispatch_id",
+                "purchase_id",
+                "purchase_details_id",
                 "product_id",
                 "product_detail_id"
         }
