@@ -1,5 +1,4 @@
 package com.osudpotro.posmaster.user;
-
 import com.osudpotro.posmaster.branch.Branch;
 import com.osudpotro.posmaster.multimedia.Multimedia;
 import com.osudpotro.posmaster.user.Employee.Employee;
@@ -23,24 +22,24 @@ import java.util.Set;
         @Index(name = "idx_user_mobile", columnList = "mobile"),
 })
 public class User extends BaseEntity {
-    private String userName;
-    private String firstName;
-    private String lastName;
-    @Column(unique = true, nullable = true)
-    private String email;
-    @Column(unique = true, nullable = true)
-    private String mobile;
-    private String password;
-    private String secondaryEmail;
-    private String secondaryMobile;
-    private Boolean isValidAccount;
+//    private String userName;
+//    private String firstName;
+//    private String lastName;
+//    @Column(unique = true, nullable = true)
+//    private String email;
+//    @Column(unique = true, nullable = true)
+//    private String mobile;
+//    private String password;
+//    private String secondaryEmail;
+//    private String secondaryMobile;
+//    private Boolean isValidAccount;
     //like Male=1, Female=2, Third=3
-    private Integer gender;
-    private String provider;
-    private String providerId;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "multimedia_id")
-    private Multimedia profilePic;
+//    private Integer gender;
+//    private String provider;
+//    private String providerId;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "multimedia_id")
+//    private Multimedia profilePic;
     @Enumerated(EnumType.STRING)
     private UserType userType; // EMPLOYEE, CUSTOMER, etc.
     @ManyToMany(fetch = FetchType.LAZY)
@@ -61,4 +60,52 @@ public class User extends BaseEntity {
     private Employee employee;
     @OneToOne(mappedBy = "user")
     private Customer customer;
+    public String getPassword() {
+        if(userType.equals(UserType.ADMIN)){
+            return adminUser.getPassword();
+        }
+        if(userType.equals(UserType.EMPLOYEE)){
+            return employee.getPassword();
+        }
+        if(userType.equals(UserType.CUSTOMER)){
+            return customer.getPassword();
+        }
+        return null;
+    }
+    public String getUserName() {
+        if(userType.equals(UserType.ADMIN)){
+            return adminUser.getUserName();
+        }
+        if(userType.equals(UserType.EMPLOYEE)){
+            return employee.getUserName();
+        }
+        if(userType.equals(UserType.CUSTOMER)){
+            return customer.getUserName();
+        }
+        return null;
+    }
+    public String getEmail() {
+        if(userType.equals(UserType.ADMIN)){
+            return adminUser.getEmail();
+        }
+        if(userType.equals(UserType.EMPLOYEE)){
+            return employee.getEmail();
+        }
+        if(userType.equals(UserType.CUSTOMER)){
+            return customer.getEmail();
+        }
+        return null;
+    }
+    public String getMobile() {
+        if(userType.equals(UserType.ADMIN)){
+            return adminUser.getMobile();
+        }
+        if(userType.equals(UserType.EMPLOYEE)){
+            return employee.getMobile();
+        }
+        if(userType.equals(UserType.CUSTOMER)){
+            return customer.getMobile();
+        }
+        return null;
+    }
 }

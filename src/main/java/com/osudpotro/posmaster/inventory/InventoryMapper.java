@@ -28,6 +28,7 @@ public class InventoryMapper {
         invDto.setInvoiceType(inventory.getInvoiceType());
         invDto.setPurchaseBatchNo(inventory.getPurchaseBatchNo());
         invDto.setProductionBatchNo(inventory.getProductionBatchNo());
+        invDto.setPurchaseBarCode(inventory.getPurchaseBarCode());
         invDto.setManufactureDate(inventory.getManufactureDate());
         invDto.setExpiredDate(inventory.getExpiredDate());
         if (inventory.getProduct() != null) {

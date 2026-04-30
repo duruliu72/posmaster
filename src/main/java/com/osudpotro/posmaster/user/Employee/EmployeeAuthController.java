@@ -5,8 +5,6 @@ import com.osudpotro.posmaster.security.JwtConfig;
 import com.osudpotro.posmaster.security.JwtService;
 import com.osudpotro.posmaster.user.User;
 import com.osudpotro.posmaster.user.UserNotFoundException;
-import com.osudpotro.posmaster.user.UserRepository;
-import com.osudpotro.posmaster.user.UserType;
 import com.osudpotro.posmaster.user.auth.JwtResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -26,26 +24,26 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/employees/auth")
 public class EmployeeAuthController {
     private final JwtService jwtService;
-    private final UserRepository userRepository;
     private final EmployeeRepository employeeRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtConfig jwtConfig;
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@Validated @RequestBody EmployeeLoginRequest request, HttpServletResponse response) {
-        User user=null;
+        Employee employee=null;
         if (request.getEmail() != null && !request.getEmail().trim().isEmpty()) {
-            user= userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new UserNotFoundException(
+            employee= employeeRepository.findByEmail(request.getEmail()).orElseThrow(() -> new UserNotFoundException(
                     "User not found with email: " + request.getEmail()));;
         }
         if (request.getMobile() != null && !request.getMobile().trim().isEmpty()) {
             // Search by EMAIL only
-            user = userRepository.findByMobile(request.getMobile())
+            employee = employeeRepository.findByMobile(request.getMobile())
                     .orElseThrow(() -> new UserNotFoundException(
                             "User not found with email: " + request.getMobile()));
         }
-        if (user == null) {
+        if (employee == null) {
             throw new UserNotFoundException("User not found");
         }
+        User user=employee.getUser();
         Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getId(), request.getPassword()));
         CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
         var accessToken = jwtService.generateAccessToken(user);

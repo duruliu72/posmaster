@@ -9,6 +9,7 @@ import com.osudpotro.posmaster.offerhub.offer.Offer;
 import com.osudpotro.posmaster.organization.Organization;
 import com.osudpotro.posmaster.offerhub.promotion.PromotionOffer;
 import com.osudpotro.posmaster.user.User;
+import com.osudpotro.posmaster.user.UserType;
 import com.osudpotro.posmaster.warehouse.Warehouse;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -28,6 +29,8 @@ public class Sale {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String saleInvoice;
+    @Enumerated(EnumType.STRING)
+    private UserType userType=UserType.CUSTOMER;
     @ManyToOne(fetch = FetchType.LAZY)
     private Organization organization;
     @ManyToOne(fetch = FetchType.LAZY)

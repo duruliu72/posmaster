@@ -3,10 +3,7 @@ package com.osudpotro.posmaster.purchase.checked;
 import com.osudpotro.posmaster.inventory.Inventory;
 import com.osudpotro.posmaster.inventory.InventoryRepository;
 import com.osudpotro.posmaster.inventory.InvoiceType;
-import com.osudpotro.posmaster.purchase.Purchase;
-import com.osudpotro.posmaster.purchase.PurchaseDetail;
-import com.osudpotro.posmaster.purchase.PurchaseReferenceDto;
-import com.osudpotro.posmaster.purchase.PurchaseRepository;
+import com.osudpotro.posmaster.purchase.*;
 import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisitionException;
 import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisitionNotFoundException;
 import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisitionRepository;
@@ -41,6 +38,8 @@ public class CheckedPurchaseRequisitionService {
     private CheckedPurchaseRequisitionMapper cprMapper;
     @Autowired
     private CheckedPurchaseRequisitionItemMapper cprItemMapper;
+    @Autowired
+    private PurchaseDetailRepository purchaseDetailRepository;
 
     public List<CheckedPurchaseRequisitionDto> getAllEntities() {
         return cprRepo.findAll()
@@ -143,8 +142,10 @@ public class CheckedPurchaseRequisitionService {
         purchase.setAddedBy(authUser);
         //Purchase Details
         List<PurchaseDetail> purchaseDetailList = new ArrayList<>();
+        PurchaseDetail pdBackup=null;
         for (var crpItem : cprItemList) {
-            PurchaseDetail pd = getPurchaseDetails(crpItem, authUser, purchase);
+            PurchaseDetail pd = getPurchaseDetails(crpItem, authUser, purchase,pdBackup);
+            pdBackup=pd;
             purchaseDetailList.add(pd);
         }
         purchase.setItems(purchaseDetailList);
@@ -153,6 +154,7 @@ public class CheckedPurchaseRequisitionService {
         List<Inventory> inventoryList = new ArrayList<>();
         for (var purchaseDetail : purchaseDetailList) {
             Inventory invSummary = getInventorySummary(purchaseDetail, purchase);
+            invSummaryRepo.save(invSummary);
             inventoryList.add(invSummary);
         }
         invSummaryRepo.saveAll(inventoryList);
@@ -175,6 +177,7 @@ public class CheckedPurchaseRequisitionService {
         invSummary.setInvoiceDate(purchase.getPurchaseAt());
         invSummary.setPurchaseBatchNo(purchase.getPurchaseBatchNo());
         invSummary.setProductionBatchNo(purchaseDetail.getProductionBatchNo());
+        invSummary.setPurchaseBarCode(purchaseDetail.getPurchaseBarCode());
         invSummary.setManufactureDate(purchaseDetail.getManufactureDate());
         invSummary.setExpiredDate(purchaseDetail.getExpiredDate());
         invSummary.setProduct(purchaseDetail.getProduct());
@@ -184,7 +187,7 @@ public class CheckedPurchaseRequisitionService {
         invSummary.setSupplier(purchase.getSupplier());
         return invSummary;
     }
-    private PurchaseDetail getPurchaseDetails(CheckedPurchaseRequisitionItem prtItem, User authUser, Purchase purchase) {
+    private PurchaseDetail getPurchaseDetails(CheckedPurchaseRequisitionItem prtItem, User authUser, Purchase purchase,PurchaseDetail pdBackup) {
         PurchaseDetail pd = new PurchaseDetail();
         pd.setPurchaseRequisition(prtItem.getPurchaseRequisition());
         pd.setPurchaseRequisitionItem(prtItem.getPurchaseRequisitionItem());
@@ -197,6 +200,14 @@ public class CheckedPurchaseRequisitionService {
         pd.setGiftOrBonusQty(prtItem.getGiftOrBonusQty());
         pd.setAtomQty(prtItem.getProductDetail().getAtomQty());
         pd.setProductionBatchNo(prtItem.getProductionBatchNo());
+//        Auto Generated Barcode here
+        String purchaseBarCode="";
+        if(pdBackup==null){
+            purchaseBarCode=generatePurchaseBarcode();
+        }else {
+            purchaseBarCode=pdBackup.getGeneratePurchaseBarcode();
+        }
+        pd.setPurchaseBarCode(purchaseBarCode);
         pd.setManufactureDate(prtItem.getManufactureDate());
         pd.setExpiredDate(prtItem.getExpiredDate());
         pd.setAddedBy(authUser);
@@ -242,5 +253,13 @@ public class CheckedPurchaseRequisitionService {
         purchaseReference.setPurchaseRef(purchase.getGeneratePurchaseRef());
         purchaseReference.setPurchaseBatchNo(purchase.getGeneratePurchaseBatchNo());
         return purchaseReference;
+    }
+    public String generatePurchaseBarcode(){
+        PurchaseDetail purchaseDetail = purchaseDetailRepository.findTopByOrderByAddedAtDesc();
+        if (purchaseDetail == null) {
+            purchaseDetail = new PurchaseDetail();
+
+        }
+        return purchaseDetail.getGeneratePurchaseBarcode();
     }
 }

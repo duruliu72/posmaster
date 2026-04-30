@@ -5,6 +5,10 @@ import com.osudpotro.posmaster.security.CustomUserDetails;
 import com.osudpotro.posmaster.security.JwtConfig;
 import com.osudpotro.posmaster.security.JwtService;
 import com.osudpotro.posmaster.user.*;
+import com.osudpotro.posmaster.user.Employee.Employee;
+import com.osudpotro.posmaster.user.Employee.EmployeeRepository;
+import com.osudpotro.posmaster.user.admin.AdminUser;
+import com.osudpotro.posmaster.user.admin.AdminUserRepository;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
@@ -23,6 +27,8 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final JwtService jwtService;
     private final UserRepository userRepository;
+    private final AdminUserRepository adminUserRepo;
+    private final EmployeeRepository employeeRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtConfig jwtConfig;
     private final CustomUserMapper userMapper;
@@ -30,18 +36,29 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@Validated @RequestBody LoginRequest request, HttpServletResponse response) {
-        User user=null;
+        AdminUser adminUser = null;
+        Employee employee = null;
+        User user = null;
         if (request.getEmail() != null && !request.getEmail().trim().isEmpty()) {
-            user= userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new UserNotFoundException(
-                    "User not found with email: " + request.getEmail()));;
+            employee = employeeRepository.findByEmail(request.getEmail()).orElse(null);
+            if (employee == null) {
+                adminUser = adminUserRepo.findByEmail(request.getEmail()).orElse(null);
+            }
         }
         if (request.getMobile() != null && !request.getMobile().trim().isEmpty()) {
             // Search by EMAIL only
-            user = userRepository.findByMobile(request.getMobile())
-                    .orElseThrow(() -> new UserNotFoundException(
-                            "User not found with email: " + request.getMobile()));
+            employee = employeeRepository.findByMobile(request.getMobile()).orElse(null);
+            if (employee == null) {
+                adminUser = adminUserRepo.findByMobile(request.getMobile()).orElse(null);
+            }
         }
-        if (user == null) {
+        if (employee != null) {
+            user = employee.getUser();
+        }
+        if (adminUser != null) {
+            user = adminUser.getUser();
+        }
+        if (employee == null && adminUser == null) {
             throw new UserNotFoundException("User not found");
         }
         Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getId(), request.getPassword()));

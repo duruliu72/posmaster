@@ -43,18 +43,17 @@ public class EmployeeService {
     }
     @Transactional
     public EmployeeDto registerEmployee(EmployeeCreateRequest request) {
-        if (request.getEmail() != null && userRepository.existsByEmail(request.getEmail())) {
+        if (request.getEmail() != null && employeeRepository.existsByEmail(request.getEmail())) {
             throw new DuplicateUserException("Email  is already registered");
         }
-        if (request.getMobile() != null && userRepository.existsByMobile(request.getMobile())) {
+        if (request.getMobile() != null && employeeRepository.existsByMobile(request.getMobile())) {
             throw new DuplicateUserException("Mobile  is already registered");
         }
         Employee employee = employeeMapper.toEntity(request);
         var authUser = authService.getCurrentUser();
 //        Common User Entity
         User user = employeeMapper.toUserEntity(request);
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setUserType(UserType.EMPLOYEE);
+        employee.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setCreatedBy(authUser);
         Role findRole = roleRepository.findByRoleKey("ROLE_EMPLOYEE")
                 .orElseGet(() -> {
@@ -79,12 +78,12 @@ public class EmployeeService {
     public EmployeeDto updateEmployee(Long employeeId, UpdateEmployeeRequest request) {
         var employee = employeeRepository.findById(employeeId).orElseThrow(EmployeeNotFoundException::new);
         var user = employee.getUser();
-        if (request.getEmail() != null && userRepository.existsByEmail(request.getEmail())) {
+        if (request.getEmail() != null && employeeRepository.existsByEmail(request.getEmail())) {
             if (!user.getEmail().equals(request.getEmail())) {
                 throw new DuplicateUserException("Email already exists");
             }
         }
-        if (request.getMobile() != null && userRepository.existsByMobile(request.getMobile())) {
+        if (request.getMobile() != null && employeeRepository.existsByMobile(request.getMobile())) {
             String mobile="";
             if(user.getMobile()!=null){
                 mobile=user.getMobile();
@@ -94,7 +93,7 @@ public class EmployeeService {
             }
 
         }
-        if (request.getEmail() != null && request.getMobile() != null && userRepository.existsByEmailOrMobile(request.getEmail(), request.getMobile())) {
+        if (request.getEmail() != null && request.getMobile() != null && employeeRepository.existsByEmailOrMobile(request.getEmail(), request.getMobile())) {
             if (!user.getEmail().equals(request.getEmail()) && !user.getMobile().equals(request.getMobile())) {
                 throw new DuplicateUserException();
             }
@@ -102,14 +101,14 @@ public class EmployeeService {
         employeeMapper.update(request, employee);
         employeeMapper.updateUser(request, user);
         if (request.getPassword() != null && !request.getPassword().isEmpty()) {
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            employee.setPassword(passwordEncoder.encode(user.getPassword()));
         }
         var authUser = authService.getCurrentUser();
         if (request.getMultimediaId() != null) {
             Multimedia multimedia = multimediaRepository.findById(request.getMultimediaId()).orElse(null);
             if (multimedia != null) {
                 multimedia.setLinked(true);
-                user.setProfilePic(multimedia);
+                employee.setProfilePic(multimedia);
             }
         }
         if (request.getBranchId() != null) {
@@ -127,23 +126,23 @@ public class EmployeeService {
         var user = userRepository.findById(employee.getUser().getId()).orElseThrow(UserNotFoundException::new);
         var authUser = authService.getCurrentUser();
         if (request.getEmail() != null) {
-            if (!request.getEmail().equalsIgnoreCase(user.getEmail()) && userRepository.existsByEmail(request.getEmail())) {
+            if (!request.getEmail().equalsIgnoreCase(user.getEmail()) && employeeRepository.existsByEmail(request.getEmail())) {
                 throw new DuplicateUserException("Email  is already registered");
             }
         }
         if (request.getMobile() != null) {
-            if (!request.getMobile().equalsIgnoreCase(user.getMobile()) && userRepository.existsByMobile(request.getMobile())) {
+            if (!request.getMobile().equalsIgnoreCase(user.getMobile()) && employeeRepository.existsByMobile(request.getMobile())) {
                 throw new DuplicateUserException("Mobile  is already registered");
             }
         }
         if (request.getUserName() != null) {
-            user.setUserName(request.getUserName());
+            employee.setUserName(request.getUserName());
         }
         if (request.getEmail() != null) {
-            user.setEmail(request.getEmail());
+            employee.setEmail(request.getEmail());
         }
         if (request.getMobile() != null) {
-            user.setMobile(request.getMobile());
+            employee.setMobile(request.getMobile());
         }
         employee.setUpdatedBy(authUser);
         user.setUpdatedBy(authUser);

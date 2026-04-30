@@ -14,12 +14,13 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/inventory")
 public class InventoryController {
     private final InventoryService invSummaryService;
+
     @PostMapping("/filter")
     public PagedResponse<InventoryDto> filterEntities(
             @RequestBody InventoryFilter filter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "purchaseBatchNo") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir
     ) {
         Sort sort = sortDir.equalsIgnoreCase("asc") ?
@@ -29,12 +30,29 @@ public class InventoryController {
         Page<InventoryDto> result = invSummaryService.filterEntities(filter, pageable);
         return new PagedResponse<>(result);
     }
+
+    @PostMapping("/filter-group-by-purchase-barcode-from-auth-branch")
+    public PagedResponse<InventoryByPurchaseBarcode> filterInvGroupPurchaseBarcodeByAuthBranch(
+            @RequestBody InventoryFilter filter,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "purchaseBatchNo") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir
+    ) {
+        Sort sort = sortDir.equalsIgnoreCase("asc") ?
+                Sort.by(sortBy).ascending() :
+                Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<InventoryByPurchaseBarcode> result = invSummaryService.filterInvGroupByPurchaseBarCodeFromAuthBranch(filter, pageable);
+        return new PagedResponse<>(result);
+    }
+
     @PostMapping("/filter-group-batch-by-auth-branch")
     public PagedResponse<InventoryByBatchNo> filterInvGroupBatchByAuthBranch(
             @RequestBody InventoryFilter filter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "productId") String sortBy,
+            @RequestParam(defaultValue = "purchaseBatchNo") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir
     ) {
         Sort sort = sortDir.equalsIgnoreCase("asc") ?
@@ -44,12 +62,13 @@ public class InventoryController {
         Page<InventoryByBatchNo> result = invSummaryService.filterInvGroupBatchByAuthBranch(filter, pageable);
         return new PagedResponse<>(result);
     }
+
     @PostMapping("/filter-group-product-detail-by-auth-branch")
     public PagedResponse<InventoryByProductDetail> filterInvGroupProductDetailByAuthBranch(
             @RequestBody InventoryFilter filter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "productId") String sortBy,
+            @RequestParam(defaultValue = "purchaseBatchNo") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir
     ) {
         Sort sort = sortDir.equalsIgnoreCase("asc") ?
@@ -65,7 +84,7 @@ public class InventoryController {
             @RequestBody InventoryFilter filter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "productId") String sortBy,
+            @RequestParam(defaultValue = "purchaseBatchNo") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir
     ) {
         Sort sort = sortDir.equalsIgnoreCase("asc") ?

@@ -13,7 +13,9 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -54,7 +56,7 @@ public class PurchaseDetail {
     private Integer purchaseQty;
     private Integer giftOrBonusQty;
     private Integer atomQty;
-    private String barCode;
+    private String purchaseBarCode;
     private String productionBatchNo;
     private LocalDateTime manufactureDate;
     private LocalDateTime expiredDate;
@@ -70,4 +72,23 @@ public class PurchaseDetail {
     @UpdateTimestamp
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime updatedAt;
+
+    public String getGeneratePurchaseBarcode() {
+        String prefix = "789012";
+        String datePart = new SimpleDateFormat("yyyyMMdd").format(new Date());
+        long nextSeq = 1;
+        if (this.getPurchaseBarCode() != null) {
+            String lastTripRef = this.getPurchaseBarCode();
+            String lastPart = lastTripRef.length() > 5 ? lastTripRef.substring(lastTripRef.length() - 6) : lastTripRef;
+            if (!lastPart.isEmpty()) {
+                try {
+                    nextSeq = Long.parseLong(lastPart) + 1;
+                } catch (Exception e) {
+                    System.out.println(e);
+                }
+            }
+        }
+        //Format String
+        return String.format("%s-%s-%06d", prefix, datePart, nextSeq);
+    }
 }

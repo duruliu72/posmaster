@@ -24,6 +24,10 @@ public class InventoryService {
         var authUser = authService.getCurrentUser();
         return invRepo.findAll(InventorySpecification.filter(filter,authUser),pageable).map(invMapper::toDto);
     }
+    public Page<InventoryByPurchaseBarcode> filterInvGroupByPurchaseBarCodeFromAuthBranch(InventoryFilter filter, Pageable pageable) {
+        var authUser = authService.getCurrentUser();
+        return invRepo.filterInvGroupByPurchaseBarCodeFromAuthBranch(authUser.getBranch().getId(),filter.getProductName(), pageable);
+    }
     public Page<InventoryByBatchNo> filterInvGroupBatchByAuthBranch(InventoryFilter filter, Pageable pageable) {
         var authUser = authService.getCurrentUser();
         return invRepo.filterInvGroupBatchByBranch(authUser.getBranch().getId(),"", pageable);

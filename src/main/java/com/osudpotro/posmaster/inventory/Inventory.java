@@ -48,6 +48,7 @@ public class Inventory {
     private PurchaseDetail purchaseDetail;
     private String purchaseBatchNo;
     private String productionBatchNo;
+    private String purchaseBarCode;
     private LocalDateTime manufactureDate;
     private LocalDateTime expiredDate;
     @ManyToOne

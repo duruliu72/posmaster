@@ -37,23 +37,25 @@ public class AdminUserService {
                 .map(adminUserMapper::toDto)
                 .toList();
     }
+
     public Page<AdminUserDto> filterAdminUsers(AdminUserFilter filter, Pageable pageable) {
         return adminUserRepository.findAll(AdminUserSpecification.filter(filter), pageable).map(adminUserMapper::toDto);
     }
+
     @Transactional
     public AdminUserDto registerAdminUser(AdminUserCreateRequest request) {
-        if (request.getEmail() != null && userRepository.existsByEmail(request.getEmail())) {
+        if (request.getEmail() != null && adminUserRepository.existsByEmail(request.getEmail())) {
             throw new DuplicateUserException("Email  is already registered");
         }
-        if (request.getMobile() != null && userRepository.existsByMobile(request.getMobile())) {
+        if (request.getMobile() != null && adminUserRepository.existsByMobile(request.getMobile())) {
             throw new DuplicateUserException("Mobile  is already registered");
         }
-        AdminUser adminUser = adminUserMapper.toEntity(request);
         var authUser = authService.getCurrentUser();
-//        Common User Entity
+        AdminUser adminUser = adminUserMapper.toEntity(request);
+        adminUser.setPassword(passwordEncoder.encode(adminUser.getPassword()));
+//      Common User Entity
         User user = adminUserMapper.toUserEntity(request);
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setUserType(UserType.ADMIN);
+
         user.setCreatedBy(authUser);
         Role findRole = roleRepository.findByRoleKey("ROLE_ADMIN")
                 .orElseGet(() -> {
@@ -69,6 +71,7 @@ public class AdminUserService {
         user.setRoles(Set.of(findRole));
         user = userRepository.save(user);
         adminUser.setUser(user);
+        adminUser.setPassword(passwordEncoder.encode(user.getPassword()));
         adminUser.setCreatedBy(authUser);
         adminUserRepository.save(adminUser);
         return adminUserMapper.toDto(adminUser);
@@ -77,34 +80,33 @@ public class AdminUserService {
     @Transactional
     public AdminUserDto updateAdminUser(Long adminUserId, UpdateAdminUserRequest request) {
         var adminUser = adminUserRepository.findById(adminUserId).orElseThrow(AdminUserNotFoundException::new);
-        var user=adminUser.getUser();
-        if (request.getEmail() != null && userRepository.existsByEmail(request.getEmail())) {
+        var user = adminUser.getUser();
+        if (request.getEmail() != null && adminUserRepository.existsByEmail(request.getEmail())) {
             if (!user.getEmail().equals(request.getEmail())) {
                 throw new DuplicateAdminUserException("Email already exists");
             }
         }
-        if (request.getMobile() != null && userRepository.existsByMobile(request.getMobile())) {
+        if (request.getMobile() != null && adminUserRepository.existsByMobile(request.getMobile())) {
             if (!user.getMobile().equals(request.getMobile())) {
                 throw new DuplicateAdminUserException("Phone number already exists");
             }
 
         }
-        if (request.getEmail() != null && request.getMobile() != null && userRepository.existsByEmailOrMobile(request.getEmail(), request.getMobile())) {
+        if (request.getEmail() != null && request.getMobile() != null && adminUserRepository.existsByEmailOrMobile(request.getEmail(), request.getMobile())) {
             if (!user.getEmail().equals(request.getEmail()) && !user.getMobile().equals(request.getMobile())) {
-                throw new DuplicateAdminUserException();
+                throw new DuplicateAdminUserException("Email Or Phone number already exists");
             }
         }
         adminUserMapper.update(request, adminUser);
-        adminUserMapper.updateUser(request,user);
         if (request.getPassword() != null && !request.getPassword().isEmpty()) {
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
+            adminUser.setPassword(passwordEncoder.encode(user.getPassword()));
         }
         var authUser = authService.getCurrentUser();
         if (request.getMultimediaId() != null) {
             Multimedia multimedia = multimediaRepository.findById(request.getMultimediaId()).orElse(null);
             if (multimedia != null) {
                 multimedia.setLinked(true);
-                user.setProfilePic(multimedia);
+                adminUser.setProfilePic(multimedia);
             }
         }
         if (request.getBranchId() != null) {
@@ -116,28 +118,29 @@ public class AdminUserService {
         adminUserRepository.save(adminUser);
         return adminUserMapper.toDto(adminUser);
     }
+
     public AdminUserDto updateUpdateEmailAndMobileForUser(Long adminUserId, UpdateEmailAndMobileForUserRequest request) {
         var adminUser = adminUserRepository.findById(adminUserId).orElseThrow(AdminUserNotFoundException::new);
         var user = adminUser.getUser();
         var authUser = authService.getCurrentUser();
         if (request.getEmail() != null) {
-            if (!request.getEmail().equalsIgnoreCase(user.getEmail()) && userRepository.existsByEmail(request.getEmail())) {
+            if (!request.getEmail().equalsIgnoreCase(user.getEmail()) && adminUserRepository.existsByEmail(request.getEmail())) {
                 throw new DuplicateUserException("Email  is already registered");
             }
         }
         if (request.getMobile() != null) {
-            if (!request.getMobile().equalsIgnoreCase(user.getMobile()) && userRepository.existsByMobile(request.getMobile())) {
+            if (!request.getMobile().equalsIgnoreCase(user.getMobile()) && adminUserRepository.existsByMobile(request.getMobile())) {
                 throw new DuplicateUserException("Mobile  is already registered");
             }
         }
         if (request.getUserName() != null) {
-            user.setUserName(request.getUserName());
+            adminUser.setUserName(request.getUserName());
         }
         if (request.getEmail() != null) {
-            user.setEmail(request.getEmail());
+            adminUser.setEmail(request.getEmail());
         }
         if (request.getMobile() != null) {
-            user.setMobile(request.getMobile());
+            adminUser.setMobile(request.getMobile());
         }
         adminUser.setUpdatedBy(authUser);
         user.setUpdatedBy(authUser);
@@ -177,6 +180,7 @@ public class AdminUserService {
         adminUserRepository.save(vehicleDriver);
         return adminUserMapper.toDto(vehicleDriver);
     }
+
     public int deleteBulkAdminUser(List<Long> ids) {
         return adminUserRepository.deleteBulkAdminUser(ids, 3L);
     }

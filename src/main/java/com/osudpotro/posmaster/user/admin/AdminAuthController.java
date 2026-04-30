@@ -1,13 +1,10 @@
 package com.osudpotro.posmaster.user.admin;
 
-import com.osudpotro.posmaster.user.User;
-import com.osudpotro.posmaster.user.UserRepository;
 import com.osudpotro.posmaster.user.auth.JwtResponse;
 import com.osudpotro.posmaster.security.CustomUserDetails;
 import com.osudpotro.posmaster.security.JwtConfig;
 import com.osudpotro.posmaster.security.JwtService;
 import com.osudpotro.posmaster.user.UserNotFoundException;
-import com.osudpotro.posmaster.user.UserType;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
@@ -26,26 +23,26 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/admin/auth")
 public class AdminAuthController {
     private final JwtService jwtService;
-    private final UserRepository userRepository;
     private final AdminUserRepository adminUserRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtConfig jwtConfig;
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@Validated @RequestBody AdminLoginRequest request, HttpServletResponse response) {
-        User user=null;
+        AdminUser adminUser=null;
         if (request.getEmail() != null && !request.getEmail().trim().isEmpty()) {
-            user= userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new UserNotFoundException(
+            adminUser= adminUserRepository.findByEmail(request.getEmail()).orElseThrow(() -> new UserNotFoundException(
                     "User not found with email: " + request.getEmail()));;
         }
         if (request.getMobile() != null && !request.getMobile().trim().isEmpty()) {
             // Search by EMAIL only
-            user = userRepository.findByMobile(request.getMobile())
+            adminUser = adminUserRepository.findByMobile(request.getMobile())
                     .orElseThrow(() -> new UserNotFoundException(
                             "User not found with email: " + request.getMobile()));
         }
-        if (user == null) {
+        if (adminUser == null) {
             throw new UserNotFoundException("User not found");
         }
+        var user=adminUser.getUser();
         Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getId(), request.getPassword()));
         CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
         var accessToken = jwtService.generateAccessToken(user);

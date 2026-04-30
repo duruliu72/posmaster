@@ -46,14 +46,15 @@ public class WebCustomerController {
     private final SendSms sendSms;
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(@Validated @RequestBody WebCustomerLoginRequest request, HttpServletResponse response) {
-        User user = null;
+        Customer customer = null;
         if (request.getEmail() != null && !request.getEmail().trim().isEmpty() && request.getPassword() != null && !request.getPassword().trim().isEmpty()) {
 //            Spring Auth
-            user = userRepository.findByEmail(request.getEmail()).orElse(null);
-            if (user == null) {
+            customer = customerRepository.findByEmail(request.getEmail()).orElse(null);
+            if (customer == null) {
                 User newUser = new User();
-                newUser.setEmail(request.getEmail());
-                newUser.setPassword(passwordEncoder.encode(request.getPassword()));
+                Customer newCustomer = new Customer();
+                newCustomer.setEmail(request.getEmail());
+                newCustomer.setPassword(passwordEncoder.encode(request.getPassword()));
                 Role findRole = roleRepository.findByRoleKey("ROLE_CUSTOMER")
                         .orElseGet(() -> {
                             Role role = new Role();
@@ -66,20 +67,22 @@ public class WebCustomerController {
                 // ===SET ROLE ADMIN USER  ===
                 newUser.setRoles(Set.of(findRole));
                 newUser = userRepository.save(newUser);
-                Customer newCustomer = new Customer();
                 newCustomer.setUser(newUser);
                 customerRepository.save(newCustomer);
-                user = newUser;
+                customer = newCustomer;
             }
+            var user=customer.getUser();
             Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getId(), request.getPassword()));
         }
         if (request.getMobile() != null && !request.getMobile().trim().isEmpty() && request.getPassword() != null && !request.getPassword().trim().isEmpty()) {
 //            Spring Auth
-            user = userRepository.findByMobile(request.getMobile()).orElse(null);
-            if (user == null) {
+            customer = customerRepository.findByMobile(request.getMobile()).orElse(null);
+            if (customer == null) {
                 User newUser = new User();
-                newUser.setMobile(request.getMobile());
-                newUser.setPassword(passwordEncoder.encode(request.getPassword()));
+                Customer newCustomer = new Customer();
+                newCustomer.setUser(newUser);
+                newCustomer.setMobile(request.getMobile());
+                newCustomer.setPassword(passwordEncoder.encode(request.getPassword()));
                 Role findRole = roleRepository.findByRoleKey("ROLE_CUSTOMER")
                         .orElseGet(() -> {
                             Role role = new Role();
@@ -92,18 +95,18 @@ public class WebCustomerController {
                 // ===SET ROLE ADMIN USER  ===
                 newUser.setRoles(Set.of(findRole));
                 newUser = userRepository.save(newUser);
-                Customer newCustomer = new Customer();
-                newCustomer.setUser(newUser);
+
                 customerRepository.save(newCustomer);
-                user = newUser;
+                customer = newCustomer;
             }
+            var user=customer.getUser();
             Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getId(), request.getPassword()));
         }
         if (request.getEmail() != null && !request.getEmail().trim().isEmpty() && request.getOtpCode() != null && !request.getOtpCode().trim().isEmpty()) {
 //            OTP Based
-            user = userRepository.findByEmail(request.getEmail()).orElse(null);
-            if (user != null) {
-                var customer = user.getCustomer();
+            customer = customerRepository.findByEmail(request.getEmail()).orElse(null);
+            if (customer != null) {
+//                var customer = user.getCustomer();
                 if ((customer.getOtpCode() == null && customer.getOtpRequestDateTime() == null) || (customer.getOtpCode() != null && !customer.getOtpCode().trim().isEmpty() && !customer.getOtpCode().equals(request.getOtpCode()))) {
                     throw new UnauthorizedException("Invalid Otp");
                 }
@@ -117,9 +120,9 @@ public class WebCustomerController {
         }
         if (request.getMobile() != null && !request.getMobile().trim().isEmpty() && request.getOtpCode() != null && !request.getOtpCode().trim().isEmpty()) {
 //            Otp Based Mobile
-            user = userRepository.findByMobile(request.getMobile()).orElse(null);
-            if (user != null) {
-                var customer = user.getCustomer();
+            customer = customerRepository.findByMobile(request.getMobile()).orElse(null);
+            if (customer != null) {
+//
                 if ((customer.getOtpCode() == null && customer.getOtpRequestDateTime() == null) || (customer.getOtpCode() != null && !customer.getOtpCode().trim().isEmpty() && !customer.getOtpCode().equals(request.getOtpCode()))) {
                     throw new UnauthorizedException("Invalid Otp");
                 }
@@ -131,6 +134,7 @@ public class WebCustomerController {
                 customerRepository.save(customer);
             }
         }
+        var user = customer.getUser();
         if (request.getProvider() != null && !request.getProvider().trim().isEmpty() && request.getProviderId() != null && !request.getProviderId().trim().isEmpty()) {
 //            Provider Auth
         }
@@ -150,13 +154,14 @@ public class WebCustomerController {
 
     @PostMapping("/send-otp")
     public ResponseEntity<OtpResponse> sendOtp(@Validated @RequestBody WebCustomerOtpRequest request, HttpServletResponse response) {
-        User user = null;
+        Customer customer = null;
         if (request.getEmail() != null && !request.getEmail().trim().isEmpty()) {
 //            OTP Auth By Email
-            user = userRepository.findByEmail(request.getEmail()).orElse(null);
-            if (user == null) {
+            customer = customerRepository.findByEmail(request.getEmail()).orElse(null);
+            if (customer == null) {
                 User newUser = new User();
-                newUser.setEmail(request.getEmail());
+                Customer newCustomer = new Customer();
+                newCustomer.setEmail(request.getEmail());
                 Role findRole = roleRepository.findByRoleKey("ROLE_CUSTOMER")
                         .orElseGet(() -> {
                             Role role = new Role();
@@ -169,18 +174,19 @@ public class WebCustomerController {
                 // ===SET ROLE ADMIN USER  ===
                 newUser.setRoles(Set.of(findRole));
                 newUser = userRepository.save(newUser);
-                Customer newCustomer = new Customer();
+
                 newCustomer.setUser(newUser);
                 customerRepository.save(newCustomer);
-                user = newUser;
+                customer = newCustomer;
             }
         }
         if (request.getMobile() != null && !request.getMobile().trim().isEmpty()) {
 //            OTP Auth
-            user = userRepository.findByMobile(request.getMobile()).orElse(null);
-            if (user == null) {
+            customer = customerRepository.findByMobile(request.getMobile()).orElse(null);
+            if (customer == null) {
                 User newUser = new User();
-                newUser.setMobile(request.getMobile());
+                Customer newCustomer = new Customer();
+                newCustomer.setMobile(request.getMobile());
                 Role findRole = roleRepository.findByRoleKey("ROLE_CUSTOMER")
                         .orElseGet(() -> {
                             Role role = new Role();
@@ -193,17 +199,17 @@ public class WebCustomerController {
                 // ===SET ROLE ADMIN USER  ===
                 newUser.setRoles(Set.of(findRole));
                 newUser = userRepository.save(newUser);
-                Customer newCustomer = new Customer();
+
                 newCustomer.setUser(newUser);
                 customerRepository.save(newCustomer);
                 newUser.setCustomer(newCustomer);
-                user = newUser;
+                customer = newCustomer;
             }
         }
         String otpCode = "";
-        if (user != null) {
+        if (customer != null) {
             otpCode = generateOtp();
-            Customer customer = user.getCustomer();
+//            Customer customer = user.getCustomer();
             customer.setOtpCode(otpCode);
             customer.setOtpRequestDateTime(LocalDateTime.now().plusMinutes(5));
 //            Send Sms
