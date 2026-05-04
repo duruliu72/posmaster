@@ -1,8 +1,12 @@
 package com.osudpotro.posmaster.user.customer;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.osudpotro.posmaster.address.area.Area;
 import com.osudpotro.posmaster.common.BaseEntity;
 import com.osudpotro.posmaster.multimedia.Multimedia;
+import com.osudpotro.posmaster.offerhub.membership.Membership;
 import com.osudpotro.posmaster.user.User;
+import com.osudpotro.posmaster.user.customer.address.Address;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,7 +14,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-
+import java.util.ArrayList;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -44,4 +49,11 @@ public class Customer extends BaseEntity {
     @OneToOne
     @JoinColumn(name = "user_id", unique = true)
     private User user;
+    private Boolean isAllowCredit;
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "membership_id", nullable = true)
+    private Membership membership;
+    @JsonIgnore
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
+    private List<Address> items = new ArrayList<>();
 }

@@ -6,7 +6,8 @@ public enum PaymentMethod {
     SSL("ssl", "Ssl"),
     BKASH("bkash", "Bkash"),
     NAGAD("nagad", "Nagad"),
-    ROCKET("rocket", "Rocket");
+    ROCKET("rocket", "Rocket"),
+    CREDIT("credit","Credit");
     private final String key;
     private final String value;
     PaymentMethod(String code, String description) {

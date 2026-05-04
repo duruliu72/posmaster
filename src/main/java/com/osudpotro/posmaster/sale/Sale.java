@@ -1,6 +1,7 @@
 package com.osudpotro.posmaster.sale;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.osudpotro.posmaster.branch.Branch;
 import com.osudpotro.posmaster.category.Category;
 import com.osudpotro.posmaster.deliverymethod.DeliveryMethod;
@@ -19,6 +20,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -28,7 +31,7 @@ public class Sale {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String saleInvoice;
+    private String saleRef;//Order Ref
     @Enumerated(EnumType.STRING)
     private UserType userType=UserType.CUSTOMER;
     @ManyToOne(fetch = FetchType.LAZY)
@@ -99,4 +102,7 @@ public class Sale {
     @UpdateTimestamp
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime updatedAt;
+    @JsonIgnore
+    @OneToMany(mappedBy = "sale", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
+    private List<SaleItem> items = new ArrayList<>();
 }

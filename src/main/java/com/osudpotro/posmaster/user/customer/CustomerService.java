@@ -1,12 +1,17 @@
 package com.osudpotro.posmaster.user.customer;
 
+import com.osudpotro.posmaster.common.EntityNotFoundException;
 import com.osudpotro.posmaster.multimedia.Multimedia;
 import com.osudpotro.posmaster.multimedia.MultimediaRepository;
+import com.osudpotro.posmaster.offerhub.membership.Membership;
+import com.osudpotro.posmaster.offerhub.membership.MembershipRepository;
 import com.osudpotro.posmaster.role.Role;
 import com.osudpotro.posmaster.role.RoleRepository;
 import com.osudpotro.posmaster.user.*;
 import com.osudpotro.posmaster.user.Employee.EmployeeNotFoundException;
 import com.osudpotro.posmaster.user.auth.AuthService;
+import com.osudpotro.posmaster.user.wallet.Wallet;
+import com.osudpotro.posmaster.user.wallet.WalletRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -15,6 +20,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -29,15 +35,20 @@ public class CustomerService {
     private final CustomerRepository customerRepository;
     private final CustomerMapper customerMapper;
     private final PasswordEncoder passwordEncoder;
+    private final WalletRepository walletRepo;
+    private final MembershipRepository membershipRepo;
+
     public List<CustomerDto> gerAllCustomers() {
         return customerRepository.findAll(Sort.by(Sort.Direction.DESC, "id"))
                 .stream()
                 .map(customerMapper::toDto)
                 .toList();
     }
+
     public Page<CustomerDto> filterCustomers(CustomerFilter filter, Pageable pageable) {
         return customerRepository.findAll(CustomerSpecification.filter(filter), pageable).map(customerMapper::toDto);
     }
+
     @Transactional
     public CustomerDto registerCustomer(CustomerCreateRequest request) {
         if (request.getEmail() != null && customerRepository.existsByEmail(request.getEmail())) {
@@ -49,10 +60,11 @@ public class CustomerService {
         if (request.getEmail() != null && request.getMobile() != null && customerRepository.existsByEmailOrMobile(request.getEmail(), request.getMobile())) {
             throw new DuplicateCustomerException();
         }
-        var customer = customerMapper.toEntity(request);
+
         var authUser = authService.getCurrentUser();
         //Common User Entity
         User user = customerMapper.toUserEntity(request);
+        var customer = customerMapper.toEntity(request);
         if (request.getPassword() != null && !request.getPassword().isEmpty()) {
             customer.setPassword(passwordEncoder.encode(user.getPassword()));
         }
@@ -73,9 +85,25 @@ public class CustomerService {
         user = userRepository.save(user);
         customer.setUser(user);
         customer.setCreatedBy(authUser);
+        //        Membership for new custmer
+        Membership membership = membershipRepo.findByCode("new").orElse(null);
+        if (membership == null) {
+            throw new EntityNotFoundException("Membership not found");
+        }
+        customer.setMembership(membership);
         customerRepository.save(customer);
+//        Welcome 50
+        Wallet wallet = new Wallet();
+        wallet.setUser(user);
+        wallet.setCustomer(customer);
+        wallet.setUserType(UserType.CUSTOMER);
+        wallet.setCreditAmount(BigDecimal.valueOf(50));
+        wallet.setWalletType(1);
+        wallet.setNote("Sign Up");
+        walletRepo.save(wallet);
         return customerMapper.toDto(customer);
     }
+
     @Transactional
     public CustomerDto updateCustomer(Long customerId, CustomerUpdateRequest request) {
         var customer = customerRepository.findById(customerId).orElseThrow(CustomerNotFoundException::new);
@@ -112,6 +140,7 @@ public class CustomerService {
         customerRepository.save(customer);
         return customerMapper.toDto(customer);
     }
+
     public CustomerDto updateUpdateEmailAndMobileForUser(Long employeeId, UpdateForUserRequest request) {
         var customer = customerRepository.findById(employeeId).orElseThrow(EmployeeNotFoundException::new);
         var user = userRepository.findById(customer.getUser().getId()).orElseThrow(UserNotFoundException::new);
@@ -141,6 +170,7 @@ public class CustomerService {
         customerRepository.save(customer);
         return customerMapper.toDto(customer);
     }
+
     public CustomerDto getCustomer(Long customerId) {
         var customer = customerRepository.findById(customerId).orElseThrow(CustomerNotFoundException::new);
         return customerMapper.toDto(customer);
@@ -181,6 +211,7 @@ public class CustomerService {
         customerRepository.save(customer);
         return customerMapper.toDto(customer);
     }
+
     public int deleteBulkCustomer(List<Long> ids) {
         return customerRepository.deleteBulkCustomer(ids, 3L);
     }

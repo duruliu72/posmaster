@@ -8,9 +8,11 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface MembershipRepository extends JpaSpecificationExecutor<Membership>,JpaRepository<Membership,Long> {
     boolean existsByName(String name);
+    Optional<Membership> findByCode(String code);
     @Transactional
     @Modifying
     @Query("update Membership b set b.status = :status where b.id in :ids")

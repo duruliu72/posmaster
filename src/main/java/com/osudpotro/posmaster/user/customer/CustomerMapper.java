@@ -48,45 +48,46 @@ public class CustomerMapper {
     }
 
     public Customer toEntity(CustomerCreateRequest request) {
-        return new Customer();
+        Customer customer = new Customer();
+        if (request.getUserName() != null && !request.getUserName().isEmpty()) {
+            customer.setUserName(request.getUserName());
+        }
+        if (request.getFirstName() != null && !request.getFirstName().isEmpty()) {
+            customer.setFirstName(request.getFirstName());
+        }
+
+        if (request.getLastName() != null && !request.getLastName().isEmpty()) {
+            customer.setLastName(request.getLastName());
+        }
+        if (request.getEmail() != null && !request.getEmail().isEmpty()) {
+            customer.setEmail(request.getEmail());
+        }
+        if (request.getPassword() != null && !request.getPassword().isEmpty()) {
+            customer.setPassword(request.getPassword());
+        }
+        if (request.getMobile() != null && !request.getMobile().isEmpty()) {
+            customer.setMobile(request.getMobile());
+        }
+        if (request.getSecondaryEmail() != null && !request.getSecondaryEmail().isEmpty()) {
+            customer.setSecondaryEmail(request.getSecondaryEmail());
+        }
+        if (request.getSecondaryMobile() != null && !request.getSecondaryMobile().isEmpty()) {
+            customer.setSecondaryMobile(request.getSecondaryMobile());
+        }
+        if (request.getGender() != null && !request.getGender().equals(0)) {
+            customer.setGender(request.getGender());
+        }
+        if (request.getProvider() != null && !request.getProvider().isEmpty()) {
+            customer.setProvider(request.getProvider());
+        }
+        if (request.getProviderId() != null && !request.getProviderId().isEmpty()) {
+            customer.setProviderId(request.getProviderId());
+        }
+        return customer;
     }
 
     public User toUserEntity(CustomerCreateRequest request) {
         User user = new User();
-//        if (request.getUserName() != null && !request.getUserName().isEmpty()) {
-//            user.setUserName(request.getUserName());
-//        }
-//        if (request.getFirstName() != null && !request.getFirstName().isEmpty()) {
-//            user.setFirstName(request.getFirstName());
-//        }
-//
-//        if (request.getLastName() != null && !request.getLastName().isEmpty()) {
-//            user.setLastName(request.getLastName());
-//        }
-//        if (request.getEmail() != null && !request.getEmail().isEmpty()) {
-//            user.setEmail(request.getEmail());
-//        }
-//        if (request.getPassword() != null && !request.getPassword().isEmpty()) {
-//            user.setPassword(request.getPassword());
-//        }
-//        if (request.getMobile() != null && !request.getMobile().isEmpty()) {
-//            user.setMobile(request.getMobile());
-//        }
-//        if (request.getSecondaryEmail() != null && !request.getSecondaryEmail().isEmpty()) {
-//            user.setSecondaryEmail(request.getSecondaryEmail());
-//        }
-//        if (request.getSecondaryMobile() != null && !request.getSecondaryMobile().isEmpty()) {
-//            user.setSecondaryMobile(request.getSecondaryMobile());
-//        }
-//        if (request.getGender() != null && !request.getGender().equals(0)) {
-//            user.setGender(request.getGender());
-//        }
-//        if (request.getProvider() != null && !request.getProvider().isEmpty()) {
-//            user.setProvider(request.getProvider());
-//        }
-//        if (request.getProviderId() != null && !request.getProviderId().isEmpty()) {
-//            user.setProviderId(request.getProviderId());
-//        }
         return user;
     }
 

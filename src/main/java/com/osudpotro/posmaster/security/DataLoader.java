@@ -67,38 +67,39 @@ public class DataLoader {
         // === SUPER ADMIN USER ===
         String email = "duruliu72@gmail.com";
         String mobile = "01726720772";
-//        Optional<User> findUser = userRepository.findByEmail(email);
-//        User superAdminUser = findUser.orElseGet(() -> {
-//            if (userRepository.existsByEmail(email)) {
-//                throw new DuplicateUserException("Email  is already registered");
-//            }
-//            if (userRepository.existsByMobile(mobile)) {
-//                throw new DuplicateUserException("Mobile  is already registered");
-//            }
-//            User u = new User();
-//            u.setUserType(UserType.ADMIN);
-//            u.setEmail(email);
-//            u.setMobile(mobile);
-//            u.setPassword(passwordEncoder.encode("123"));
-//            AdminUser adminUser = new AdminUser();
-//            u = userRepository.save(u);
-//            adminUser.setUser(u);
-//            adminUserRepository.save(adminUser);
-//            return u;
-//        });
+        Optional<AdminUser> findAdminUser = adminUserRepository.findByEmail(email);
+        AdminUser superAdminUser = findAdminUser.orElseGet(() -> {
+            if (adminUserRepository.existsByEmail(email)) {
+                throw new DuplicateUserException("Email  is already registered");
+            }
+            if (adminUserRepository.existsByMobile(mobile)) {
+                throw new DuplicateUserException("Mobile  is already registered");
+            }
+            User u = new User();
+            u.setUserType(UserType.ADMIN);
+            AdminUser adminUser = new AdminUser();
+            adminUser.setEmail(email);
+            adminUser.setMobile(mobile);
+            adminUser.setPassword(passwordEncoder.encode("123"));
+            u = userRepository.save(u);
+            adminUser.setUser(u);
+            adminUserRepository.save(adminUser);
+            return adminUser;
+        });
+        User superUser = userRepository.findById(superAdminUser.getUser().getId()).orElse(null);
         // === ACTIONS ===
-        if (actionRepository.count() == 0) {
-//            Action view = new Action("READ");
-//            view.setCreatedBy(superAdminUser);
-//            Action create = new Action("CREATE");
-//            create.setCreatedBy(superAdminUser);
-//            Action update = new Action("UPDATE");
-//            update.setCreatedBy(superAdminUser);
-//            Action delete = new Action("DELETE");
-//            delete.setCreatedBy(superAdminUser);
-//            actionRepository.saveAll(Arrays.asList(
-//                    view, create, update, delete
-//            ));
+        if (actionRepository.count() == 0 && superUser != null) {
+            Action view = new Action("READ");
+            view.setCreatedBy(superUser);
+            Action create = new Action("CREATE");
+            create.setCreatedBy(superUser);
+            Action update = new Action("UPDATE");
+            update.setCreatedBy(superUser);
+            Action delete = new Action("DELETE");
+            delete.setCreatedBy(superUser);
+            actionRepository.saveAll(Arrays.asList(
+                    view, create, update, delete
+            ));
             System.out.println("✅ Actions inserted");
         }
         // === ROLES ===
@@ -107,7 +108,7 @@ public class DataLoader {
                     Role superAdmin = new Role();
                     superAdmin.setName("Super AdminUser");
                     superAdmin.setRoleKey("ROLE_SUPER_ADMIN");
-//                    superAdmin.setCreatedBy(superAdminUser);
+                    superAdmin.setCreatedBy(superUser);
                     superAdmin.setUsers(new HashSet<>());
                     superAdmin.setPermissions(new HashSet<>());
                     return roleRepository.save(superAdmin);
@@ -119,19 +120,19 @@ public class DataLoader {
                     productResource.setName("Product");
                     productResource.setResourceKey("PRODUCT");
                     productResource.setUrl("/products");
-//                    productResource.setCreatedBy(superAdminUser);
+                    productResource.setCreatedBy(superUser);
                     Action view = actionRepository.findByName("READ").orElseThrow(() -> new ActionNotFoundException());
                     Action create = actionRepository.findByName("CREATE").orElseThrow(() -> new ActionNotFoundException());
                     ResourceAction resourceActionView = new ResourceAction();
                     resourceActionView.setResource(productResource);
                     resourceActionView.setAction(view);
                     resourceActionView.setChecked(true);
-//                    resourceActionView.setCreatedBy(superAdminUser);
+                    resourceActionView.setCreatedBy(superUser);
                     ResourceAction resourceActionCreate = new ResourceAction();
                     resourceActionCreate.setResource(productResource);
                     resourceActionCreate.setAction(create);
                     resourceActionCreate.setChecked(true);
-//                    resourceActionCreate.setCreatedBy(superAdminUser);
+                    resourceActionCreate.setCreatedBy(superUser);
                     productResource.setResourceActions(Arrays.asList(resourceActionView, resourceActionCreate));
                     return resourceRepository.save(productResource);
                 });
@@ -141,25 +142,25 @@ public class DataLoader {
                     userUIResource.setName("User");
                     userUIResource.setResourceKey("USER");
                     userUIResource.setUrl("/users");
-//                    userUIResource.setCreatedBy(superAdminUser);
+                    userUIResource.setCreatedBy(superUser);
                     Action view = actionRepository.findByName("READ").orElseThrow(() -> new ActionNotFoundException());
                     Action create = actionRepository.findByName("CREATE").orElseThrow(() -> new ActionNotFoundException());
                     ResourceAction resourceActionView = new ResourceAction();
                     resourceActionView.setResource(userUIResource);
                     resourceActionView.setAction(view);
                     resourceActionView.setChecked(true);
-//                    resourceActionView.setCreatedBy(superAdminUser);
+                    resourceActionView.setCreatedBy(superUser);
                     ResourceAction resourceActionCreate = new ResourceAction();
                     resourceActionCreate.setResource(userUIResource);
                     resourceActionCreate.setAction(create);
                     resourceActionCreate.setChecked(true);
-//                    resourceActionCreate.setCreatedBy(superAdminUser);
+                    resourceActionCreate.setCreatedBy(superUser);
                     userUIResource.setResourceActions(Arrays.asList(resourceActionView, resourceActionCreate));
                     return resourceRepository.save(userUIResource);
                 });
         // ===SET ROLE SUPER ADMIN USER  ===
-//        superAdminUser.setRoles(Set.of(findSuperAdminRole));
-//        userRepository.save(superAdminUser);
+        superUser.setRoles(Set.of(findSuperAdminRole));
+        userRepository.save(superUser);
         // === PERMISSIONS ===
         if (permissionRepository.count() == 0) {
             Permission permission = new Permission();
@@ -167,7 +168,7 @@ public class DataLoader {
             permission.setResource(findProductResource);
             permission.setPermissionType(PermissionType.ROLE);
             permission.setEnable(true);
-//            permission.setCreatedBy(superAdminUser);
+            permission.setCreatedBy(superUser);
             permission = permissionRepository.save(permission);
             //=== ResourceRequest Details====
             Action read = actionRepository.findByName("READ").orElseThrow(() -> new ActionNotFoundException());
@@ -175,12 +176,12 @@ public class DataLoader {
             PermissionDetail detail1 = new PermissionDetail();
             detail1.setPermission(permission);
             detail1.setAction(read);
-//            detail1.setCreatedBy(superAdminUser);
+            detail1.setCreatedBy(superUser);
 
             PermissionDetail detail2 = new PermissionDetail();
             detail2.setPermission(permission);
             detail2.setAction(create);
-//            detail2.setCreatedBy(superAdminUser);
+            detail2.setCreatedBy(superUser);
             permissionDetailRepository.saveAll(Arrays.asList(detail1, detail2));
             System.out.println("✅ Permissions inserted for Super AdminUser");
         }
