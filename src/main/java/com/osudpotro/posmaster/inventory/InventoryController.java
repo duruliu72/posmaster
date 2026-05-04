@@ -47,6 +47,11 @@ public class InventoryController {
         return new PagedResponse<>(result);
     }
 
+    @PostMapping("/inv-group-by-purchase-barcode-from-auth-branch")
+    public InventoryByPurchaseBarcode getInvGroupByPurchaseBarCodeFromAuthBranch(@RequestBody InventoryFilter filter) {
+        return invSummaryService.getInvGroupByPurchaseBarCodeFromAuthBranch(filter);
+    }
+
     @PostMapping("/filter-group-batch-by-auth-branch")
     public PagedResponse<InventoryByBatchNo> filterInvGroupBatchByAuthBranch(
             @RequestBody InventoryFilter filter,

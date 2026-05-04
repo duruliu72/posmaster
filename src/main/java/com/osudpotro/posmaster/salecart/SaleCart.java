@@ -18,19 +18,17 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "sale_carts",indexes = {
+@Table(name = "sale_carts", indexes = {
         @Index(name = "idx_sale_cart_email", columnList = "email"),
         @Index(name = "idx_sale_cart_mobile", columnList = "mobile"),
 })
 public class SaleCart extends BaseEntity {
-    @Column(unique = true, nullable = true)
     private String email;
-    @Column(unique = true, nullable = true)
     private String mobile;
     @ManyToOne(fetch = FetchType.LAZY)
     private Branch branch;
     @Enumerated(EnumType.STRING)
-    private UserType userType=UserType.CUSTOMER;
+    private UserType userType = UserType.CUSTOMER;
     @JsonIgnore
     @OneToMany(mappedBy = "saleCart", cascade = CascadeType.MERGE, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<SaleCartItem> items = new ArrayList<>();

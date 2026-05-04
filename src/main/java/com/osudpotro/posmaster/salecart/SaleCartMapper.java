@@ -1,6 +1,7 @@
 package com.osudpotro.posmaster.salecart;
 
 import com.osudpotro.posmaster.branch.Branch;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -8,6 +9,9 @@ import java.util.List;
 
 @Component
 public class SaleCartMapper {
+    @Autowired
+    private SaleCartItemMapper saleCartItemMapper;
+
     //Mapping Here
     //Entity → DTO
     public SaleCartDto toDto(SaleCart saleCart) {
@@ -21,11 +25,10 @@ public class SaleCartMapper {
         }
         List<SaleCartItemDto> items = new ArrayList<>();
         if (saleCart.getItems() != null) {
-            List<SaleCartItem> saleCartItem = saleCart.getItems();
+            List<SaleCartItem> saleCartItems = saleCart.getItems();
             for (SaleCartItem item : saleCart.getItems()) {
-                SaleCartItemDto saleCartItemDto = new SaleCartItemDto();
-                saleCartItemDto.setSaleQty(saleCartItem.getLast().getSaleQty());
-
+                var saleCartItemDto = saleCartItemMapper.toDto(item);
+                items.add(saleCartItemDto);
             }
         }
         saleCartDto.setItems(items);

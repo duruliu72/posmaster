@@ -10,13 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "sale_items", uniqueConstraints = @UniqueConstraint(
-        columnNames = {
-                "sale_cart_id",
-                "purchase_id",
-                "purchase_details_id",
-        }
-))
+@Table(name = "sale_cart_items")
 public class SaleCartItem extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sale_cart_id")
