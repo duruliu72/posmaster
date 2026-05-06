@@ -8,8 +8,14 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties("spring.utility")
 @Data
 public class UtilityConfig {
-    private String twilioAccountSID;
-    private String twilioAuthToken;
-    private String twilioPhoneNumber;
-    private String googleApiKey;
+    //private String twilioAccountSID;
+    //  private String twilioAuthToken;
+    // private String twilioPhoneNumber;
+    private String googleClientId;
+    private String googleClientSecret;
+    private String emailUsername;
+    private String emailPassword;
+    private String smsNetbdApiKey;
+    private String GoogleApiKey;
+    // private String smsNetbdSenderId = "OSUDpotro";
 }

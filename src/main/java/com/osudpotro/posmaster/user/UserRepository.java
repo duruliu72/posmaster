@@ -8,7 +8,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface UserRepository extends JpaSpecificationExecutor<User>, JpaRepository<User, Long> {
-
     @Query("""
         SELECT DISTINCT u FROM User u
         LEFT JOIN FETCH u.roles r

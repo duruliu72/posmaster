@@ -44,6 +44,7 @@ public class SecurityConfig {
                         .requestMatchers("/public/**").permitAll()
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/web/customers/**").permitAll()
+                        .requestMatchers("/web/customers/logout**").permitAll()
                         .requestMatchers("/admin/auth/**").permitAll()
                         .requestMatchers("/employees/auth/**").permitAll()
                         .requestMatchers("/vehicle-drivers/auth/**").permitAll()
@@ -68,6 +69,7 @@ public class SecurityConfig {
         config.addAllowedMethod("*");
 //        config.addAllowedOrigin("http://127.0.0.1:4200");
         config.addAllowedOriginPattern("http://localhost:3000");
+        config.addAllowedOriginPattern ("https://localhost:3000");
         config.addAllowedOriginPattern("http://127.0.0.1:3000");
         config.setAllowCredentials(true);
         source.registerCorsConfiguration("/**", config);
