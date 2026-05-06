@@ -1,0 +1,26 @@
+package com.osudpotro.posmaster.offerhub.membership;
+
+import com.osudpotro.posmaster.common.BaseEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+
+@NoArgsConstructor
+@AllArgsConstructor
+@Setter
+@Getter
+@Entity
+@Table(name = "memberships")
+public class Membership extends BaseEntity {
+    private String name;
+    @Column(name = "code", nullable = true, unique = true, length = 50)
+    private String code;
+    private Double discount;
+    private Boolean isPercentage;
+    private Double maxDiscount;
+}

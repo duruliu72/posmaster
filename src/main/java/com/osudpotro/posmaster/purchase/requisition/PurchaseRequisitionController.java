@@ -1,5 +1,6 @@
 package com.osudpotro.posmaster.purchase.requisition;
 
+import com.osudpotro.posmaster.common.EntityNotFoundException;
 import com.osudpotro.posmaster.common.PagedResponse;
 import com.osudpotro.posmaster.requisition.RequisitionItemNotApprovedException;
 import com.osudpotro.posmaster.requisition.RequisitionUpdateException;
@@ -236,6 +237,12 @@ public class PurchaseRequisitionController {
     }
     @ExceptionHandler(PurchaseRequisitionItemException.class)
     public ResponseEntity<Map<String, String>> handlePurchaseRequisitionItemException(Exception e) {
+        return ResponseEntity.badRequest().body(
+                Map.of("error", e.getMessage())
+        );
+    }
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleEntityNotFoundException(Exception e) {
         return ResponseEntity.badRequest().body(
                 Map.of("error", e.getMessage())
         );

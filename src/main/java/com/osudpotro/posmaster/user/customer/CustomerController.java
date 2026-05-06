@@ -1,5 +1,6 @@
 package com.osudpotro.posmaster.user.customer;
 
+import com.osudpotro.posmaster.common.EntityNotFoundException;
 import com.osudpotro.posmaster.common.PagedResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -19,11 +20,13 @@ import java.util.Map;
 @RequestMapping("/customers")
 public class CustomerController {
     private final CustomerService customerService;
+
     //    @PreAuthorize("hasAuthority('CUSTOMER_READ')")
     @GetMapping
     public List<CustomerDto> getAllCustomers() {
         return customerService.gerAllCustomers();
     }
+
     @PostMapping("/filter")
     public PagedResponse<CustomerDto> filterCustomers(
             @RequestBody CustomerFilter filter,
@@ -53,6 +56,7 @@ public class CustomerController {
         var uri = uriBuilder.path("/customers/{id}").buildAndExpand(customerDto.getId()).toUri();
         return ResponseEntity.created(uri).body(customerDto);
     }
+
     //    @PreAuthorize("hasAuthority('CUSTOMER_UPDATE')")
     @PutMapping("/{id}")
     public CustomerDto updateCustomer(
@@ -60,12 +64,14 @@ public class CustomerController {
             @RequestBody CustomerUpdateRequest request) {
         return customerService.updateCustomer(id, request);
     }
+
     @PutMapping("/{id}/user")
     public CustomerDto updateUpdateEmailAndMobileForUser(
             @PathVariable(name = "id") Long id,
             @RequestBody UpdateForUserRequest request) {
         return customerService.updateUpdateEmailAndMobileForUser(id, request);
     }
+
     //    @PreAuthorize("hasAuthority('CUSTOMER_DELETE')")
     @DeleteMapping("/{id}")
     public CustomerDto deleteCustomer(
@@ -97,6 +103,13 @@ public class CustomerController {
 
     @ExceptionHandler(DuplicateCustomerException.class)
     public ResponseEntity<Map<String, String>> handleDuplicateCustomer(Exception ex) {
+        return ResponseEntity.badRequest().body(
+                Map.of("error", ex.getMessage())
+        );
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleEntityNotFound(Exception ex) {
         return ResponseEntity.badRequest().body(
                 Map.of("error", ex.getMessage())
         );

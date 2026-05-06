@@ -27,16 +27,11 @@ public class PurchaseRequisitionMapper {
         orgDto.setId(pr.getOrganization().getId());
         orgDto.setName(pr.getOrganization().getName());
         prDto.setOrganization(orgDto);
-//        rootBranch
-        BranchDto rootBranchDto = new BranchDto();
-        rootBranchDto.setId(pr.getRootBranch().getId());
-        rootBranchDto.setName(pr.getRootBranch().getName());
-        prDto.setRootBranch(rootBranchDto);
-//        reqBranch
-        BranchDto reqBranchDto = new BranchDto();
-        reqBranchDto.setId(pr.getReqBranch().getId());
-        reqBranchDto.setName(pr.getReqBranch().getName());
-        prDto.setReqBranch(reqBranchDto);
+        //       Branch
+        BranchDto branchDto = new BranchDto();
+        branchDto.setId(pr.getBranch().getId());
+        branchDto.setName(pr.getBranch().getName());
+        prDto.setBranch(branchDto);
         prDto.setCreatedAt(pr.getCreatedAt());
         if(pr.getRequisition()!=null){
             prDto.setRequisitionStatus(pr.getRequisition().getRequisitionStatus());
@@ -70,16 +65,11 @@ public class PurchaseRequisitionMapper {
         orgDto.setId(pr.getOrganization().getId());
         orgDto.setName(pr.getOrganization().getName());
         pageResponse.setOrganization(orgDto);
-        //        rootBranch
-        BranchDto rootBranchDto = new BranchDto();
-        rootBranchDto.setId(pr.getRootBranch().getId());
-        rootBranchDto.setName(pr.getRootBranch().getName());
-        pageResponse.setRootBranch(rootBranchDto);
-//        reqBranch
-        BranchDto reqBranchDto = new BranchDto();
-        reqBranchDto.setId(pr.getReqBranch().getId());
-        reqBranchDto.setName(pr.getReqBranch().getName());
-        pageResponse.setReqBranch(reqBranchDto);
+        //       Branch
+        BranchDto branchDto = new BranchDto();
+        branchDto.setId(pr.getBranch().getId());
+        branchDto.setName(pr.getBranch().getName());
+        pageResponse.setBranch(branchDto);
         pageResponse.setCreatedAt(pr.getCreatedAt());
         if(pr.getRequisition()!=null){
             pageResponse.setRequisitionStatus(pr.getRequisition().getRequisitionStatus());
@@ -118,16 +108,11 @@ public class PurchaseRequisitionMapper {
         orgDto.setId(pr.getOrganization().getId());
         orgDto.setName(pr.getOrganization().getName());
         prDto.setOrganization(orgDto);
-        //        rootBranch
-        BranchDto rootBranchDto = new BranchDto();
-        rootBranchDto.setId(pr.getRootBranch().getId());
-        rootBranchDto.setName(pr.getRootBranch().getName());
-        prDto.setRootBranch(rootBranchDto);
-//        reqBranch
-        BranchDto reqBranchDto = new BranchDto();
-        reqBranchDto.setId(pr.getReqBranch().getId());
-        reqBranchDto.setName(pr.getReqBranch().getName());
-        prDto.setReqBranch(reqBranchDto);
+        //       Branch
+        BranchDto branchDto = new BranchDto();
+        branchDto.setId(pr.getBranch().getId());
+        branchDto.setName(pr.getBranch().getName());
+        prDto.setBranch(branchDto);
         prDto.setCreatedAt(pr.getCreatedAt());
         if(pr.getRequisition()!=null){
             prDto.setRequisitionStatus(pr.getRequisition().getRequisitionStatus());

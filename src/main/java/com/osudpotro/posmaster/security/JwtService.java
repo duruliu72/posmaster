@@ -38,9 +38,11 @@ public class JwtService {
         ClaimsBuilder claimsBuilder = Jwts.claims()
                 .subject(user.getId().toString())
                 .add("userName", user.getUserName())
-                .add("email", user.getEmail());
+                .add("email", user.getEmail())
+                .add("mobile", user.getMobile());
         if (user.getBranch() != null) {
             claimsBuilder = claimsBuilder.add("branchId", user.getBranch().getId());
+            claimsBuilder = claimsBuilder.add("branchName", user.getBranch().getName());
         }
         Claims claims = claimsBuilder
                 .issuedAt(new Date())

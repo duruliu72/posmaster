@@ -2,6 +2,7 @@ package com.osudpotro.posmaster.security;
 
 import com.osudpotro.posmaster.user.User;
 import com.osudpotro.posmaster.user.UserRepository;
+import com.osudpotro.posmaster.user.UserType;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

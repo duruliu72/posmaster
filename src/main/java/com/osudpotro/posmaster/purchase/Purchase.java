@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.osudpotro.posmaster.branch.Branch;
 import com.osudpotro.posmaster.organization.Organization;
+import com.osudpotro.posmaster.purchase.checked.CheckedPurchaseRequisition;
 import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisition;
-import com.osudpotro.posmaster.purchase.transfer.PurchaseRequisitionTransfer;
 import com.osudpotro.posmaster.supplier.Supplier;
 import com.osudpotro.posmaster.user.User;
 import com.osudpotro.posmaster.warehouse.Warehouse;
@@ -32,11 +32,11 @@ public class Purchase {
     private Long id;
     private String purchaseRef;//invoice
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "purchase_requisition_transfer_id")
-    private PurchaseRequisitionTransfer purchaseRequisitionTransfer;
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "purchase_requisition_id")
     private PurchaseRequisition purchaseRequisition;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "checked_purchase_requisition_id")
+    private CheckedPurchaseRequisition checkedPurchaseRequisition;
     private String requsitionRef;
     @Enumerated(EnumType.STRING)
     @Column(name = "purchase_type", nullable = false)
@@ -45,12 +45,6 @@ public class Purchase {
     private Organization organization;
     @ManyToOne(fetch = FetchType.LAZY)
     private Branch branch;
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Branch reqBranch;
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Branch senderBranch;
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Branch receiverBranch;
     @ManyToOne(fetch = FetchType.LAZY)
     private Warehouse warehouse;
     @ManyToOne(fetch = FetchType.LAZY)
@@ -75,7 +69,6 @@ public class Purchase {
     //1 or Null=Assign to Transport,2=Received Via Transport,3=Added to Inventory
     private Integer purchaseStatus = 1;
     @JsonIgnore
-//    @OneToMany(mappedBy = "purchase", cascade = CascadeType.MERGE, orphanRemoval = true, fetch = FetchType.LAZY)
     @OneToMany(mappedBy = "purchase", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
     private List<PurchaseDetail> items = new ArrayList<>();
 

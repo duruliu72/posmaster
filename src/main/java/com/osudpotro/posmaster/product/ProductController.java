@@ -3,6 +3,7 @@ package com.osudpotro.posmaster.product;
 import com.osudpotro.posmaster.brand.BrandNotFoundException;
 import com.osudpotro.posmaster.category.CategoryNotFoundException;
 import com.osudpotro.posmaster.category.CategoryService;
+import com.osudpotro.posmaster.common.DuplicateEntityException;
 import com.osudpotro.posmaster.common.PagedResponse;
 import com.osudpotro.posmaster.generic.GenericNotFoundException;
 import com.osudpotro.posmaster.genericunit.GenericUnitNotFoundException;
@@ -131,6 +132,12 @@ public class ProductController {
 
     @ExceptionHandler(GenericUnitNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleGenericUnitNotFound(Exception e) {
+        return ResponseEntity.badRequest().body(
+                Map.of("message", e.getMessage())
+        );
+    }
+    @ExceptionHandler(DuplicateEntityException.class)
+    public ResponseEntity<Map<String, String>> handleDuplicateEntity(Exception e) {
         return ResponseEntity.badRequest().body(
                 Map.of("message", e.getMessage())
         );

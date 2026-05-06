@@ -39,9 +39,9 @@ public class MultimediaController {
 
     @PostMapping("/upload")
     public ResponseEntity<MultimediaDto> createMultimedia(@RequestParam("filepond") MultipartFile file, UriComponentsBuilder uriBuilder){
-        var branchDto = multimediaService.createMultimedia(file);
-        var uri=uriBuilder.path("/multimedias/{id}").buildAndExpand(branchDto.getId()).toUri();
-        return  ResponseEntity.created(uri).body(branchDto);
+        var multimediaDto = multimediaService.createMultimedia(file);
+        var uri=uriBuilder.path("/multimedias/{id}").buildAndExpand(multimediaDto.getId()).toUri();
+        return  ResponseEntity.created(uri).body(multimediaDto);
     }
     @PostMapping(value ="/upload-file" ,consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MultimediaDto> createMultimediaFile(@Valid @ModelAttribute MultimediaCreateRequest request, UriComponentsBuilder uriBuilder){
