@@ -55,5 +55,5 @@ public class Customer extends BaseEntity {
     private Membership membership;
     @JsonIgnore
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
-    private List<Address> items = new ArrayList<>();
+    private List<Address> addresses = new ArrayList<>();
 }

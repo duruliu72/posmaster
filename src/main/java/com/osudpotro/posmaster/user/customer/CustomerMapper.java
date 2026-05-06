@@ -2,7 +2,11 @@ package com.osudpotro.posmaster.user.customer;
 
 import com.osudpotro.posmaster.multimedia.Multimedia;
 import com.osudpotro.posmaster.user.User;
+import com.osudpotro.posmaster.user.customer.address.Address;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+
 @Component
 public class CustomerMapper {
     public CustomerDto toDto(Customer customer) {
@@ -42,6 +46,12 @@ public class CustomerMapper {
             pictureDto.setName(customer.getProfilePic().getName());
             pictureDto.setImageUrl(customer.getProfilePic().getImageUrl());
             customerDto.setProfilePic(pictureDto);
+        }
+        if (customer.getAddresses() != null && !customer.getAddresses().isEmpty()) {
+            List<Address> addressList=customer.getAddresses();
+            for (Address address:addressList){
+
+            }
         }
         return customerDto;
     }

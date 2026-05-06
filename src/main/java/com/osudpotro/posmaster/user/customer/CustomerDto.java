@@ -1,7 +1,11 @@
 package com.osudpotro.posmaster.user.customer;
 
 import com.osudpotro.posmaster.multimedia.Multimedia;
+import com.osudpotro.posmaster.user.customer.address.AddressDto;
 import lombok.Data;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 public class CustomerDto {
@@ -19,4 +23,5 @@ public class CustomerDto {
     private String provider;
     private String providerId;
     private Multimedia profilePic;
+    private List<AddressDto> addresses = new ArrayList<>();
 }

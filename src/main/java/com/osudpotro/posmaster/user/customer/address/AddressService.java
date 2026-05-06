@@ -35,7 +35,7 @@ public class AddressService {
         return addressMapper.toDto(entity);
     }
 
-    public AddressDto createEntity(SaleCartCreateRequest request) {
+    public AddressDto createEntity(AddressCreateRequest request) {
         var authUser = authService.getCurrentUser();
         Address address = new Address();
         address.setEmail(request.getEmail());

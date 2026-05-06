@@ -49,12 +49,12 @@ public class EmployeeService {
         if (request.getMobile() != null && employeeRepository.existsByMobile(request.getMobile())) {
             throw new DuplicateUserException("Mobile  is already registered");
         }
-        Employee employee = employeeMapper.toEntity(request);
         var authUser = authService.getCurrentUser();
-//        Common User Entity
+        //        Common User Entity
         User user = employeeMapper.toUserEntity(request);
-        employee.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setCreatedBy(authUser);
+        Employee employee = employeeMapper.toEntity(request);
+        employee.setPassword(passwordEncoder.encode(employee.getPassword()));
         Role findRole = roleRepository.findByRoleKey("ROLE_EMPLOYEE")
                 .orElseGet(() -> {
                     Role superAdmin = new Role();

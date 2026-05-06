@@ -21,18 +21,17 @@ public class EmployeeMapper {
         EmployeeDto employeeDto = new EmployeeDto();
         employeeDto.setId(employee.getId());
         User user =employee.getUser();
-        employeeDto.setUserName(user.getUserName());
-        employeeDto.setUserName(user.getUserName());
+        employeeDto.setUserName(employee.getUserName());
         employeeDto.setFirstName(employee.getFirstName());
         employeeDto.setLastName(employee.getLastName());
-        if (user.getEmail() != null && !user.getEmail().isEmpty()) {
-            employeeDto.setEmail(user.getEmail());
+        if (employee.getEmail() != null && !employee.getEmail().isEmpty()) {
+            employeeDto.setEmail(employee.getEmail());
         }
-        if (user.getEmail() != null && !user.getEmail().isEmpty()) {
-            employeeDto.setEmail(user.getEmail());
+        if (employee.getEmail() != null && !employee.getEmail().isEmpty()) {
+            employeeDto.setEmail(employee.getEmail());
         }
-        if (user.getMobile() != null && !user.getMobile().isEmpty()) {
-            employeeDto.setMobile(user.getMobile());
+        if (employee.getMobile() != null && !employee.getMobile().isEmpty()) {
+            employeeDto.setMobile(employee.getMobile());
         }
         if (employee.getSecondaryEmail() != null && !employee.getSecondaryEmail().isEmpty()) {
             employeeDto.setSecondaryEmail(employee.getSecondaryEmail());
