@@ -19,8 +19,8 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "sale_carts", indexes = {
-        @Index(name = "idx_sale_cart_email", columnList = "email"),
-        @Index(name = "idx_sale_cart_mobile", columnList = "mobile"),
+        @Index(name = "idx_sale_carts_email", columnList = "email"),
+        @Index(name = "idx_sale_carts_mobile", columnList = "mobile"),
 })
 public class SaleCart extends BaseEntity {
     private String email;

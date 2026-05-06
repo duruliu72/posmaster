@@ -1,6 +1,7 @@
 package com.osudpotro.posmaster.purchase.requisition;
 
 import com.osudpotro.posmaster.branch.Branch;
+import com.osudpotro.posmaster.common.EntityNotFoundException;
 import com.osudpotro.posmaster.purchase.checked.CheckedPurchaseRequisition;
 import com.osudpotro.posmaster.purchase.checked.CheckedPurchaseRequisitionItem;
 import com.osudpotro.posmaster.purchase.checked.CheckedPurchaseRequisitionItemRepository;
@@ -78,7 +79,10 @@ public class PurchaseRequisitionService {
         if (prRepo.existsByRequsitionRef(requisitionRef)) {
             throw new DuplicatePurchaseRequisitionException();
         }
-        Branch branch = branchRepository.findById(authUser.getBranch().getId()).orElseThrow(BranchNotFoundException::new);
+        Branch branch = branchRepository.findById(authUser.getBranch().getId()).orElse(null);
+        if(branch!=null){
+            throw new EntityNotFoundException("Branch Not assign to user! ");
+        }
         var organization = organizationRepository.findById(branch.getOrganization().getId()).orElse(null);
         if (organization == null) {
             throw new OrganizationNotFoundException();

@@ -64,10 +64,6 @@ public class CustomerService {
         var authUser = authService.getCurrentUser();
         //Common User Entity
         User user = customerMapper.toUserEntity(request);
-        var customer = customerMapper.toEntity(request);
-        if (request.getPassword() != null && !request.getPassword().isEmpty()) {
-            customer.setPassword(passwordEncoder.encode(user.getPassword()));
-        }
         user.setUserType(UserType.CUSTOMER);
         user.setCreatedBy(authUser);
         Role findRole = roleRepository.findByRoleKey("ROLE_CUSTOMER")
@@ -83,6 +79,11 @@ public class CustomerService {
         // ===SET ROLE ADMIN USER  ===
         user.setRoles(Set.of(findRole));
         user = userRepository.save(user);
+
+        var customer = customerMapper.toEntity(request);
+        if (request.getPassword() != null && !request.getPassword().isEmpty()) {
+            customer.setPassword(passwordEncoder.encode(customer.getPassword()));
+        }
         customer.setUser(user);
         customer.setCreatedBy(authUser);
         //        Membership for new custmer
