@@ -42,11 +42,12 @@ public class PromotionOfferService {
 
     public PromotionOfferDto createEntity(PromotionOfferCreateRequest request) {
         if (promoOfferRepo.existsByName(request.getName())) {
-            throw new DuplicateMembershipException();
+            throw new DuplicateEntityException();
         }
         var user = authService.getCurrentUser();
         PromotionOffer promotionOffer = new PromotionOffer();
         promotionOffer.setName(request.getName());
+        promotionOffer.setPromoCode(request.getPromoCode());
         promotionOffer.setDesc(request.getDesc());
         promotionOffer.setAlias(request.getAlias());
         promotionOffer.setPromotionValue(request.getPromotionValue());
@@ -91,6 +92,7 @@ public class PromotionOfferService {
         }
         var user = authService.getCurrentUser();
         promotionOffer.setName(request.getName());
+        promotionOffer.setPromoCode(request.getPromoCode());
         promotionOffer.setDesc(request.getDesc());
         promotionOffer.setAlias(request.getAlias());
         promotionOffer.setPromotionValue(request.getPromotionValue());

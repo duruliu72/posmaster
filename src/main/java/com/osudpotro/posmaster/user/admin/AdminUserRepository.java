@@ -10,6 +10,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface AdminUserRepository extends JpaSpecificationExecutor<AdminUser>, JpaRepository<AdminUser, Long> {
+    Optional<AdminUser> findByEmail(String email);
+    Optional<AdminUser> findByMobile(String mobile);
+    boolean existsByEmail(String email);
+    boolean existsByMobile(String mobile);
+    boolean existsByEmailOrMobile(String email, String mobile);
     @Transactional
     @Modifying
     @Query("update AdminUser c set c.status = :status where c.id in :ids")

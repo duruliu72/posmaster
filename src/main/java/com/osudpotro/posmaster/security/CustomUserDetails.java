@@ -14,7 +14,6 @@ public class CustomUserDetails implements UserDetails {
     public CustomUserDetails(User user) {
         this.user = user;
     }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Set<SimpleGrantedAuthority> authorities = new HashSet<>();
@@ -81,11 +80,11 @@ public class CustomUserDetails implements UserDetails {
     public User getUser() {
         return user;
     }
-    public String getEmail() {
-        return user.getEmail();
-    }
-
-    public String getMobile() {
-        return user.getMobile();
-    }
+//    public String getEmail() {
+//        return user.getEmail();
+//    }
+//
+//    public String getMobile() {
+//        return user.getMobile();
+//    }
 }

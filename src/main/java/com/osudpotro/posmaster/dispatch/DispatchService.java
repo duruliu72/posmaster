@@ -264,6 +264,7 @@ public class DispatchService {
             PurchaseDetail purchaseDetail = dispatchItem.getPurchaseDetail();
             invSummary.setPurchaseDetail(purchaseDetail);
             invSummary.setProductionBatchNo(purchaseDetail.getProductionBatchNo());
+            invSummary.setPurchaseBarCode(purchaseDetail.getPurchaseBarCode());
             invSummary.setManufactureDate(purchaseDetail.getManufactureDate());
             invSummary.setExpiredDate(purchaseDetail.getExpiredDate());
             invSummary.setProduct(purchaseDetail.getProduct());
@@ -283,6 +284,7 @@ public class DispatchService {
         invSummary.setOrganization(dispatchItem.getPurchase().getOrganization());
         invSummary.setWarehouse(dispatchItem.getPurchase().getWarehouse());
         invSummary.setSupplier(dispatchItem.getPurchase().getSupplier());
+
         return invSummary;
     }
 }

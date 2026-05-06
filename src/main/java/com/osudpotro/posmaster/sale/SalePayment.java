@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @Entity
-@Table(name = "sales")
+@Table(name = "sale_payments")
 public class SalePayment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,10 +18,13 @@ public class SalePayment {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sale_id")
     private Sale sale;
+    private String saleRef;
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_method", nullable = false)
     private PaymentMethod paymentMethod;
     private String trxId;
-    private BigDecimal paymentAmount;
-    private String paymentType;
+    private BigDecimal creditAmount;
+    private BigDecimal debitAmount;
+    //1=Sale 2=for sale return
+    private String transactionType;
 }

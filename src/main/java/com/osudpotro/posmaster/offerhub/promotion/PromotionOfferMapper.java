@@ -11,11 +11,14 @@ public class PromotionOfferMapper {
     public PromotionOfferDto toDto(PromotionOffer promoOffer) {
         PromotionOfferDto promoOfferDto = new PromotionOfferDto();
         promoOfferDto.setId(promoOffer.getId());
-//        promoOfferDto.setName(offer.getName());
-//        promoOfferDto.setOfferValue(offer.getOfferValue());
-//        promoOfferDto.setMaxOfferValue(offer.getMaxOfferValue());
-//        promoOfferDto.setOfferStartDate(offer.getOfferStartDate());
-//        promoOfferDto.setOfferEndDate(offer.getOfferEndDate());
+        promoOfferDto.setName(promoOffer.getName());
+        promoOfferDto.setPromoCode(promoOffer.getPromoCode());
+        promoOfferDto.setAlias(promoOffer.getAlias());
+        promoOfferDto.setDesc(promoOfferDto.getDesc());
+        promoOfferDto.setPromotionValue(promoOffer.getPromotionValue());
+        promoOfferDto.setMinOrderValue(promoOffer.getMinOrderValue());
+        promoOfferDto.setPromoStartDate(promoOffer.getPromoStartDate());
+        promoOfferDto.setPromoEndDate(promoOffer.getPromoEndDate());
         return promoOfferDto;
     }
 }

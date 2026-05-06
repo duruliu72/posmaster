@@ -12,6 +12,7 @@ public class InventoryDto {
     private String purchaseRef;
     private String purchaseBatchNo;
     private String productionBatchNo;
+    private String purchaseBarCode;
     private LocalDateTime manufactureDate;
     private LocalDateTime expiredDate;
     private Long productId;
