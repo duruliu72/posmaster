@@ -20,4 +20,5 @@ public class SaleCartItemDto {
   private BigDecimal sellPrice;
   private BigDecimal mrpPrice;
   private Integer saleQty;
+  private Integer currentStock;  // OASIK ✅ ADD THIS
 }
