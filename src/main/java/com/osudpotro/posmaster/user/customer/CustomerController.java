@@ -62,13 +62,15 @@ public class CustomerController {
     public CustomerDto updateCustomer(
             @PathVariable(name = "id") Long id,
             @RequestBody CustomerUpdateRequest request) {
-        return customerService.updateCustomer(id, request);
+        return customerService.updateMyProfile(request);
     }
 
     @PutMapping("/{id}/user")
     public CustomerDto updateUpdateEmailAndMobileForUser(
             @PathVariable(name = "id") Long id,
-            @RequestBody UpdateForUserRequest request) {
+     //       @RequestBody UpdateForUserRequest request)
+            @RequestBody CustomerUpdateRequest request)
+    {
         return customerService.updateUpdateEmailAndMobileForUser(id, request);
     }
 

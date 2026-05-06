@@ -8,6 +8,12 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface UserRepository extends JpaSpecificationExecutor<User>, JpaRepository<User, Long> {
+    Optional<User> findByEmail(String email);
+    Optional<User> findByMobile(String mobile);
+    Optional<User> findByProviderId(String aLong);
+    boolean existsByEmail(String email);
+    boolean existsByMobile(String mobile);
+    boolean existsByEmailOrMobile(String email, String mobile);
 
     @Query("""
         SELECT DISTINCT u FROM User u

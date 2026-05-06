@@ -1,26 +1,21 @@
 package com.osudpotro.posmaster.user.customer;
 
-import com.osudpotro.posmaster.common.EntityNotFoundException;
 import com.osudpotro.posmaster.multimedia.Multimedia;
 import com.osudpotro.posmaster.multimedia.MultimediaRepository;
-import com.osudpotro.posmaster.offerhub.membership.Membership;
-import com.osudpotro.posmaster.offerhub.membership.MembershipRepository;
 import com.osudpotro.posmaster.role.Role;
 import com.osudpotro.posmaster.role.RoleRepository;
 import com.osudpotro.posmaster.user.*;
 import com.osudpotro.posmaster.user.Employee.EmployeeNotFoundException;
 import com.osudpotro.posmaster.user.auth.AuthService;
-import com.osudpotro.posmaster.user.wallet.Wallet;
-import com.osudpotro.posmaster.user.wallet.WalletRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -35,32 +30,27 @@ public class CustomerService {
     private final CustomerRepository customerRepository;
     private final CustomerMapper customerMapper;
     private final PasswordEncoder passwordEncoder;
-    private final WalletRepository walletRepo;
-    private final MembershipRepository membershipRepo;
-
     public List<CustomerDto> gerAllCustomers() {
         return customerRepository.findAll(Sort.by(Sort.Direction.DESC, "id"))
                 .stream()
                 .map(customerMapper::toDto)
                 .toList();
     }
-
     public Page<CustomerDto> filterCustomers(CustomerFilter filter, Pageable pageable) {
         return customerRepository.findAll(CustomerSpecification.filter(filter), pageable).map(customerMapper::toDto);
     }
-
     @Transactional
     public CustomerDto registerCustomer(CustomerCreateRequest request) {
-        if (request.getEmail() != null && customerRepository.existsByEmail(request.getEmail())) {
+        if (request.getEmail() != null && userRepository.existsByEmail(request.getEmail())) {
             throw new DuplicateCustomerException("Email already exists");
         }
-        if (request.getMobile() != null && customerRepository.existsByMobile(request.getMobile())) {
+        if (request.getMobile() != null && userRepository.existsByMobile(request.getMobile())) {
             throw new DuplicateCustomerException("Phone number already exists");
         }
-        if (request.getEmail() != null && request.getMobile() != null && customerRepository.existsByEmailOrMobile(request.getEmail(), request.getMobile())) {
+        if (request.getEmail() != null && request.getMobile() != null && userRepository.existsByEmailOrMobile(request.getEmail(), request.getMobile())) {
             throw new DuplicateCustomerException();
         }
-
+        var customer = customerMapper.toEntity(request);
         var authUser = authService.getCurrentUser();
         //Common User Entity
         User user = customerMapper.toUserEntity(request);
@@ -86,84 +76,131 @@ public class CustomerService {
         }
         customer.setUser(user);
         customer.setCreatedBy(authUser);
-        //        Membership for new custmer
-        Membership membership = membershipRepo.findByCode("new").orElse(null);
-        if (membership == null) {
-            throw new EntityNotFoundException("Membership not found");
-        }
-        customer.setMembership(membership);
         customerRepository.save(customer);
-//        Welcome 50
-        Wallet wallet = new Wallet();
-        wallet.setUser(user);
-        wallet.setCustomer(customer);
-        wallet.setUserType(UserType.CUSTOMER);
-        wallet.setCreditAmount(BigDecimal.valueOf(50));
-        wallet.setWalletType(1);
-        wallet.setNote("Sign Up");
-        walletRepo.save(wallet);
         return customerMapper.toDto(customer);
     }
+//    @Transactional
+//    public CustomerDto updateCustomer(Long customerId, CustomerUpdateRequest request) {
+//        var customer = customerRepository.findById(customerId).orElseThrow(CustomerNotFoundException::new);
+//        var user = customer.getUser();
+//        if (request.getEmail() != null && userRepository.existsByEmail(request.getEmail())) {
+//            if (!user.getEmail().equals(request.getEmail())) {
+//                throw new DuplicateCustomerException("Email already exists");
+//            }
+//        }
+//        if (request.getMobile() != null && userRepository.existsByMobile(request.getMobile())) {
+//            if (!user.getMobile().equals(request.getMobile())) {
+//                throw new DuplicateCustomerException("Phone number already exists");
+//            }
+//
+//        }
+//        if (request.getEmail() != null && request.getMobile() != null && userRepository.existsByEmailOrMobile(request.getEmail(), request.getMobile())) {
+//            if (!user.getEmail().equals(request.getEmail()) && !user.getMobile().equals(request.getMobile())) {
+//                throw new DuplicateCustomerException();
+//            }
+//        }
+//        customerMapper.update(request, customer);
+//        customerMapper.updateUser(request, user);
+//        if (request.getPassword() != null && !request.getPassword().isEmpty()) {
+//            user.setPassword(passwordEncoder.encode(user.getPassword()));
+//        }
+//        var authUser = authService.getCurrentUser();
+//        if (request.getMultimediaId() != null) {
+//            Multimedia multimedia = multimediaRepository.findById(request.getMultimediaId()).orElse(null);
+//            if (multimedia != null) {
+//                multimedia.setLinked(true);
+//                user.setProfilePic(multimedia);
+//            }
+//        }
+//        customer.setUser(user);
+//        customer.setUpdatedBy(authUser);
+//        customerRepository.save(customer);
+//        return customerMapper.toDto(customer);
+//    }
 
     @Transactional
-    public CustomerDto updateCustomer(Long customerId, CustomerUpdateRequest request) {
-        var customer = customerRepository.findById(customerId).orElseThrow(CustomerNotFoundException::new);
-        if (request.getEmail() != null && customerRepository.existsByEmail(request.getEmail())) {
-            if (!customer.getEmail().equals(request.getEmail())) {
-                throw new DuplicateCustomerException("Email already exists");
-            }
-        }
-        if (request.getMobile() != null && customerRepository.existsByMobile(request.getMobile())) {
-            if (!customer.getMobile().equals(request.getMobile())) {
-                throw new DuplicateCustomerException("Phone number already exists");
-            }
+    public CustomerDto updateMyProfile(CustomerUpdateRequest request) {
+        // Get currently logged in user
+        User currentUser = authService.getCurrentUser();
+        Customer customer = customerRepository.findByUser(currentUser)
+                .orElseThrow(() -> new CustomerNotFoundException("Customer not found"));
+        User user = customer.getUser();
 
+        // UPDATE EMAIL - with proper validation
+        if (request.getEmail() != null && !request.getEmail().isEmpty()) {
+            // Check if email is already used by another user
+            userRepository.findByEmail(request.getEmail()).ifPresent(existingUser -> {
+                if (!existingUser.getId().equals(user.getId())) {
+                    throw new DuplicateCustomerException("Email already exists for another account");
+                }
+            });
+            user.setEmail(request.getEmail());
         }
-        if (request.getEmail() != null && request.getMobile() != null && customerRepository.existsByEmailOrMobile(request.getEmail(), request.getMobile())) {
-            if (!request.getEmail().equals(customer.getEmail()) && !request.getMobile().equals(customer.getMobile())) {
-                throw new DuplicateCustomerException();
-            }
+
+        // UPDATE MOBILE - with proper validation
+        if (request.getMobile() != null && !request.getMobile().isEmpty()) {
+            // Check if mobile is already used by another user
+            userRepository.findByMobile(request.getMobile()).ifPresent(existingUser -> {
+                if (!existingUser.getId().equals(user.getId())) {
+                    throw new DuplicateCustomerException("Phone number already exists for another account");
+                }
+            });
+            user.setMobile(request.getMobile());
         }
-        customerMapper.update(request, customer);
-//        customerMapper.updateUser(request, user);
+
+        // Update other fields
+        if (request.getUserName() != null) user.setUserName(request.getUserName());
+        if (request.getFirstName() != null) user.setFirstName(request.getFirstName());
+        if (request.getLastName() != null) user.setLastName(request.getLastName());
+        if (request.getSecondaryEmail() != null) user.setSecondaryEmail(request.getSecondaryEmail());
+        if (request.getSecondaryMobile() != null) user.setSecondaryMobile(request.getSecondaryMobile());
+        if (request.getGender() != null) user.setGender(request.getGender());
+
+        // Update password if provided
         if (request.getPassword() != null && !request.getPassword().isEmpty()) {
-            customer.setPassword(passwordEncoder.encode(customer.getPassword()));
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
         }
-        var authUser = authService.getCurrentUser();
+
+        // Update profile picture
         if (request.getMultimediaId() != null) {
             Multimedia multimedia = multimediaRepository.findById(request.getMultimediaId()).orElse(null);
             if (multimedia != null) {
                 multimedia.setLinked(true);
-                customer.setProfilePic(multimedia);
+                user.setProfilePic(multimedia);
             }
         }
-        customer.setUpdatedBy(authUser);
+
+        user.setUpdatedBy(currentUser);
+        customer.setUpdatedBy(currentUser);
+
+        userRepository.save(user);
         customerRepository.save(customer);
+
         return customerMapper.toDto(customer);
     }
 
-    public CustomerDto updateUpdateEmailAndMobileForUser(Long employeeId, UpdateForUserRequest request) {
+    public CustomerDto updateUpdateEmailAndMobileForUser(Long employeeId, @MonotonicNonNull CustomerUpdateRequest request) {
         var customer = customerRepository.findById(employeeId).orElseThrow(EmployeeNotFoundException::new);
         var user = userRepository.findById(customer.getUser().getId()).orElseThrow(UserNotFoundException::new);
         var authUser = authService.getCurrentUser();
         if (request.getEmail() != null) {
-            if (!request.getEmail().equalsIgnoreCase(user.getEmail()) && customerRepository.existsByEmail(request.getEmail())) {
+            if (!request.getEmail().equalsIgnoreCase(user.getEmail()) && userRepository.existsByEmail(request.getEmail())) {
                 throw new DuplicateUserException("Email  is already registered");
             }
         }
         if (request.getMobile() != null) {
-            if (!request.getMobile().equalsIgnoreCase(user.getMobile()) && customerRepository.existsByMobile(request.getMobile())) {
+            if (!request.getMobile().equalsIgnoreCase(user.getMobile()) && userRepository.existsByMobile(request.getMobile())) {
                 throw new DuplicateUserException("Mobile  is already registered");
             }
         }
         if (request.getUserName() != null) {
-            customer.setUserName(request.getUserName());
+            user.setUserName(request.getUserName());
         }
         if (request.getEmail() != null) {
-            customer.setEmail(request.getEmail());
+            user.setEmail(request.getEmail());
         }
         if (request.getMobile() != null) {
-            customer.setMobile(request.getMobile());
+            user.setMobile(request.getMobile());
         }
         customer.setUpdatedBy(authUser);
         user.setUpdatedBy(authUser);
@@ -171,7 +208,6 @@ public class CustomerService {
         customerRepository.save(customer);
         return customerMapper.toDto(customer);
     }
-
     public CustomerDto getCustomer(Long customerId) {
         var customer = customerRepository.findById(customerId).orElseThrow(CustomerNotFoundException::new);
         return customerMapper.toDto(customer);
