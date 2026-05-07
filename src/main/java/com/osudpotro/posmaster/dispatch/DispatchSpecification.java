@@ -21,6 +21,7 @@ public class DispatchSpecification {
             return cb.and(predicates.toArray(new Predicate[0]));
         };
     }
+
     public static Specification<Dispatch> filterByRequesterBranch(DispatchFilter filter, User user) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
@@ -30,12 +31,16 @@ public class DispatchSpecification {
             return cb.and(predicates.toArray(new Predicate[0]));
         };
     }
+
     public static Specification<Dispatch> filterByAcceptorBranch(DispatchFilter filter, User user) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             if (user != null && user.getBranch() != null) {
                 predicates.add(cb.equal(root.get("acceptorBranch").get("id"), user.getBranch().getId()));
             }
+            predicates.add(root.get("dispatchStatus").in(2,3, 4,5));
+            predicates.add(cb.isNotEmpty(root.get("items")));
+//            predicates.add(cb.greaterThan(cb.size(root.get("items")), 0));
             return cb.and(predicates.toArray(new Predicate[0]));
         };
     }

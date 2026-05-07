@@ -146,12 +146,12 @@ public class PurchaseRequisitionController {
         return purchaseRequisitionService.updatePurchaseRequisitionItem(purchaseRequisitionId, purchaseRequisitionItemId, request);
     }
 
-    @PostMapping("/{purchaseRequisitionId}/transfer-invoice-update-item/{purchaseRequisitionItemId}")
-    public PurchaseRequisitionItemDto CheckInvoiceAndUpdatePurchaseRequisitionItem(
+    @PostMapping("/{purchaseRequisitionId}/check-invoice-update-item/{purchaseRequisitionItemId}")
+    public PurchaseRequisitionItemDto checkInvoiceAndUpdatePurchaseRequisitionItem(
             @PathVariable(name = "purchaseRequisitionId") Long purchaseRequisitionId,
             @PathVariable(name = "purchaseRequisitionItemId") Long purchaseRequisitionItemId,
             @RequestBody PurchaseRequisitionItemUpdateRequest request) {
-        return purchaseRequisitionService.CheckInvoiceAndUpdatePurchaseRequisitionItem(purchaseRequisitionId, purchaseRequisitionItemId, request);
+        return purchaseRequisitionService.checkInvoiceAndUpdatePurchaseRequisitionItem(purchaseRequisitionId, purchaseRequisitionItemId, request);
     }
 
     @DeleteMapping("/{purchaseRequisitionId}/remove-item/{purchaseRequisitionItemId}")
@@ -175,10 +175,6 @@ public class PurchaseRequisitionController {
                 Map.of("count", count)
         );
     }
-//    @PostMapping("/{purchaseRequisitionId}/assign-to-vehicle")
-//    public PurchaseRequisitionDto assignToVehicle(@PathVariable Long purchaseRequisitionId, @RequestBody AssignToVehicleRequest request) {
-//        return purchaseRequisitionService.assignToVehicle(purchaseRequisitionId,request);
-//    }
     @ExceptionHandler(DuplicatePurchaseRequisitionException.class)
     public ResponseEntity<Map<String, String>> handleDuplicatePurchaseRequisition(Exception ex) {
         return ResponseEntity.badRequest().body(

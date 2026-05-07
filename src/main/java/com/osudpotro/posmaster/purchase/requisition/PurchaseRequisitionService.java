@@ -1,6 +1,7 @@
 package com.osudpotro.posmaster.purchase.requisition;
 
 import com.osudpotro.posmaster.branch.Branch;
+import com.osudpotro.posmaster.common.EntityException;
 import com.osudpotro.posmaster.common.EntityNotFoundException;
 import com.osudpotro.posmaster.purchase.checked.CheckedPurchaseRequisition;
 import com.osudpotro.posmaster.purchase.checked.CheckedPurchaseRequisitionItem;
@@ -130,7 +131,11 @@ public class PurchaseRequisitionService {
 
     @Transactional
     public PurchaseRequisitionDto updatePurchaseRequisition(Long purchaseRequisitionId, PurchaseRequisitionUpdateRequest request) {
-        PurchaseRequisition pr = prRepo.findById(purchaseRequisitionId).orElseThrow(PurchaseRequisitionNotFoundException::new);
+        var authUser = authService.getCurrentUser();
+        if (authUser.getBranch() == null) {
+            throw new EntityException("Branch not Assign to user");
+        }
+        PurchaseRequisition pr = prRepo.findByIdAndBranch(purchaseRequisitionId,authUser.getBranch()).orElseThrow(PurchaseRequisitionNotFoundException::new);
         if (pr.getTotalItems() == 0) {
             throw new PurchaseRequisitionEmptyException();
         }
@@ -138,7 +143,6 @@ public class PurchaseRequisitionService {
             pr.setPurchaseType(PurchaseType.fromCode(request.getPurchaseType()));
         }
 
-        var authUser = authService.getCurrentUser();
         pr.setUpdatedBy(authUser);
         //Common Requsition Start Here
         String requsitionName = "";
@@ -357,7 +361,11 @@ public class PurchaseRequisitionService {
 
     //    For Purchase Requisition Item
     public PurchaseRequisitionWithItemPageResponse filterWithItemPagination(Long purchaseRequisitionId, Pageable pageable, PurchaseRequisitionItemFilter filter) {
-        PurchaseRequisition pr = prRepo.findPurchaseRequisitionById(purchaseRequisitionId).orElseThrow(PurchaseRequisitionNotFoundException::new);
+        var authUser = authService.getCurrentUser();
+        if (authUser.getBranch() == null) {
+            throw new EntityException("Branch not Assign to user");
+        }
+        PurchaseRequisition pr = prRepo.findByIdAndBranch(purchaseRequisitionId, authUser.getBranch()).orElseThrow(PurchaseRequisitionNotFoundException::new);
         Page<PurchaseRequisitionItemDto> result = priRepostory.findPurchaseRequisitionItems(purchaseRequisitionId, filter.getName(), pageable).map(priMapper::toDto);
         return purchaseRequisitionMapper.toMinDto(pr, result);
     }
@@ -448,7 +456,7 @@ public class PurchaseRequisitionService {
         return priMapper.toDto(prItem);
     }
 
-    public PurchaseRequisitionItemDto CheckInvoiceAndUpdatePurchaseRequisitionItem(Long purchaseRequisitionId, Long purchaseRequisitionItemId, PurchaseRequisitionItemUpdateRequest request) {
+    public PurchaseRequisitionItemDto checkInvoiceAndUpdatePurchaseRequisitionItem(Long purchaseRequisitionId, Long purchaseRequisitionItemId, PurchaseRequisitionItemUpdateRequest request) {
         PurchaseRequisition pr = prRepo.findById(purchaseRequisitionId).orElse(null);
         if (pr == null) {
             throw new PurchaseRequisitionNotFoundException();
