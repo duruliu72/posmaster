@@ -14,6 +14,21 @@ import java.util.Optional;
 public interface InventoryRepository extends JpaSpecificationExecutor<Inventory>, JpaRepository<Inventory, Long> {
     List<Inventory> findAllByBranch(Branch branch);
 
+
+
+//OASIK
+@Query("SELECT " +
+        "COALESCE(SUM(i.stockIn), 0) - COALESCE(SUM(i.stockOut), 0) " +
+        "FROM Inventory i " +
+        "WHERE i.purchaseBarCode = :purchaseBarCode " +
+        "AND i.productDetail.id = :productDetailId " +
+        "AND i.branch.id = :branchId " +
+        "GROUP BY i.purchaseBarCode, i.productDetail.id, i.branch.id")
+Integer findCurrentStockByPurchaseBarCode(
+        @Param("purchaseBarCode") String purchaseBarCode,
+        @Param("productDetailId") Long productDetailId,
+        @Param("branchId") Long branchId);
+
     @Query("SELECT " +
             "i.purchase.id as purchaseId," +
             "i.purchaseDetail.id as purchaseDetailId," +
