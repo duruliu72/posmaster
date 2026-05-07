@@ -67,11 +67,13 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
-//        config.addAllowedOrigin("http://127.0.0.1:4200");
+        config.addAllowedOrigin("http://127.0.0.1:4200");
+        config.addAllowedOriginPattern("http://147.79.66.183:3000");
         config.addAllowedOriginPattern("http://localhost:3000");
         config.addAllowedOriginPattern ("https://localhost:3000");
         config.addAllowedOriginPattern("http://127.0.0.1:3000");
         config.setAllowCredentials(true);
+        config.addExposedHeader("Access-Control-Allow-Private-Network");
         source.registerCorsConfiguration("/**", config);
         return source;
     }
