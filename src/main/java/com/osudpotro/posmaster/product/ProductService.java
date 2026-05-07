@@ -154,6 +154,7 @@ public class ProductService {
             throw new DuplicateProductException();
         }
         product.setProductName(request.getProductName());
+        product.setDescription(request.getDescription());
         product.setIsPrescribeNeeded(request.getIsPrescribeNeeded());
         if (request.getSeoPageName() != null && !request.getSeoPageName().isEmpty()) {
             product.setSeoPageName(request.getSeoPageName().trim().toLowerCase().replace(" ", "-"));

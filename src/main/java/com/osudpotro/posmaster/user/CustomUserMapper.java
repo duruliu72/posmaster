@@ -93,13 +93,13 @@ public class CustomUserMapper {
         }
         UserMainDto userMainDto = new UserMainDto();
         userMainDto.setId(user.getId());
-        if (user.getAdminUser() != null) {
-            userMainDto.setUserName(user.getUserName());
-            userMainDto.setEmail(user.getEmail());
-        }
+        userMainDto.setUserName(user.getUserName());
+        userMainDto.setEmail(user.getEmail());
+        userMainDto.setMobile(user.getMobile());
         userMainDto.setCreatedAt(user.getCreatedAt());
         return userMainDto;
     }
+
     public UserPlainDto toPlainDto(User user) {
         if (user == null) {
             return null;

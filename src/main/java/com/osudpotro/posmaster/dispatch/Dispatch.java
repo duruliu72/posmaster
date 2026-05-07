@@ -79,7 +79,6 @@ public class Dispatch {
     private Integer dispatchStatus = 1;
     @OneToMany(mappedBy = "dispatch", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<DispatchItem> items = new ArrayList<>();
-
     public int getTotalQty() {
         return items.stream()
                 .filter(i ->

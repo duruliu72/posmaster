@@ -92,7 +92,10 @@ public class DispatchService {
     @Transactional
     public DispatchDto sendByRequesterBranch(Long dispatchId, DispatchUpdateRequest request) {
         Dispatch dispatch = dispatchRepo.findById(dispatchId).orElseThrow(DispatchNotFoundException::new);
-        if (dispatch.getDispatchStatus() != 1 && dispatch.getSendByRequester()!=null) {
+        if (dispatch.getItems().isEmpty()) {
+            throw new DispatchException("Dispatch item will not be Empty!");
+        }
+        if (dispatch.getDispatchStatus() != 1 && dispatch.getSendByRequester() != null) {
             throw new DispatchException("You already done!");
         }
         var authUser = authService.getCurrentUser();
@@ -108,7 +111,7 @@ public class DispatchService {
     @Transactional
     public DispatchDto acceptByRequesterBranch(Long dispatchId, DispatchUpdateRequest request) {
         Dispatch dispatch = dispatchRepo.findById(dispatchId).orElseThrow(DispatchNotFoundException::new);
-        if (dispatch.getDispatchStatus() != 4 && dispatch.getAcceptByRequester()!=null) {
+        if (dispatch.getDispatchStatus() != 4 && dispatch.getAcceptByRequester() != null) {
             throw new DispatchException("You already done!");
         }
         List<DispatchItem> dispatchItems = dispatch.getItems();
@@ -135,7 +138,7 @@ public class DispatchService {
     @Transactional
     public DispatchDto acceptByAcceptorBranch(Long dispatchId, DispatchUpdateRequest request) {
         Dispatch dispatch = dispatchRepo.findById(dispatchId).orElseThrow(DispatchNotFoundException::new);
-        if (dispatch.getDispatchStatus() != 2 && dispatch.getAcceptByAcceptor()!=null) {
+        if (dispatch.getDispatchStatus() != 2 && dispatch.getAcceptByAcceptor() != null) {
             throw new DispatchException("You already done!");
         }
         var authUser = authService.getCurrentUser();
@@ -149,7 +152,7 @@ public class DispatchService {
     @Transactional
     public DispatchDto sendByAcceptorBranch(Long dispatchId, DispatchUpdateRequest request) {
         Dispatch dispatch = dispatchRepo.findById(dispatchId).orElseThrow(DispatchNotFoundException::new);
-        if (dispatch.getDispatchStatus() != 3 && dispatch.getSendByAcceptor()!=null) {
+        if (dispatch.getDispatchStatus() != 3 && dispatch.getSendByAcceptor() != null) {
             throw new DispatchException("You already done!");
         }
         List<DispatchItem> dispatchItems = dispatch.getItems();
@@ -214,8 +217,8 @@ public class DispatchService {
         Dispatch dispatch = dispatchRepo.findById(dispatchId).orElseThrow(DispatchNotFoundException::new);
         Product product = productRepo.findById(request.getProductId()).orElseThrow(ProductNotFoundException::new);
         ProductDetail productDetail = productDetailRepo.findById(request.getProductDetailId()).orElseThrow(ProductDetailNotFoundException::new);
-        DispatchItem dispatchItem=dispatchItemRepo.findByDispatchAndProductAndProductDetail(dispatch,product,productDetail).orElse(null);
-        if (dispatchItem ==null) {
+        DispatchItem dispatchItem = dispatchItemRepo.findByDispatchAndProductAndProductDetail(dispatch, product, productDetail).orElse(null);
+        if (dispatchItem == null) {
             dispatchItem = new DispatchItem();
             dispatchItem.setProduct(product);
             dispatchItem.setProductDetail(productDetail);
