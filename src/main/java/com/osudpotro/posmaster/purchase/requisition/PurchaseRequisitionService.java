@@ -60,6 +60,7 @@ public class PurchaseRequisitionService {
     private RequisitionApproverRepository requisitionApproverRepository;
     @Autowired
     private RequisitionOnPathRepository ropRepository;
+
     public List<PurchaseRequisitionDto> getAllPurchaseRequisitions() {
         return prRepo.findAll()
                 .stream()
@@ -80,12 +81,12 @@ public class PurchaseRequisitionService {
             throw new DuplicatePurchaseRequisitionException();
         }
         Branch branch = branchRepository.findById(authUser.getBranch().getId()).orElse(null);
-        if(branch!=null){
+        if (branch == null) {
             throw new EntityNotFoundException("Branch Not assign to user! ");
         }
         var organization = organizationRepository.findById(branch.getOrganization().getId()).orElse(null);
         if (organization == null) {
-            throw new OrganizationNotFoundException();
+            throw new EntityNotFoundException("Organization is Not assign to Branch! ");
         }
         PurchaseRequisition pr = new PurchaseRequisition();
         pr.setRequsitionRef(requisitionRef);
@@ -153,7 +154,10 @@ public class PurchaseRequisitionService {
         if (pr.getPurchaseType().getCode().equals("procurement")) {
             requsitionName = "PROCUREMENT_REQUISITION";
         }
-        var requisitionType = requsitionTypeRepository.findByRequisitionTypeKey(requsitionName).orElseThrow(RequisitionTypeNotFoundException::new);
+        var requisitionType = requsitionTypeRepository.findByRequisitionTypeKey(requsitionName).orElse(null);
+        if (requisitionType == null) {
+            throw new EntityNotFoundException("Requsition Type not created yet! ");
+        }
         Requisition requisition = null;
         int requisitionStatus = 0;
         Set<Integer> checkRequisitionStatus = Set.of(1, 5);
@@ -565,7 +569,7 @@ public class PurchaseRequisitionService {
     }
 
     private String generateRequisitionRef() {
-        PurchaseRequisition pr = prRepo.findTopByOrderByCreatedAtDesc();
+        PurchaseRequisition pr = prRepo.findTopByOrderByIdDesc();
         String prefix = "OSPRE";
         // Extract sequence number from last code
         long nextSeq = 1;
