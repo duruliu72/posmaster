@@ -32,6 +32,13 @@ public class Sale {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String saleRef;//Order Ref
+
+    // ✅ ADD THIS FIELD
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payment_method", nullable = false)
+    private PaymentMethod paymentMethod ; //
+
+
     @Enumerated(EnumType.STRING)
     private UserType userType=UserType.CUSTOMER;
     @ManyToOne(fetch = FetchType.LAZY)

@@ -32,6 +32,10 @@ public class SaleMapper {
         SaleDto dto = new SaleDto();
         dto.setId(sale.getId());
         dto.setSaleRef(sale.getSaleRef());
+        // ✅ Use description instead of enum name
+        if (sale.getPaymentMethod() != null) {
+            dto.setPaymentMethod(sale.getPaymentMethod().getDescription());
+        }
         dto.setVatAmount(sale.getVatAmount());
         dto.setBillingAddress(sale.getBillingAddress());
         dto.setDeliveryAddress(sale.getDeliveryAddress());
@@ -59,6 +63,9 @@ public class SaleMapper {
 
         if (sale.getCustomer() != null) {
             dto.setCustomer(toUserPlainDto(sale.getCustomer()));
+            dto.setCustomerMobile(sale.getCustomer().getMobile());
+            dto.setCustomerName(sale.getCustomer().getUserName());
+
         }
 
         if (sale.getSalePointMan() != null) {

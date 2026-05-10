@@ -12,7 +12,12 @@ import com.osudpotro.posmaster.inventory.InvoiceType;
 import com.osudpotro.posmaster.salecart.*;
 import com.osudpotro.posmaster.user.auth.AuthService;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
@@ -21,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+@Slf4j
 @Service
 public class SaleService {
 
@@ -51,9 +57,8 @@ public class SaleService {
     @Autowired
     private SaleMapper saleMapper;
 
-
     @Autowired
-    private DeliveryMethodRepository deliveryMethodRepo; // If you have this entity
+    private DeliveryMethodRepository deliveryMethodRepo;
 
     /**
      * CHECKOUT — Move SaleCart items to Sale + SaleItem and update Inventory
@@ -74,13 +79,30 @@ public class SaleService {
         }
 
         // 3. Update SaleCart with customer info from frontend
-        saleCart.setEmail(request.getEmail());
-        saleCart.setMobile(request.getMobile());
+        if (request.getEmail() != null && !request.getEmail().isEmpty()) {
+            saleCart.setEmail(request.getEmail());
+        }
+        if (request.getMobile() != null && !request.getMobile().isEmpty()) {
+            saleCart.setMobile(request.getMobile());
+        }
         saleCartRepo.save(saleCart);
 
         // 4. Create Sale
         Sale sale = new Sale();
         sale.setSaleRef(generateSaleRef());
+
+        // ✅ FIXED: Payment method
+        try {
+            if (request.getPaymentMethod() != null && !request.getPaymentMethod().isEmpty()) {
+                sale.setPaymentMethod(PaymentMethod.fromCode(request.getPaymentMethod()));
+            } else {
+                sale.setPaymentMethod(PaymentMethod.COD); // default
+            }
+        } catch (IllegalArgumentException e) {
+            log.warn("Invalid payment method: {}, defaulting to COD", request.getPaymentMethod());
+            sale.setPaymentMethod(PaymentMethod.COD);
+        }
+
         sale.setOrganization(branch.getOrganization());
         sale.setBranch(branch);
 
@@ -117,12 +139,6 @@ public class SaleService {
 
         for (SaleCartItem cartItem : saleCart.getItems()) {
             SaleItem saleItem = saleMapper.toSaleItemEntity(cartItem, sale);
-
-            // Apply offer if exists
-            if (request.getOfferStartDate() != null && request.getOfferEndDate() != null) {
-                // You can add offer logic here if needed
-            }
-
             saleItems.add(saleItem);
 
             // Inventory Stock Out
@@ -162,16 +178,20 @@ public class SaleService {
         inventoryRepo.saveAll(inventoryList);
 
         // 9. Save Payment
-        if (request.getPaymentMethod() != null) {
-            SalePayment payment = new SalePayment();
-            payment.setSale(sale);
-            payment.setSaleRef(sale.getSaleRef());
-            payment.setPaymentMethod(PaymentMethod.fromCode(request.getPaymentMethod()));
-            payment.setTrxId(request.getTrxId());
-            payment.setCreditAmount(request.getCreditAmount());
-            payment.setDebitAmount(request.getDebitAmount());
-            payment.setTransactionType("1");
-            salePaymentRepo.save(payment);
+        if (request.getPaymentMethod() != null && !request.getPaymentMethod().isEmpty()) {
+            try {
+                SalePayment payment = new SalePayment();
+                payment.setSale(sale);
+                payment.setSaleRef(sale.getSaleRef());
+                payment.setPaymentMethod(PaymentMethod.fromCode(request.getPaymentMethod()));
+                payment.setTrxId(request.getTrxId());
+                payment.setCreditAmount(request.getCreditAmount());
+                payment.setDebitAmount(request.getDebitAmount());
+                payment.setTransactionType("1");
+                salePaymentRepo.save(payment);
+            } catch (IllegalArgumentException e) {
+                log.warn("Invalid payment method for payment record: {}", request.getPaymentMethod());
+            }
         }
 
         // 10. Clear SaleCart
@@ -195,10 +215,32 @@ public class SaleService {
                 try {
                     nextSeq = Long.parseLong(lastPart) + 1;
                 } catch (Exception e) {
-                    System.out.println(e);
+                    log.error("e: ", e);
                 }
             }
         }
         return String.format("%s-%s-%06d", prefix, datePart, nextSeq);
+    }
+
+    public Page<SaleDto> filterSales(SaleFilter filter, Pageable pageable) {
+        var authUser = authService.getCurrentUser();
+        return saleRepo.findAll(SaleSpecification.filter(filter, authUser), pageable)
+                .map(saleMapper::toDto);
+    }
+
+    public SaleDto getSale(Long saleId) {
+        var authUser = authService.getCurrentUser();
+        Branch branch = authUser.getBranch();
+        Sale sale = saleRepo.findByIdAndBranch(saleId, branch)
+                .orElseThrow(() -> new EntityNotFoundException("Sale not found"));
+        return saleMapper.toDto(sale);
+    }
+
+    public List<SaleDto> getAllSales() {
+        var authUser = authService.getCurrentUser();
+        return saleRepo.findAll(SaleSpecification.filter(new SaleFilter(), authUser),
+                        PageRequest.of(0, 10, Sort.by("createdAt").descending()))
+                .map(saleMapper::toDto)
+                .toList();
     }
 }
