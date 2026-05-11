@@ -22,7 +22,8 @@ public class SaleDto {
     private BigDecimal deliveryFee;
     private String prescriptionDocs;
     private Integer saleChannel;
-    private Integer saleStatus;
+    //private Integer saleStatus;
+    private SaleStatus saleStatus;
     private Integer paymentStatus;
     private Integer saleType;
     private UserPlainDto customer;
