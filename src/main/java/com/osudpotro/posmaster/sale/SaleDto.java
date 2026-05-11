@@ -34,4 +34,11 @@ public class SaleDto {
     // Summary fields
     private Integer totalQty;
     private BigDecimal totalPrice;
+
+    // Add these fields to SaleDto.java
+    private String customerName;
+    private String customerMobile;
+    private String paymentMethod;
+    private String specialInstruction;
+    private String deliveryMethod;
 }
