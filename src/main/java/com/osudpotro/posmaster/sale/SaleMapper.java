@@ -42,22 +42,28 @@ public class SaleMapper {
         dto.setDeliveryFee(sale.getDeliveryFee());
         dto.setPrescriptionDocs(sale.getPrescriptionDocs());
         dto.setSaleChannel(sale.getSaleChannel());
+        if(sale.getSaleStatus()!=null){
+            SaleStatus saleStatus= sale.getSaleStatus();
+            dto.setSaleStatus(saleStatus);
+        }
         dto.setSaleStatus(sale.getSaleStatus());
         dto.setPaymentStatus(sale.getPaymentStatus());
         dto.setSaleType(sale.getSaleType());
         dto.setCreatedAt(sale.getCreatedAt());
 
         if (sale.getOrganization() != null) {
+            Organization org=sale.getOrganization();
             OrganizationDto orgDto = new OrganizationDto();
-            orgDto.setId(sale.getOrganization().getId());
-            orgDto.setName(sale.getOrganization().getName());
+            orgDto.setId(org.getId());
+            orgDto.setName(org.getName());
             dto.setOrganization(orgDto);
         }
 
         if (sale.getBranch() != null) {
+            Branch branch=sale.getBranch();
             BranchDto branchDto = new BranchDto();
-            branchDto.setId(sale.getBranch().getId());
-            branchDto.setName(sale.getBranch().getName());
+            branchDto.setId(branch.getId());
+            branchDto.setName(branch.getName());
             dto.setBranch(branchDto);
         }
 

@@ -40,7 +40,7 @@ public class Sale {
 
 
     @Enumerated(EnumType.STRING)
-    private UserType userType=UserType.CUSTOMER;
+    private UserType userType = UserType.CUSTOMER;
     @ManyToOne(fetch = FetchType.LAZY)
     private Organization organization;
     @ManyToOne(fetch = FetchType.LAZY)
@@ -73,8 +73,11 @@ public class Sale {
     private BigDecimal specialDiscount;
     //    1=Through Pos 2=Through Website
     private Integer saleChannel;
-    //    1=Pending,2=Processing (After review by customer care) ,3=Accepted by Pharmacy,4=Packaging by Pharmacy,5=Dispatch by Rider(Head)/fleet(head),5=On the way by rider(through Apps),6=Delivered On the way by rider(App),7=CancelledAfter review by customer care
-    private Integer saleStatus;
+    //    1=Pending,2=Processing (After review by customer care) ,3=Accepted by Pharmacy,4=Packaging by Pharmacy,5=Dispatch by Rider(Head)/fleet(head),5=On the way by rider(through Apps),6=Delivered On the way by rider(App),7=Cancelled After review by customer care
+//    private Integer saleStatus;
+    @OneToOne
+    @JoinColumn(name = "sale_status_id", unique = true)
+    private SaleStatus saleStatus;
     //    1=Pending,2=Partial,3=Success 4=Credit (For employee due)
     private Integer paymentStatus;
     //    1=Cash On Delivery 2=Partial Paid ,3=Full Paid
@@ -110,6 +113,6 @@ public class Sale {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime updatedAt;
     @JsonIgnore
-    @OneToMany(mappedBy = "sale", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "sale", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<SaleItem> items = new ArrayList<>();
 }
