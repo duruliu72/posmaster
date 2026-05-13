@@ -43,6 +43,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/public/**").permitAll()
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/customers/search-customer").permitAll()
+                        .requestMatchers("/customers/test-all").permitAll()
                         .requestMatchers("/web/customers/**").permitAll()
                         .requestMatchers("/web/customers/logout**").permitAll()
                         .requestMatchers("/admin/auth/**").permitAll()

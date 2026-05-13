@@ -74,10 +74,10 @@ public class Sale {
     //    1=Through Pos 2=Through Website
     private Integer saleChannel;
     //    1=Pending,2=Processing (After review by customer care) ,3=Accepted by Pharmacy,4=Packaging by Pharmacy,5=Dispatch by Rider(Head)/fleet(head),5=On the way by rider(through Apps),6=Delivered On the way by rider(App),7=Cancelled After review by customer care
-//    private Integer saleStatus;
-    @OneToOne
-    @JoinColumn(name = "sale_status_id", unique = true)
-    private SaleStatus saleStatus;
+    private Integer saleStatus;
+    //@OneToOne
+  //  @JoinColumn(name = "sale_status_id", unique = true)
+//    private SaleStatus saleStatus;
     //    1=Pending,2=Partial,3=Success 4=Credit (For employee due)
     private Integer paymentStatus;
     //    1=Cash On Delivery 2=Partial Paid ,3=Full Paid
