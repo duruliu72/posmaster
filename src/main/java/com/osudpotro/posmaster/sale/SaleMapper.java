@@ -42,10 +42,7 @@ public class SaleMapper {
         dto.setDeliveryFee(sale.getDeliveryFee());
         dto.setPrescriptionDocs(sale.getPrescriptionDocs());
         dto.setSaleChannel(sale.getSaleChannel());
-        if(sale.getSaleStatus()!=null){
-            SaleStatus saleStatus= sale.getSaleStatus();
-            dto.setSaleStatus(saleStatus);
-        }
+        dto.setSaleStatus(sale.getSaleStatus());
         dto.setSaleStatus(sale.getSaleStatus());
         dto.setPaymentStatus(sale.getPaymentStatus());
         dto.setSaleType(sale.getSaleType());
@@ -67,11 +64,11 @@ public class SaleMapper {
             dto.setBranch(branchDto);
         }
 
+        // Customer info from User relationship
         if (sale.getCustomer() != null) {
-            dto.setCustomer(toUserPlainDto(sale.getCustomer()));
-            dto.setCustomerMobile(sale.getCustomer().getMobile());
-            dto.setCustomerName(sale.getCustomer().getUserName());
-
+            User customer = sale.getCustomer();
+            dto.setCustomerName(customer.getUserName());
+            dto.setCustomerMobile(customer.getMobile());
         }
 
         if (sale.getSalePointMan() != null) {

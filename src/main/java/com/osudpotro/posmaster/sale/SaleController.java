@@ -58,6 +58,16 @@ public class SaleController {
         return saleService.checkoutSaleCart(saleCartId, request);
     }
 
+    @PutMapping("/{id}/status")
+    public SaleDto updateSaleStatus(@PathVariable Long id, @RequestBody SaleStatusUpdateRequest request) {
+        return saleService.updateSaleStatus(id, request);
+    }
+
+    @PutMapping("/{id}/payment-status")
+    public SaleDto updatePaymentStatus(@PathVariable Long id, @RequestBody SalePaymentStatusUpdateRequest request) {
+        return saleService.updatePaymentStatus(id, request);
+    }
+
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleEntityNotFoundException(Exception e) {
         return ResponseEntity.badRequest().body(
