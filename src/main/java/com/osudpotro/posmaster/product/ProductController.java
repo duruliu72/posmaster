@@ -4,6 +4,7 @@ import com.osudpotro.posmaster.brand.BrandNotFoundException;
 import com.osudpotro.posmaster.category.CategoryNotFoundException;
 import com.osudpotro.posmaster.category.CategoryService;
 import com.osudpotro.posmaster.common.DuplicateEntityException;
+import com.osudpotro.posmaster.common.EntityNotFoundException;
 import com.osudpotro.posmaster.common.PagedResponse;
 import com.osudpotro.posmaster.generic.GenericNotFoundException;
 import com.osudpotro.posmaster.genericunit.GenericUnitNotFoundException;
@@ -28,6 +29,7 @@ import java.util.Map;
 public class ProductController {
     private final ProductService productService;
     private final CategoryService categoryService;
+
     @GetMapping
     public List<ProductDto> getAllProducts() {
         return productService.getAllProducts();
@@ -67,6 +69,12 @@ public class ProductController {
             @PathVariable(name = "id") Long id,
             @RequestBody ProductUpdateRequest request) {
         return productService.updateProduct(id, request);
+    }
+
+    @DeleteMapping("/{id}")
+    public ProductDto deleteEntity(
+            @PathVariable(name = "id") Long id) {
+        return productService.deleteEntity(id);
     }
 
     @ExceptionHandler(DuplicateProductException.class)
@@ -109,6 +117,13 @@ public class ProductController {
         );
     }
 
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleEntityNotFound(Exception e) {
+        return ResponseEntity.badRequest().body(
+                Map.of("error", e.getMessage())
+        );
+    }
+
     @ExceptionHandler(CategoryNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleCategoryNotFound(Exception e) {
         return ResponseEntity.badRequest().body(
@@ -136,6 +151,7 @@ public class ProductController {
                 Map.of("error", e.getMessage())
         );
     }
+
     @ExceptionHandler(DuplicateEntityException.class)
     public ResponseEntity<Map<String, String>> handleDuplicateEntity(Exception e) {
         return ResponseEntity.badRequest().body(

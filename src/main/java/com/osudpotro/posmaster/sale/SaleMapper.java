@@ -5,14 +5,14 @@ import com.osudpotro.posmaster.branch.BranchDto;
 import com.osudpotro.posmaster.inventory.InventoryRepository;
 import com.osudpotro.posmaster.organization.Organization;
 import com.osudpotro.posmaster.organization.OrganizationDto;
-import com.osudpotro.posmaster.product.Product;
 import com.osudpotro.posmaster.product.ProductDetail;
 import com.osudpotro.posmaster.purchase.Purchase;
 import com.osudpotro.posmaster.purchase.PurchaseDetail;
 import com.osudpotro.posmaster.salecart.SaleCartItem;
 import com.osudpotro.posmaster.user.User;
 import com.osudpotro.posmaster.user.UserPlainDto;
-import com.osudpotro.posmaster.variantunit.VariantUnit;
+import com.osudpotro.posmaster.user.customer.Customer;
+import com.osudpotro.posmaster.user.customer.CustomerMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -25,7 +25,8 @@ public class SaleMapper {
 
     @Autowired
     private InventoryRepository inventoryRepository;
-
+    @Autowired
+    private CustomerMapper customerMapper;
     public SaleDto toDto(Sale sale) {
         if (sale == null) return null;
 
@@ -37,38 +38,38 @@ public class SaleMapper {
             dto.setPaymentMethod(sale.getPaymentMethod().getDescription());
         }
         dto.setVatAmount(sale.getVatAmount());
-        dto.setBillingAddress(sale.getBillingAddress());
-        dto.setDeliveryAddress(sale.getDeliveryAddress());
+//        dto.setBillingAddress(sale.getBillingAddress());
+//        dto.setDeliveryAddress(sale.getDeliveryAddress());
         dto.setDeliveryFee(sale.getDeliveryFee());
         dto.setPrescriptionDocs(sale.getPrescriptionDocs());
         dto.setSaleChannel(sale.getSaleChannel());
-        dto.setSaleStatus(sale.getSaleStatus());
-        dto.setSaleStatus(sale.getSaleStatus());
+        if(sale.getSaleStatusLog()!=null){
+            SaleStatusLog saleStatusLog = sale.getSaleStatusLog();
+            dto.setSaleStatusLogId(saleStatusLog.getId());
+            dto.setSaleStatus(saleStatusLog.getSaleStatus());
+        }
+
         dto.setPaymentStatus(sale.getPaymentStatus());
         dto.setSaleType(sale.getSaleType());
         dto.setCreatedAt(sale.getCreatedAt());
 
         if (sale.getOrganization() != null) {
             Organization org=sale.getOrganization();
-            OrganizationDto orgDto = new OrganizationDto();
-            orgDto.setId(org.getId());
-            orgDto.setName(org.getName());
-            dto.setOrganization(orgDto);
+            dto.setOrganizationId(org.getId());
+            dto.setOrganizationName(org.getName());
         }
-
         if (sale.getBranch() != null) {
             Branch branch=sale.getBranch();
-            BranchDto branchDto = new BranchDto();
-            branchDto.setId(branch.getId());
-            branchDto.setName(branch.getName());
-            dto.setBranch(branchDto);
+            dto.setBranchId(branch.getId());
+            dto.setBranchName(branch.getName());
         }
 
-        // Customer info from User relationship
         if (sale.getCustomer() != null) {
-            User customer = sale.getCustomer();
-            dto.setCustomerName(customer.getUserName());
-            dto.setCustomerMobile(customer.getMobile());
+            Customer customer=sale.getCustomer();
+            dto.setCustomerId(customer.getId());
+            dto.setCustomerEmail(customer.getEmail());
+            dto.setCustomerMobile(sale.getCustomer().getMobile());
+            dto.setCustomerName(sale.getCustomer().getUserName());
         }
 
         if (sale.getSalePointMan() != null) {

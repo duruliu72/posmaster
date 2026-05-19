@@ -1,8 +1,7 @@
 package com.osudpotro.posmaster.sale;
 
-import com.osudpotro.posmaster.branch.BranchDto;
-import com.osudpotro.posmaster.organization.OrganizationDto;
 import com.osudpotro.posmaster.user.UserPlainDto;
+import com.osudpotro.posmaster.user.UserType;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -14,20 +13,48 @@ import java.util.List;
 public class SaleDto {
     private Long id;
     private String saleRef;
-    private OrganizationDto organization;
-    private BranchDto branch;
+    private String paymentMethod;
+    private UserType userType = UserType.CUSTOMER;
+    private Long customerUserId;
+    private Long customerId;
+    private String customerName;
+    private String customerFirstName;
+    private String customerLastName;
+    private String customerEmail;
+    private String customerMobile;
+    private Long organizationId;
+    private String organizationName;
+    private Long branchId;
+    private String branchName;
+    private Long warehouseId;
+    private String warehouseName;
+    private Boolean isStoreOut;
     private BigDecimal vatAmount;
+    private Long billingAddressId;
     private String billingAddress;
+    private Long deliveryAddressId;
     private String deliveryAddress;
+    private Long deliveryMethodId;
     private BigDecimal deliveryFee;
+    private BigDecimal minSaleAmountForDeliveryFree;
+    private BigDecimal walletAmount;
     private String prescriptionDocs;
+    private Long specialDiscountONId;
+    private BigDecimal specialDiscount;
+    private BigDecimal overallDiscount;
     private Integer saleChannel;
+    private Long saleStatusLogId;
     private Integer saleStatus;
-    //private SaleStatus saleStatus;
     private Integer paymentStatus;
     private Integer saleType;
-    private UserPlainDto customer;
+
     private UserPlainDto salePointMan;
+    private Long salePointManId;
+    private String salePointManName;
+    private String salePointEmail;
+    private String salePointMobile;
+
+
     private UserPlainDto createdBy;
     private LocalDateTime createdAt;
     private List<SaleItemDto> items = new ArrayList<>();
@@ -37,9 +64,6 @@ public class SaleDto {
     private BigDecimal totalPrice;
 
     // Add these fields to SaleDto.java
-    private String customerName;
-    private String customerMobile;
-    private String paymentMethod;
     private String specialInstruction;
-    private String deliveryMethod;
+
 }

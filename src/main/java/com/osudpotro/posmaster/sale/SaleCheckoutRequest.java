@@ -20,7 +20,10 @@ public class SaleCheckoutRequest {
     private String offerStartDate;
     private String offerEndDate;
     private Boolean isMerchant;
-
+    //Delivery Address
+    private Long deliveryAddressId;
+    //billing Address
+    private Long billingAddressId;
     // Payment
     private String paymentMethod; // cod, bkash, nagad, etc.
     private String trxId;

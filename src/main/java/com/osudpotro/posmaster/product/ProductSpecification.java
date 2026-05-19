@@ -20,11 +20,11 @@ public class ProductSpecification {
                 predicates.add(cb.like(cb.lower(root.get("productName")),
                         "%" + filter.getProductName().toLowerCase() + "%"));
             }
-            Join<Product, ProductDetail> details = root.join("details", JoinType.LEFT);
-            if (filter.getProductCode() != null && !filter.getProductCode().isEmpty()) {
-                predicates.add(cb.like(cb.lower(root.get("productCode")),
-                        "%" + filter.getProductCode().toLowerCase() + "%"));
-            }
+//            Join<Product, ProductDetail> details = root.join("details", JoinType.LEFT);
+//            if (filter.getProductCode() != null && !filter.getProductCode().isEmpty()) {
+//                predicates.add(cb.like(cb.lower(root.get("productCode")),
+//                        "%" + filter.getProductCode().toLowerCase() + "%"));
+//            }
             if (filter.getProductBarCode() != null && !filter.getProductBarCode().isEmpty()) {
                 predicates.add(cb.like(cb.lower(root.get("productBarCode")),
                         "%" + filter.getProductBarCode().toLowerCase() + "%"));

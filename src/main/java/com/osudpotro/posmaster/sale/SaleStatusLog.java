@@ -13,8 +13,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-@Table(name = "sale_status")
-public class SaleStatus {
+@Table(name = "sale_status_log")
+public class SaleStatusLog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

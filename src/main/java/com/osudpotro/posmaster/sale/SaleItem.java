@@ -63,4 +63,5 @@ public class SaleItem {
     @JoinColumn(name = "membership_id")
     private Membership membership;
     private BigDecimal membershipDiscount;
+    private BigDecimal discount;
 }

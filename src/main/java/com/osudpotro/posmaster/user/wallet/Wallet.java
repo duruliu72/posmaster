@@ -27,12 +27,11 @@ public class Wallet extends BaseEntity {
     private Customer customer;
     private BigDecimal creditAmount;
     private BigDecimal debitAmount;
-    //1=Sign Up Bonus Credit,2=For Sale Debit,3=Employee Credit,4=For Sale Return Credit
+    //1=Sign Up Bonus Credit,2=For Customer order Credit,3=Employee Credit,4=For Customer order Return Debit
     private Integer walletType;
     private String note;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sale_id")
     private Sale sale;
     private String saleRef;//order Ref
-
 }

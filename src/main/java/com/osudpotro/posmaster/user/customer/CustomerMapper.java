@@ -3,12 +3,18 @@ package com.osudpotro.posmaster.user.customer;
 import com.osudpotro.posmaster.multimedia.Multimedia;
 import com.osudpotro.posmaster.user.User;
 import com.osudpotro.posmaster.user.customer.address.Address;
+import com.osudpotro.posmaster.user.customer.address.AddressDto;
+import com.osudpotro.posmaster.user.customer.address.AddressMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class CustomerMapper {
+    @Autowired
+    private AddressMapper addressMapper;
     public CustomerDto toDto(Customer customer) {
         if (customer == null) {
             return null;
@@ -49,9 +55,11 @@ public class CustomerMapper {
         }
         if (customer.getAddresses() != null && !customer.getAddresses().isEmpty()) {
             List<Address> addressList=customer.getAddresses();
+            List<AddressDto> addressDtoList=new ArrayList<>();
             for (Address address:addressList){
-
+                addressDtoList.add(addressMapper.toDto(address));
             }
+            customerDto.setAddresses(addressDtoList);
         }
         return customerDto;
     }

@@ -6,6 +6,7 @@ import lombok.Data;
 public class InventoryFilter {
     private String searchKey;
     private String productName;
+    private Long purchaseTypeId;
     private String purchaseBatchNo;
     private String productionBatchNo;
     private String purchaseBarCode;

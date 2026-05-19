@@ -20,6 +20,8 @@ import com.osudpotro.posmaster.user.UserType;
 import com.osudpotro.posmaster.user.auth.AuthService;
 import com.osudpotro.posmaster.user.customer.Customer;
 import com.osudpotro.posmaster.user.customer.CustomerRepository;
+import com.osudpotro.posmaster.user.customer.address.Address;
+import com.osudpotro.posmaster.user.customer.address.AddressRepository;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,7 +84,8 @@ public class SaleService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
-
+    @Autowired
+    private AddressRepository addressRepo;
     // ==================== CHECKOUT ====================
 
     @Transactional
@@ -117,17 +120,19 @@ public class SaleService {
 
         // Try find existing customer by email
         if (request.getEmail() != null && !request.getEmail().isEmpty()) {
-            var customerOpt = customerRepository.findByEmail(request.getEmail());
-            if (customerOpt.isPresent() && customerOpt.get().getUser() != null) {
-                sale.setCustomer(customerOpt.get().getUser());
+            Customer customerOpt = customerRepository.findByEmail(request.getEmail()).orElse(null);
+            if (customerOpt != null) {
+                sale.setCustomer(customerOpt);
+                sale.setCustomerUser(customerOpt.getUser());
             }
         }
 
         // Try find existing customer by mobile if not found by email
         if (sale.getCustomer() == null && request.getMobile() != null && !request.getMobile().isEmpty()) {
-            var customerOpt = customerRepository.findByMobile(request.getMobile());
-            if (customerOpt.isPresent() && customerOpt.get().getUser() != null) {
-                sale.setCustomer(customerOpt.get().getUser());
+            var customerOpt = customerRepository.findByMobile(request.getMobile()).orElse(null);
+            if (customerOpt != null) {
+                sale.setCustomer(customerOpt);
+                sale.setCustomerUser(customerOpt.getUser());
             }
         }
 
@@ -186,8 +191,8 @@ public class SaleService {
                 newUser.setCustomer(newCustomer);
                 userRepository.save(newUser);
 
-                sale.setCustomer(newUser);
-
+                sale.setCustomer(newCustomer);
+                sale.setCustomerUser(newUser);
                 log.info("New customer auto-registered: {} | {}", request.getCustomerName(), request.getEmail());
             }
         }
@@ -213,14 +218,17 @@ public class SaleService {
         sale.setPaymentStatus(1); // Pending
         sale.setSaleType(request.getSaleType() != null ? request.getSaleType() : 1);
         sale.setSaleChannel(request.getSaleChannel() != null ? request.getSaleChannel() : 1);
-
-        // Address
-        sale.setBillingAddress(request.getAddress());
-        sale.setDeliveryAddress(
-                (request.getAddress() != null ? request.getAddress() : "") +
-                        (request.getHouseOrFlatNo() != null ? ", " + request.getHouseOrFlatNo() : "") +
-                        (request.getSpecialInstruction() != null ? " (" + request.getSpecialInstruction() + ")" : "")
-        );
+        // Address from frontend form
+        if(request.getBillingAddressId()!=null){
+            Address billingAddress = addressRepo.findById(request.getBillingAddressId())
+                    .orElseThrow(() -> new EntityNotFoundException("Address Not Found"));
+            sale.setBillingAddress(billingAddress);
+        }
+        if(request.getDeliveryAddressId()!=null){
+            Address deliveryAddress = addressRepo.findById(request.getDeliveryAddressId())
+                    .orElseThrow(() -> new EntityNotFoundException("Address Not Found"));
+            sale.setDeliveryAddress(deliveryAddress);
+        }
 
         // Delivery & Offers
         if (request.getDeliveryMethodId() != null) {
@@ -433,7 +441,7 @@ public class SaleService {
 
     private String generateSaleRef() {
         Sale sale = saleRepo.findTopByOrderByCreatedAtDesc();
-        String prefix = "SAL";
+        String prefix = "OSDP";
         String datePart = new SimpleDateFormat("yyyyMMdd").format(new Date());
         long nextSeq = 1;
         if (sale != null && sale.getSaleRef() != null) {
