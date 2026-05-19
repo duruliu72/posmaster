@@ -11,6 +11,8 @@ import com.osudpotro.posmaster.inventory.InventoryRepository;
 import com.osudpotro.posmaster.inventory.InvoiceType;
 import com.osudpotro.posmaster.salecart.*;
 import com.osudpotro.posmaster.user.auth.AuthService;
+import com.osudpotro.posmaster.user.customer.address.Address;
+import com.osudpotro.posmaster.user.customer.address.AddressRepository;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +61,8 @@ public class SaleService {
 
     @Autowired
     private DeliveryMethodRepository deliveryMethodRepo;
-
+    @Autowired
+    private AddressRepository addressRepo;
     /**
      * CHECKOUT — Move SaleCart items to Sale + SaleItem and update Inventory
      */
@@ -107,19 +110,22 @@ public class SaleService {
         sale.setBranch(branch);
 
         // Status
-        sale.setSaleStatus(request.getSaleStatus() != null ? request.getSaleStatus() : 1);
+//        sale.setSaleStatusLog(request.getSaleStatusLog() != null ? request.getSaleStatusLog() : 1);
         sale.setPaymentStatus(request.getPaymentStatus() != null ? request.getPaymentStatus() : 1);
         sale.setSaleType(request.getSaleType() != null ? request.getSaleType() : 1);
         sale.setSaleChannel(request.getSaleChannel() != null ? request.getSaleChannel() : 1);
 
         // Address from frontend form
-        sale.setBillingAddress(request.getAddress());
-        sale.setDeliveryAddress(
-                (request.getAddress() != null ? request.getAddress() : "") +
-                        (request.getHouseOrFlatNo() != null ? ", " + request.getHouseOrFlatNo() : "") +
-                        (request.getSpecialInstruction() != null ? " (" + request.getSpecialInstruction() + ")" : "")
-        );
-
+        if(request.getBillingAddressId()!=null){
+            Address billingAddress = addressRepo.findById(request.getBillingAddressId())
+                    .orElseThrow(() -> new EntityNotFoundException("Address Not Found"));
+            sale.setBillingAddress(billingAddress);
+        }
+        if(request.getDeliveryAddressId()!=null){
+            Address deliveryAddress = addressRepo.findById(request.getDeliveryAddressId())
+                    .orElseThrow(() -> new EntityNotFoundException("Address Not Found"));
+            sale.setDeliveryAddress(deliveryAddress);
+        }
         // Delivery & Offers
         if (request.getDeliveryMethodId() != null) {
             DeliveryMethod deliveryMethod = deliveryMethodRepo.findById(request.getDeliveryMethodId()).orElse(null);

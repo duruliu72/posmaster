@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,4 +33,5 @@ public class SaleCart extends BaseEntity {
     @JsonIgnore
     @OneToMany(mappedBy = "saleCart", cascade = CascadeType.MERGE, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<SaleCartItem> items = new ArrayList<>();
+    private BigDecimal overallDiscount;
 }

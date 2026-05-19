@@ -1,19 +1,21 @@
 package com.osudpotro.posmaster.user.customer.address;
 
-import com.osudpotro.posmaster.user.UserPlainDto;
-import com.osudpotro.posmaster.user.customer.CustomerDto;
 import lombok.Data;
 
 @Data
 public class AddressDto {
     private Long id;
-    private UserPlainDto user;
-    private CustomerDto customer;
-    private String name;
+    private Long userId;
+    private Long customerId;
+    private String customerName;
+    private String fullName;
     private String email;
     private String mobile;
     private Integer addressType;
     private Integer addressCategory;
+    private Long areaId;
+    private String areaName;
+    private String placeId;
     private Double latitude;
     private Double longitude;
     private Double accuracy;

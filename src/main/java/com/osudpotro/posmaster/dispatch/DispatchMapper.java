@@ -39,15 +39,6 @@ public class DispatchMapper {
             requestReceivedBranchDto.setName(requestReceivedBranch.getName());
             dispatchDto.setAcceptorBranch(requestReceivedBranchDto);
         }
-//        if (dispatch.getLoadedBy() != null) {
-//            var loadedBy = goodsOnTrip.getLoadedBy();
-//            UserPlainDto loadedByDto = new UserPlainDto();
-//            loadedByDto.setUserName(loadedBy.getUserName());
-//            loadedByDto.setId(loadedBy.getId());
-//            loadedByDto.setMobile(loadedBy.getMobile());
-//            loadedByDto.setEmail(loadedBy.getEmail());
-//            goodsOnTripDto.setLoadedBy(loadedByDto);
-//        }
         dispatchDto.setTotalDispatchQty(dispatch.getTotalQty());
         dispatchDto.setCreatedAt(dispatch.getCreatedAt());
         dispatchDto.setTotalPurchasePrice(dispatch.getTotalPurchasePrice());

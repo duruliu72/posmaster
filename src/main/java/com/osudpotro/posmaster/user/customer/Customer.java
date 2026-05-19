@@ -1,7 +1,6 @@
 package com.osudpotro.posmaster.user.customer;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.osudpotro.posmaster.address.area.Area;
 import com.osudpotro.posmaster.common.BaseEntity;
 import com.osudpotro.posmaster.multimedia.Multimedia;
 import com.osudpotro.posmaster.offerhub.membership.Membership;
@@ -55,5 +54,6 @@ public class Customer extends BaseEntity {
     private Membership membership;
     @JsonIgnore
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
+    @OrderBy("id DESC")
     private List<Address> addresses = new ArrayList<>();
 }

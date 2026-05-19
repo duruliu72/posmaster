@@ -64,7 +64,7 @@ public class AddressController {
     @PutMapping("/{id}")
     public AddressDto updateEntity(
             @PathVariable(name = "id") Long id,
-            @RequestBody UpdateSaleCartRequest request) {
+            @RequestBody AddressUpdateRequest request) {
         return addressService.updateEntity(id, request);
     }
 

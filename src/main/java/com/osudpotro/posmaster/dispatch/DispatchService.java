@@ -2,6 +2,7 @@ package com.osudpotro.posmaster.dispatch;
 
 import com.osudpotro.posmaster.branch.BranchNotFoundException;
 import com.osudpotro.posmaster.branch.BranchRepository;
+import com.osudpotro.posmaster.common.EntityNotFoundException;
 import com.osudpotro.posmaster.inventory.Inventory;
 import com.osudpotro.posmaster.inventory.InventoryByBatchNo;
 import com.osudpotro.posmaster.inventory.InventoryRepository;
@@ -117,7 +118,7 @@ public class DispatchService {
         List<DispatchItem> dispatchItems = dispatch.getItems();
         List<Inventory> acceptorInvList = new ArrayList<>();
         List<Inventory> requesterInvList = new ArrayList<>();
-        for (var dispatchItem : dispatchItems) {
+        for (DispatchItem dispatchItem : dispatchItems) {
 //            Deduct Quantity from Acceptor Branch
             Inventory acceptorInv = getInventory(dispatch, dispatchItem, InvoiceType.DISPATCH_SEND);
             acceptorInvList.add(acceptorInv);
@@ -153,12 +154,13 @@ public class DispatchService {
     public DispatchDto sendByAcceptorBranch(Long dispatchId, DispatchUpdateRequest request) {
         Dispatch dispatch = dispatchRepo.findById(dispatchId).orElseThrow(DispatchNotFoundException::new);
         if (dispatch.getDispatchStatus() != 3 && dispatch.getSendByAcceptor() != null) {
-            throw new DispatchException("You already done!");
+            throw new DispatchException("You already send!");
         }
-        List<DispatchItem> dispatchItems = dispatch.getItems();
-        List<DispatchItem> newDispatchItems = new ArrayList<>();
-        for (var item : dispatchItems) {
-            List<InventoryByBatchNo> inventoryListByBatch = invRepo.getInvListByBatch(item.getProduct().getId(), item.getProductDetail().getId());
+        var authUser = authService.getCurrentUser();
+        List<DispatchItem> dispatchItems = new ArrayList<>();
+        for (int index = 0; index < dispatch.getItems().size(); index++) {
+            DispatchItem item = dispatch.getItems().get(index);
+            List<InventoryByBatchNo> inventoryListByBatch = invRepo.getInvListByBatch(dispatch.getAcceptorBranch().getId(), item.getProduct().getId(), item.getProductDetail().getId());
             Integer total = 0;
             boolean isFirstRowUpdated = false;
             for (var invByBatch : inventoryListByBatch) {
@@ -179,25 +181,28 @@ public class DispatchService {
                         item.setDispatchQty(dispatchQty);
                         item.setPurchase(purchase);
                         item.setPurchaseDetail(purchaseDetail);
-                        newDispatchItems.add(item);
+//                        dispatchItems.set(index, item);
+                        dispatchItems.add(item);
                     } else {
                         Purchase purchase = purchaseRepo.findById(invByBatch.getPurchaseId()).orElseThrow(PurchaseException::new);
                         PurchaseDetail purchaseDetail = purchaseDetailRepo.findById(invByBatch.getPurchaseDetailId()).orElseThrow(PurchaseException::new);
                         DispatchItem newDispatchItem = new DispatchItem();
                         newDispatchItem.setDispatch(dispatch);
+                        newDispatchItem.setPurchase(purchase);
+                        newDispatchItem.setPurchaseDetail(purchaseDetail);
                         newDispatchItem.setProduct(item.getProduct());
                         newDispatchItem.setProductDetail(item.getProductDetail());
                         newDispatchItem.setDispatchQty(dispatchQty);
-                        newDispatchItem.setPurchase(purchase);
-                        newDispatchItem.setPurchaseDetail(purchaseDetail);
-                        newDispatchItems.add(newDispatchItem);
+                        dispatchItems.add(newDispatchItem);
                     }
                 }
             }
         }
+        if(dispatch.getTotalQty()<1){
+            throw new DispatchException("Stock not available !");
+        }
         dispatch.getItems().clear();
-        dispatch.getItems().addAll(newDispatchItems);
-        var authUser = authService.getCurrentUser();
+        dispatch.getItems().addAll(dispatchItems);
         dispatch.setSendByAcceptor(authUser);
         dispatch.setSendAtByAcceptor(LocalDateTime.now());
         dispatch.setSendNoteByAcceptor(request.getNote());
@@ -208,13 +213,16 @@ public class DispatchService {
 
     public DispatchWithItemPageResponse filterWithItemPagination(Long dispatchId, Pageable pageable, DispatchItemFilter filter) {
         var authUser = authService.getCurrentUser();
-        Dispatch dispatch = dispatchRepo.findById(dispatchId).orElseThrow(DispatchNotFoundException::new);
+        Dispatch dispatch = dispatchRepo.findById(dispatchId).orElseThrow(EntityNotFoundException::new);
         Page<DispatchItemDto> result = dispatchItemRepo.findAll(DispatchItemSpecification.filter(filter, dispatchId), pageable).map(dispatchItemMapper::toDto);
         return dispatchMapper.toMinDto(dispatch, result);
     }
 
     public DispatchDto addDispatchItem(Long dispatchId, DispatchItemAddRequest request) {
-        Dispatch dispatch = dispatchRepo.findById(dispatchId).orElseThrow(DispatchNotFoundException::new);
+        Dispatch dispatch = dispatchRepo.findById(dispatchId).orElseThrow(EntityNotFoundException::new);
+        if (dispatch.getDispatchStatus() == 4 || dispatch.getDispatchStatus()==5) {
+            throw new DispatchException("You are not able to add item after added to inventory!");
+        }
         Product product = productRepo.findById(request.getProductId()).orElseThrow(ProductNotFoundException::new);
         ProductDetail productDetail = productDetailRepo.findById(request.getProductDetailId()).orElseThrow(ProductDetailNotFoundException::new);
         DispatchItem dispatchItem = dispatchItemRepo.findByDispatchAndProductAndProductDetail(dispatch, product, productDetail).orElse(null);
@@ -237,9 +245,17 @@ public class DispatchService {
     public DispatchDto getDispatch(Long dispatchId) {
         return null;
     }
-
+    public DispatchItemDto deleteEntityItem(Long dispatchId,Long dispatchItemId) {
+        Dispatch dispatch = dispatchRepo.findById(dispatchId).orElseThrow(EntityNotFoundException::new);
+        if (dispatch.getDispatchStatus() == 4 || dispatch.getDispatchStatus()==5) {
+            throw new DispatchException("You are not able to delete item as added to inventory!");
+        }
+        DispatchItem dispatchItem = dispatchItemRepo.findById(dispatchItemId).orElseThrow(() -> new EntityNotFoundException("Dispatch Item not found with ID: " + dispatchItemId));
+        dispatchItemRepo.deleteById(dispatchItemId);
+        return dispatchItemMapper.toDto(dispatchItem);
+    }
     private String getGenerateDispatchRef() {
-        Dispatch dispatch = dispatchRepo.findTopByOrderByCreatedAtDesc();
+        Dispatch dispatch = dispatchRepo.findTopByOrderByIdDesc();
         if (dispatch == null) {
             dispatch = new Dispatch();
         }

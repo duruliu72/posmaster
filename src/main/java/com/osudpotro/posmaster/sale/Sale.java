@@ -11,6 +11,8 @@ import com.osudpotro.posmaster.organization.Organization;
 import com.osudpotro.posmaster.offerhub.promotion.PromotionOffer;
 import com.osudpotro.posmaster.user.User;
 import com.osudpotro.posmaster.user.UserType;
+import com.osudpotro.posmaster.user.customer.Customer;
+import com.osudpotro.posmaster.user.customer.address.Address;
 import com.osudpotro.posmaster.warehouse.Warehouse;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -32,26 +34,33 @@ public class Sale {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String saleRef;//Order Ref
-
     // ✅ ADD THIS FIELD
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_method", nullable = false)
-    private PaymentMethod paymentMethod ; //
-
-
+    private PaymentMethod paymentMethod; //
     @Enumerated(EnumType.STRING)
     private UserType userType = UserType.CUSTOMER;
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "customer_user_id", nullable = true)
+    private User customerUser;
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "customer_id", nullable = true)
+    private Customer customer;
     @ManyToOne(fetch = FetchType.LAZY)
     private Organization organization;
     @ManyToOne(fetch = FetchType.LAZY)
     private Branch branch;
     @ManyToOne(fetch = FetchType.LAZY)
     private Warehouse warehouse;
-    Boolean isStoreOut;
+    private Boolean isStoreOut;
     private BigDecimal vatAmount;
-    private String billingAddress;
-    private String deliveryAddress;
-    private BigDecimal reAwardAmount;
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "billing_address_id", nullable = true)
+    private Address billingAddress;
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "delivery_address_id", nullable = true)
+    private Address deliveryAddress;
+    private BigDecimal walletAmount;
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "offer_id", nullable = true)
     private Offer offer;
@@ -71,20 +80,17 @@ public class Sale {
     @JoinColumn(name = "special_discount_on_id", nullable = true)
     private Category specialDiscountON;
     private BigDecimal specialDiscount;
+    private BigDecimal overallDiscount;
     //    1=Through Pos 2=Through Website
     private Integer saleChannel;
-    //    1=Pending,2=Processing (After review by customer care) ,3=Accepted by Pharmacy,4=Packaging by Pharmacy,5=Dispatch by Rider(Head)/fleet(head),5=On the way by rider(through Apps),6=Delivered On the way by rider(App),7=Cancelled After review by customer care
-//    private Integer saleStatus;
     @OneToOne
     @JoinColumn(name = "sale_status_id", unique = true)
-    private SaleStatus saleStatus;
+    private SaleStatusLog saleStatusLog;
     //    1=Pending,2=Partial,3=Success 4=Credit (For employee due)
     private Integer paymentStatus;
     //    1=Cash On Delivery 2=Partial Paid ,3=Full Paid
     private Integer saleType;
-    @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "customer_id", nullable = true)
-    private User customer;
+
     private String salePoint;
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "sale_point_man_id", nullable = true)

@@ -20,7 +20,7 @@ public class SaleCartItemMapper {
         SaleCartItemDto saleCartItemDto = new SaleCartItemDto();
         saleCartItemDto.setId(saleCartItem.getId());
         saleCartItemDto.setSaleQty(saleCartItem.getSaleQty());
-
+        saleCartItemDto.setDiscount(saleCartItem.getDiscount());
         if (saleCartItem.getPurchase() != null) {
             Purchase purchase = saleCartItem.getPurchase();
             saleCartItemDto.setPurchaseId(purchase.getId());

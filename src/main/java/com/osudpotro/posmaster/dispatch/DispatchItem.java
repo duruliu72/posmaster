@@ -38,7 +38,11 @@ public class DispatchItem {
     @ManyToOne
     @JoinColumn(name = "product_detail_id")
     private ProductDetail productDetail;
-    private Integer dispatchQty;
+    //requestedQty is at time of requested by requested branch
     private Integer requestedQty;
+    //updatedQty is at time of updated by acceptor branch
     private Integer updatedQty;
+    //dispatchQty is at time of send by acceptor branch
+    private Integer dispatchQty;
+    private Boolean isRequestedItem;
 }
