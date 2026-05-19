@@ -41,7 +41,7 @@ public class Sale {
     @Enumerated(EnumType.STRING)
     private UserType userType = UserType.CUSTOMER;
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "customer_user_id", nullable = true)
+    @JoinColumn(name = "user_id", nullable = true)
     private User customerUser;
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "customer_id", nullable = true)

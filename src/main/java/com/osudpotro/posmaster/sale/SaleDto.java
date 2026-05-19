@@ -66,4 +66,9 @@ public class SaleDto {
     // Add these fields to SaleDto.java
     private String specialInstruction;
 
+    private String saleStatusLabel;
+    private String paymentStatusLabel;
+    private String customerAddress;
+
+
 }

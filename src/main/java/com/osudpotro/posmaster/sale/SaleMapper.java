@@ -1,10 +1,8 @@
 package com.osudpotro.posmaster.sale;
 
 import com.osudpotro.posmaster.branch.Branch;
-import com.osudpotro.posmaster.branch.BranchDto;
 import com.osudpotro.posmaster.inventory.InventoryRepository;
 import com.osudpotro.posmaster.organization.Organization;
-import com.osudpotro.posmaster.organization.OrganizationDto;
 import com.osudpotro.posmaster.product.ProductDetail;
 import com.osudpotro.posmaster.purchase.Purchase;
 import com.osudpotro.posmaster.purchase.PurchaseDetail;
@@ -12,7 +10,7 @@ import com.osudpotro.posmaster.salecart.SaleCartItem;
 import com.osudpotro.posmaster.user.User;
 import com.osudpotro.posmaster.user.UserPlainDto;
 import com.osudpotro.posmaster.user.customer.Customer;
-import com.osudpotro.posmaster.user.customer.CustomerMapper;
+import com.osudpotro.posmaster.user.customer.address.Address;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -25,69 +23,86 @@ public class SaleMapper {
 
     @Autowired
     private InventoryRepository inventoryRepository;
-    @Autowired
-    private CustomerMapper customerMapper;
+
     public SaleDto toDto(Sale sale) {
         if (sale == null) return null;
 
         SaleDto dto = new SaleDto();
         dto.setId(sale.getId());
         dto.setSaleRef(sale.getSaleRef());
-        // ✅ Use description instead of enum name
+
         if (sale.getPaymentMethod() != null) {
             dto.setPaymentMethod(sale.getPaymentMethod().getDescription());
         }
-        dto.setVatAmount(sale.getVatAmount());
-//        dto.setBillingAddress(sale.getBillingAddress());
-//        dto.setDeliveryAddress(sale.getDeliveryAddress());
-        dto.setDeliveryFee(sale.getDeliveryFee());
-        dto.setPrescriptionDocs(sale.getPrescriptionDocs());
-        dto.setSaleChannel(sale.getSaleChannel());
-        if(sale.getSaleStatusLog()!=null){
-            SaleStatusLog saleStatusLog = sale.getSaleStatusLog();
-            dto.setSaleStatusLogId(saleStatusLog.getId());
-            dto.setSaleStatus(saleStatusLog.getSaleStatus());
+
+        // Status from SaleStatusLog
+        if (sale.getSaleStatusLog() != null) {
+            SaleStatusLog log = sale.getSaleStatusLog();
+            dto.setSaleStatusLogId(log.getId());
+            dto.setSaleStatus(log.getSaleStatus());
+            dto.setSaleStatusLabel(getStatusLabel(log.getSaleStatus()));
+        } else {
+            dto.setSaleStatus(1);
+            dto.setSaleStatusLabel("Pending");
         }
 
         dto.setPaymentStatus(sale.getPaymentStatus());
+        dto.setPaymentStatusLabel(getPaymentLabel(sale.getPaymentStatus()));
         dto.setSaleType(sale.getSaleType());
         dto.setCreatedAt(sale.getCreatedAt());
+        dto.setVatAmount(sale.getVatAmount());
+        dto.setDeliveryFee(sale.getDeliveryFee());
+        dto.setPrescriptionDocs(sale.getPrescriptionDocs());
+        dto.setSaleChannel(sale.getSaleChannel());
 
         if (sale.getOrganization() != null) {
-            Organization org=sale.getOrganization();
-            dto.setOrganizationId(org.getId());
-            dto.setOrganizationName(org.getName());
+            dto.setOrganizationId(sale.getOrganization().getId());
+            dto.setOrganizationName(sale.getOrganization().getName());
         }
         if (sale.getBranch() != null) {
-            Branch branch=sale.getBranch();
-            dto.setBranchId(branch.getId());
-            dto.setBranchName(branch.getName());
+            dto.setBranchId(sale.getBranch().getId());
+            dto.setBranchName(sale.getBranch().getName());
         }
 
+        // Customer
         if (sale.getCustomer() != null) {
-            Customer customer=sale.getCustomer();
+            Customer customer = sale.getCustomer();
             dto.setCustomerId(customer.getId());
             dto.setCustomerEmail(customer.getEmail());
-            dto.setCustomerMobile(sale.getCustomer().getMobile());
-            dto.setCustomerName(sale.getCustomer().getUserName());
+            dto.setCustomerMobile(customer.getMobile());
+            dto.setCustomerName(customer.getUserName());
+
+            if (customer.getAddresses() != null && !customer.getAddresses().isEmpty()) {
+                dto.setCustomerAddress(buildAddressString(customer.getAddresses().get(0)));
+            }
         }
 
+        // Addresses
+        if (sale.getDeliveryAddress() != null) {
+            dto.setDeliveryAddress(buildAddressString(sale.getDeliveryAddress()));
+        }
+        if (sale.getBillingAddress() != null) {
+            dto.setBillingAddress(buildAddressString(sale.getBillingAddress()));
+        }
+
+        // Personnel
         if (sale.getSalePointMan() != null) {
             dto.setSalePointMan(toUserPlainDto(sale.getSalePointMan()));
         }
-
         if (sale.getCreatedBy() != null) {
             dto.setCreatedBy(toUserPlainDto(sale.getCreatedBy()));
         }
 
-        // Map items
+        // Items
         List<SaleItemDto> itemDtos = new ArrayList<>();
-        for (SaleItem item : sale.getItems()) {
-            itemDtos.add(toItemDto(item));
+        if (sale.getItems() != null) {
+            for (SaleItem item : sale.getItems()) {
+                itemDtos.add(toItemDto(item));
+            }
         }
         dto.setItems(itemDtos);
 
-        // Calculate totals
+        // Totals
         int totalQty = 0;
         BigDecimal totalPrice = BigDecimal.ZERO;
         for (SaleItemDto item : itemDtos) {
@@ -103,6 +118,8 @@ public class SaleMapper {
 
         return dto;
     }
+
+    // ==================== ITEM DTO ====================
 
     public SaleItemDto toItemDto(SaleItem item) {
         if (item == null) return null;
@@ -146,7 +163,7 @@ public class SaleMapper {
             }
         }
 
-        // Get current stock by barcode
+        // Current stock
         if (item.getPurchaseDetail() != null
                 && item.getPurchaseDetail().getPurchaseBarCode() != null
                 && item.getProductDetail() != null
@@ -165,6 +182,8 @@ public class SaleMapper {
         return dto;
     }
 
+    // ==================== SALE ITEM ENTITY ====================
+
     public SaleItem toSaleItemEntity(SaleCartItem cartItem, Sale sale) {
         SaleItem saleItem = new SaleItem();
         saleItem.setSale(sale);
@@ -182,6 +201,8 @@ public class SaleMapper {
         return saleItem;
     }
 
+    // ==================== HELPERS ====================
+
     private UserPlainDto toUserPlainDto(User user) {
         if (user == null) return null;
         UserPlainDto dto = new UserPlainDto();
@@ -190,5 +211,46 @@ public class SaleMapper {
         dto.setMobile(user.getMobile());
         dto.setEmail(user.getEmail());
         return dto;
+    }
+
+    private String buildAddressString(Address addr) {
+        if (addr == null) return "";
+        StringBuilder sb = new StringBuilder();
+        if (addr.getLocationName() != null && !addr.getLocationName().isEmpty()) {
+            sb.append(addr.getLocationName());
+        }
+        if (addr.getLocationDesc() != null && !addr.getLocationDesc().isEmpty()) {
+            if (!sb.isEmpty()) sb.append(", ");
+            sb.append(addr.getLocationDesc());
+        }
+        if (addr.getArea() != null && addr.getArea().getName() != null) {
+            if (!sb.isEmpty()) sb.append(", ");
+            sb.append(addr.getArea().getName());
+        }
+        return sb.toString();
+    }
+
+    private String getStatusLabel(Integer status) {
+        if (status == null) return "Pending";
+        return switch (status) {
+            case 1 -> "Pending";
+            case 2 -> "Processing";
+            case 3 -> "Accepted";
+            case 4 -> "Packaging";
+            case 5 -> "On the way";
+            case 6 -> "Delivered";
+            case 7 -> "Cancelled";
+            default -> "Unknown";
+        };
+    }
+
+    private String getPaymentLabel(Integer status) {
+        if (status == null) return "Pending";
+        return switch (status) {
+            case 1 -> "Pending";
+            case 2 -> "Partial";
+            case 3 -> "Paid";
+            default -> "Unknown";
+        };
     }
 }
