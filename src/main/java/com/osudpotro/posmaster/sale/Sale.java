@@ -83,6 +83,7 @@ public class Sale {
     private BigDecimal overallDiscount;
     //    1=Through Pos 2=Through Website
     private Integer saleChannel;
+    private Integer saleStatus;
     @OneToOne
     @JoinColumn(name = "sale_status_id", unique = true)
     private SaleStatusLog saleStatusLog;

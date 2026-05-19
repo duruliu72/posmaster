@@ -9,8 +9,17 @@ import com.osudpotro.posmaster.deliverymethod.DeliveryMethodRepository;
 import com.osudpotro.posmaster.inventory.Inventory;
 import com.osudpotro.posmaster.inventory.InventoryRepository;
 import com.osudpotro.posmaster.inventory.InvoiceType;
+import com.osudpotro.posmaster.offerhub.membership.MembershipRepository;
+import com.osudpotro.posmaster.role.Role;
+import com.osudpotro.posmaster.role.RoleRepository;
 import com.osudpotro.posmaster.salecart.*;
+import com.osudpotro.posmaster.security.UnauthorizedException;
+import com.osudpotro.posmaster.user.User;
+import com.osudpotro.posmaster.user.UserRepository;
+import com.osudpotro.posmaster.user.UserType;
 import com.osudpotro.posmaster.user.auth.AuthService;
+import com.osudpotro.posmaster.user.customer.Customer;
+import com.osudpotro.posmaster.user.customer.CustomerRepository;
 import com.osudpotro.posmaster.user.customer.address.Address;
 import com.osudpotro.posmaster.user.customer.address.AddressRepository;
 import jakarta.transaction.Transactional;
@@ -20,13 +29,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -61,11 +69,25 @@ public class SaleService {
 
     @Autowired
     private DeliveryMethodRepository deliveryMethodRepo;
+
+    @Autowired
+    private CustomerRepository customerRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
+
+    @Autowired
+    private MembershipRepository membershipRepo;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
     @Autowired
     private AddressRepository addressRepo;
-    /**
-     * CHECKOUT — Move SaleCart items to Sale + SaleItem and update Inventory
-     */
+    // ==================== CHECKOUT ====================
+
     @Transactional
     public SaleDto checkoutSaleCart(Long saleCartId, SaleCheckoutRequest request) {
         var authUser = authService.getCurrentUser();
@@ -94,12 +116,94 @@ public class SaleService {
         Sale sale = new Sale();
         sale.setSaleRef(generateSaleRef());
 
-        // ✅ FIXED: Payment method
+        // ==================== CUSTOMER LINKING / AUTO-REGISTER ====================
+
+        // Try find existing customer by email
+        if (request.getEmail() != null && !request.getEmail().isEmpty()) {
+            Customer customerOpt = customerRepository.findByEmail(request.getEmail()).orElse(null);
+            if (customerOpt != null) {
+                sale.setCustomer(customerOpt);
+                sale.setCustomerUser(customerOpt.getUser());
+            }
+        }
+
+        // Try find existing customer by mobile if not found by email
+        if (sale.getCustomer() == null && request.getMobile() != null && !request.getMobile().isEmpty()) {
+            var customerOpt = customerRepository.findByMobile(request.getMobile()).orElse(null);
+            if (customerOpt != null) {
+                sale.setCustomer(customerOpt);
+                sale.setCustomerUser(customerOpt.getUser());
+            }
+        }
+
+        // ✅ AUTO-REGISTER: If customer still not found, create new Customer + User
+        if (sale.getCustomer() == null
+                && request.getCustomerName() != null && !request.getCustomerName().isEmpty()
+                && request.getEmail() != null && !request.getEmail().isEmpty()
+                && request.getMobile() != null && !request.getMobile().isEmpty()) {
+
+            // Double-check doesn't exist
+            Customer existingCustomer = customerRepository.findByEmail(request.getEmail()).orElse(null);
+            if (existingCustomer == null) {
+                existingCustomer = customerRepository.findByMobile(request.getMobile()).orElse(null);
+            }
+
+            if (existingCustomer == null) {
+                // Create new User
+                User newUser = new User();
+                newUser.setUserType(UserType.CUSTOMER);
+                newUser.setCreatedBy(authUser);
+                newUser.setBranch(branch);
+
+                // Assign ROLE_CUSTOMER
+                Role customerRole = roleRepository.findByRoleKey("ROLE_CUSTOMER")
+                        .orElseGet(() -> {
+                            Role role = new Role();
+                            role.setName("Customer");
+                            role.setRoleKey("ROLE_CUSTOMER");
+                            role.setCreatedBy(authUser);
+                            return roleRepository.save(role);
+                        });
+                Set<Role> roles = new HashSet<>();
+                roles.add(customerRole);
+                newUser.setRoles(roles);
+
+                newUser = userRepository.save(newUser);
+
+                // Create new Customer
+                Customer newCustomer = new Customer();
+                newCustomer.setUserName(request.getCustomerName());
+                newCustomer.setEmail(request.getEmail());
+                newCustomer.setMobile(request.getMobile());
+                newCustomer.setPassword(passwordEncoder.encode(request.getMobile()));
+                newCustomer.setUser(newUser);
+                newCustomer.setCreatedBy(authUser);
+
+// Assign default membership
+                var membership = membershipRepo.findByCode("new").orElse(null);
+                if (membership != null) {
+                    newCustomer.setMembership(membership);
+                }
+
+                newCustomer = customerRepository.save(newCustomer);
+
+// ✅ FIX: Set customer back on User so getUserName() works
+                newUser.setCustomer(newCustomer);
+                userRepository.save(newUser);
+
+                sale.setCustomer(newCustomer);
+                sale.setCustomerUser(newUser);
+                log.info("New customer auto-registered: {} | {}", request.getCustomerName(), request.getEmail());
+            }
+        }
+
+        // ==================== PAYMENT METHOD ====================
+
         try {
             if (request.getPaymentMethod() != null && !request.getPaymentMethod().isEmpty()) {
                 sale.setPaymentMethod(PaymentMethod.fromCode(request.getPaymentMethod()));
             } else {
-                sale.setPaymentMethod(PaymentMethod.COD); // default
+                sale.setPaymentMethod(PaymentMethod.COD);
             }
         } catch (IllegalArgumentException e) {
             log.warn("Invalid payment method: {}, defaulting to COD", request.getPaymentMethod());
@@ -110,11 +214,10 @@ public class SaleService {
         sale.setBranch(branch);
 
         // Status
-//        sale.setSaleStatusLog(request.getSaleStatusLog() != null ? request.getSaleStatusLog() : 1);
-        sale.setPaymentStatus(request.getPaymentStatus() != null ? request.getPaymentStatus() : 1);
+        sale.setSaleStatus(1);  // Pending
+        sale.setPaymentStatus(1); // Pending
         sale.setSaleType(request.getSaleType() != null ? request.getSaleType() : 1);
         sale.setSaleChannel(request.getSaleChannel() != null ? request.getSaleChannel() : 1);
-
         // Address from frontend form
         if(request.getBillingAddressId()!=null){
             Address billingAddress = addressRepo.findById(request.getBillingAddressId())
@@ -126,6 +229,7 @@ public class SaleService {
                     .orElseThrow(() -> new EntityNotFoundException("Address Not Found"));
             sale.setDeliveryAddress(deliveryAddress);
         }
+
         // Delivery & Offers
         if (request.getDeliveryMethodId() != null) {
             DeliveryMethod deliveryMethod = deliveryMethodRepo.findById(request.getDeliveryMethodId()).orElse(null);
@@ -139,7 +243,8 @@ public class SaleService {
         sale.setSalePointMan(authUser);
         sale.setCreatedBy(authUser);
 
-        // 5. Move CartItems → SaleItems + Update Inventory
+        // ==================== MOVE CART ITEMS TO SALE ====================
+
         List<SaleItem> saleItems = new ArrayList<>();
         List<Inventory> inventoryList = new ArrayList<>();
 
@@ -167,23 +272,23 @@ public class SaleService {
             inventoryList.add(stockOut);
         }
 
-        // 6. Save Sale first
+        // Save Sale
         sale = saleRepo.save(sale);
 
-        // 7. Save SaleItems with sale reference
+        // Save SaleItems
         for (SaleItem item : saleItems) {
             item.setSale(sale);
         }
         saleItemRepo.saveAll(saleItems);
 
-        // 8. Set invoiceDetailId and save Inventory
+        // Save Inventory
         for (int i = 0; i < inventoryList.size(); i++) {
             inventoryList.get(i).setInvoiceId(sale.getId());
             inventoryList.get(i).setInvoiceDetailId(saleItems.get(i).getId());
         }
         inventoryRepo.saveAll(inventoryList);
 
-        // 9. Save Payment
+        // Save Payment
         if (request.getPaymentMethod() != null && !request.getPaymentMethod().isEmpty()) {
             try {
                 SalePayment payment = new SalePayment();
@@ -200,33 +305,115 @@ public class SaleService {
             }
         }
 
-        // 10. Clear SaleCart
+        // Clear SaleCart
         saleCart.setStatus(3);
         saleCartRepo.save(saleCart);
 
-        // 11. Return Sale with items
+        // Return Sale with items
         sale.setItems(saleItems);
         return saleMapper.toDto(sale);
     }
 
-    private String generateSaleRef() {
-        Sale sale = saleRepo.findTopByOrderByCreatedAtDesc();
-        String prefix = "SAL";
-        String datePart = new SimpleDateFormat("yyyyMMdd").format(new Date());
-        long nextSeq = 1;
-        if (sale != null && sale.getSaleRef() != null) {
-            String lastRef = sale.getSaleRef();
-            String lastPart = lastRef.length() > 5 ? lastRef.substring(lastRef.length() - 6) : lastRef;
-            if (!lastPart.isEmpty()) {
-                try {
-                    nextSeq = Long.parseLong(lastPart) + 1;
-                } catch (Exception e) {
-                    log.error("e: ", e);
-                }
-            }
+    // ==================== STATUS WORKFLOW ====================
+
+    @Transactional
+    public SaleDto updateSaleStatus(Long saleId, SaleStatusUpdateRequest request) {
+        var authUser = authService.getCurrentUser();
+        var sale = saleRepo.findById(saleId)
+                .orElseThrow(() -> new EntityNotFoundException("Sale not found with ID: " + saleId));
+
+        int currentStatus = sale.getSaleStatus();
+        int newStatus = request.getSaleStatus();
+
+        // ✅ Payment must be PAID before delivery
+        if (newStatus == 6 && sale.getPaymentStatus() != 3) {
+            throw new UnauthorizedException("Payment must be PAID before delivery!");
         }
-        return String.format("%s-%s-%06d", prefix, datePart, nextSeq);
+
+        // Validate status transition based on user role
+        validateStatusTransition(authUser, currentStatus, newStatus);
+
+        sale.setSaleStatus(newStatus);
+
+        // Set department-specific user
+        switch (newStatus) {
+            case 2:
+                sale.setCustomerCareMan(authUser);
+                sale.setCustomerCareAt(LocalDateTime.now());
+                break;
+            case 3:
+            case 4:
+                sale.setSaleMan(authUser);
+                break;
+            case 5:
+                sale.setDeliveryMan(authUser);
+                sale.setDeliveryAt(LocalDateTime.now());
+                break;
+            case 6:
+                sale.setDeliveryAt(LocalDateTime.now());
+                break;
+            case 7:
+                break;
+        }
+
+        sale.setUpdatedBy(authUser);
+        saleRepo.save(sale);
+        return saleMapper.toDto(sale);
     }
+
+    private void validateStatusTransition(User user, int currentStatus, int newStatus) {
+        String userRole = user.getRoles().stream()
+                .map(Role::getRoleKey)
+                .findFirst()
+                .orElse("");
+
+        boolean isAdmin = userRole.contains("SUPER_ADMIN") || userRole.contains("ADMIN");
+        boolean isCustomerCare = userRole.contains("CUSTOMER_CARE");
+        boolean isPharmacy = userRole.contains("PHARMACY");
+        boolean isRider = userRole.contains("RIDER") || userRole.contains("FLEET");
+
+        if (isAdmin) return;
+
+        if (currentStatus == 1 && newStatus == 2) {
+            if (!isCustomerCare) throw new UnauthorizedException("Only Customer Care can process orders");
+            return;
+        }
+        if (currentStatus == 2 && newStatus == 3) {
+            if (!isPharmacy) throw new UnauthorizedException("Only Pharmacy can accept orders");
+            return;
+        }
+        if (currentStatus == 3 && newStatus == 4) {
+            if (!isPharmacy) throw new UnauthorizedException("Only Pharmacy can package orders");
+            return;
+        }
+        if (currentStatus == 4 && newStatus == 5) {
+            if (!isRider) throw new UnauthorizedException("Only Rider/Fleet can dispatch orders");
+            return;
+        }
+        if (currentStatus == 5 && newStatus == 6) {
+            if (!isRider) throw new UnauthorizedException("Only Rider can mark as delivered");
+            return;
+        }
+        if (newStatus == 7 && currentStatus != 6) {
+            return;
+        }
+
+        throw new UnauthorizedException("Invalid status transition from " + currentStatus + " to " + newStatus);
+    }
+
+    @Transactional
+    public SaleDto updatePaymentStatus(Long saleId, SalePaymentStatusUpdateRequest request) {
+        var authUser = authService.getCurrentUser();
+        var sale = saleRepo.findById(saleId)
+                .orElseThrow(() -> new EntityNotFoundException("Sale not found with ID: " + saleId));
+
+        sale.setPaymentStatus(request.getPaymentStatus());
+        sale.setUpdatedBy(authUser);
+        saleRepo.save(sale);
+        return saleMapper.toDto(sale);
+    }
+
+    // ==================== QUERIES ====================
 
     public Page<SaleDto> filterSales(SaleFilter filter, Pageable pageable) {
         var authUser = authService.getCurrentUser();
@@ -248,5 +435,26 @@ public class SaleService {
                         PageRequest.of(0, 10, Sort.by("createdAt").descending()))
                 .map(saleMapper::toDto)
                 .toList();
+    }
+
+    // ==================== HELPERS ====================
+
+    private String generateSaleRef() {
+        Sale sale = saleRepo.findTopByOrderByCreatedAtDesc();
+        String prefix = "OSDP";
+        String datePart = new SimpleDateFormat("yyyyMMdd").format(new Date());
+        long nextSeq = 1;
+        if (sale != null && sale.getSaleRef() != null) {
+            String lastRef = sale.getSaleRef();
+            String lastPart = lastRef.length() > 5 ? lastRef.substring(lastRef.length() - 6) : lastRef;
+            if (!lastPart.isEmpty()) {
+                try {
+                    nextSeq = Long.parseLong(lastPart) + 1;
+                } catch (Exception e) {
+                    log.error("e: ", e);
+                }
+            }
+        }
+        return String.format("%s-%s-%06d", prefix, datePart, nextSeq);
     }
 }
