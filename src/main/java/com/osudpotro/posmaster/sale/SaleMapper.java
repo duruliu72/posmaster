@@ -47,12 +47,14 @@ public class SaleMapper {
         dto.setDeliveryFee(sale.getDeliveryFee());
         dto.setPrescriptionDocs(sale.getPrescriptionDocs());
         dto.setSaleChannel(sale.getSaleChannel());
-        if (sale.getSaleStatusLog() != null) {
-            SaleStatusLog saleStatusLog = sale.getSaleStatusLog();
-            dto.setSaleStatusLogId(saleStatusLog.getId());
-            dto.setSaleStatus(saleStatusLog.getSaleStatus());
+        if (sale.getSaleStatusLogs() != null && !sale.getSaleStatusLogs().isEmpty()) {
+            SaleStatusLog latestLog = sale.getSaleStatusLogs().get(sale.getSaleStatusLogs().size() - 1);
+            dto.setSaleStatus(latestLog.getSaleStatus());
+            dto.setSaleStatusLabel(getStatusLabel(latestLog.getSaleStatus()));
+        } else {
+            dto.setSaleStatus(sale.getSaleStatus());
+            dto.setSaleStatusLabel(getStatusLabel(sale.getSaleStatus()));
         }
-
         dto.setPaymentStatus(sale.getPaymentStatus());
         dto.setSaleType(sale.getSaleType());
         dto.setCreatedAt(sale.getCreatedAt());
@@ -180,5 +182,28 @@ public class SaleMapper {
         dto.setMobile(user.getMobile());
         dto.setEmail(user.getEmail());
         return dto;
+    }
+    private String getStatusLabel(Integer status) {
+        if (status == null) return "Pending";
+        return switch (status) {
+            case 1 -> "Pending";
+            case 2 -> "Processing";
+            case 3 -> "Accepted";
+            case 4 -> "Packaging";
+            case 5 -> "On the way";
+            case 6 -> "Delivered";
+            case 7 -> "Cancelled";
+            default -> "Unknown";
+        };
+    }
+
+    private String getPaymentLabel(Integer status) {
+        if (status == null) return "Pending";
+        return switch (status) {
+            case 1 -> "Pending";
+            case 2 -> "Partial";
+            case 3 -> "Paid";
+            default -> "Unknown";
+        };
     }
 }
