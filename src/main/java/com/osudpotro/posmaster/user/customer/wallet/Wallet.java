@@ -1,4 +1,4 @@
-package com.osudpotro.posmaster.user.wallet;
+package com.osudpotro.posmaster.user.customer.wallet;
 
 import com.osudpotro.posmaster.common.BaseEntity;
 import com.osudpotro.posmaster.sale.Sale;

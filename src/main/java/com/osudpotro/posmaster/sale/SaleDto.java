@@ -29,7 +29,8 @@ public class SaleDto {
     private Long warehouseId;
     private String warehouseName;
     private Boolean isStoreOut;
-    private BigDecimal vatAmount;
+    private BigDecimal vat;
+    private AmountType vatType;
     private Long billingAddressId;
     private String billingAddress;
     private Long deliveryAddressId;
@@ -42,6 +43,8 @@ public class SaleDto {
     private Long specialDiscountONId;
     private BigDecimal specialDiscount;
     private BigDecimal overallDiscount;
+    private AmountType overallDiscountType;
+    private BigDecimal adjustmentAmount;
     private Integer saleChannel;
     private Long saleStatusLogId;
     private Integer saleStatus;
@@ -61,8 +64,10 @@ public class SaleDto {
     private List<SalePaymentDto> payments = new ArrayList<>();
     // Summary fields
     private Integer totalQty;
-    private BigDecimal totalPrice;
-
+    private BigDecimal subTotalPrice;
+    private BigDecimal grandTotalPrice;
+    private BigDecimal cashReceiveAmount;
+    private BigDecimal cashReturnAmount;
     // Add these fields to SaleDto.java
     private String specialInstruction;
 

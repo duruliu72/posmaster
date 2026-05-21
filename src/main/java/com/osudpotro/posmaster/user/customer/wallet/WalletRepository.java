@@ -1,4 +1,4 @@
-package com.osudpotro.posmaster.user.wallet;
+package com.osudpotro.posmaster.user.customer.wallet;
 
 
 import org.springframework.data.jpa.repository.JpaRepository;

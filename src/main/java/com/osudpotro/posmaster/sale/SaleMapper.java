@@ -1,10 +1,8 @@
 package com.osudpotro.posmaster.sale;
 
 import com.osudpotro.posmaster.branch.Branch;
-import com.osudpotro.posmaster.branch.BranchDto;
 import com.osudpotro.posmaster.inventory.InventoryRepository;
 import com.osudpotro.posmaster.organization.Organization;
-import com.osudpotro.posmaster.organization.OrganizationDto;
 import com.osudpotro.posmaster.product.ProductDetail;
 import com.osudpotro.posmaster.purchase.Purchase;
 import com.osudpotro.posmaster.purchase.PurchaseDetail;
@@ -27,6 +25,7 @@ public class SaleMapper {
     private InventoryRepository inventoryRepository;
     @Autowired
     private CustomerMapper customerMapper;
+
     public SaleDto toDto(Sale sale) {
         if (sale == null) return null;
 
@@ -37,13 +36,18 @@ public class SaleMapper {
         if (sale.getPaymentMethod() != null) {
             dto.setPaymentMethod(sale.getPaymentMethod().getDescription());
         }
-        dto.setVatAmount(sale.getVatAmount());
+        dto.setVat(sale.getVat());
+        dto.setVatType(sale.getVatType());
+        dto.setAdjustmentAmount(sale.getAdjustmentAmount());
+        dto.setGrandTotalPrice(sale.getGrandTotalPrice());
+        dto.setCashReceiveAmount(BigDecimal.valueOf(10));
+        dto.setCashReturnAmount(BigDecimal.valueOf(10));
 //        dto.setBillingAddress(sale.getBillingAddress());
 //        dto.setDeliveryAddress(sale.getDeliveryAddress());
         dto.setDeliveryFee(sale.getDeliveryFee());
         dto.setPrescriptionDocs(sale.getPrescriptionDocs());
         dto.setSaleChannel(sale.getSaleChannel());
-        if(sale.getSaleStatusLog()!=null){
+        if (sale.getSaleStatusLog() != null) {
             SaleStatusLog saleStatusLog = sale.getSaleStatusLog();
             dto.setSaleStatusLogId(saleStatusLog.getId());
             dto.setSaleStatus(saleStatusLog.getSaleStatus());
@@ -54,18 +58,18 @@ public class SaleMapper {
         dto.setCreatedAt(sale.getCreatedAt());
 
         if (sale.getOrganization() != null) {
-            Organization org=sale.getOrganization();
+            Organization org = sale.getOrganization();
             dto.setOrganizationId(org.getId());
             dto.setOrganizationName(org.getName());
         }
         if (sale.getBranch() != null) {
-            Branch branch=sale.getBranch();
+            Branch branch = sale.getBranch();
             dto.setBranchId(branch.getId());
             dto.setBranchName(branch.getName());
         }
 
         if (sale.getCustomer() != null) {
-            Customer customer=sale.getCustomer();
+            Customer customer = sale.getCustomer();
             dto.setCustomerId(customer.getId());
             dto.setCustomerEmail(customer.getEmail());
             dto.setCustomerMobile(sale.getCustomer().getMobile());
@@ -86,21 +90,8 @@ public class SaleMapper {
             itemDtos.add(toItemDto(item));
         }
         dto.setItems(itemDtos);
-
-        // Calculate totals
-        int totalQty = 0;
-        BigDecimal totalPrice = BigDecimal.ZERO;
-        for (SaleItemDto item : itemDtos) {
-            if (item.getSaleQty() != null) totalQty += item.getSaleQty();
-            if (item.getSalePrice() != null && item.getSaleQty() != null) {
-                totalPrice = totalPrice.add(
-                        item.getSalePrice().multiply(BigDecimal.valueOf(item.getSaleQty()))
-                );
-            }
-        }
-        dto.setTotalQty(totalQty);
-        dto.setTotalPrice(totalPrice);
-
+        dto.setTotalQty(sale.getTotalQty());
+        dto.setSubTotalPrice(sale.getSubTotalPrice());
         return dto;
     }
 
@@ -111,13 +102,12 @@ public class SaleMapper {
         dto.setId(item.getId());
         dto.setSaleQty(item.getSaleQty());
         dto.setSalePrice(item.getSalePrice());
-
+        dto.setTotalPrice(item.getTotalPrice());
         if (item.getPurchase() != null) {
             Purchase purchase = item.getPurchase();
             dto.setPurchaseId(purchase.getId());
             dto.setPurchaseBatchNo(purchase.getPurchaseBatchNo());
         }
-
         if (item.getPurchaseDetail() != null) {
             PurchaseDetail pd = item.getPurchaseDetail();
             dto.setPurchaseDetailId(pd.getId());

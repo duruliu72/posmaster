@@ -1,6 +1,7 @@
 package com.osudpotro.posmaster.user.customer;
 
 import com.osudpotro.posmaster.multimedia.Multimedia;
+import com.osudpotro.posmaster.offerhub.membership.MembershipMapper;
 import com.osudpotro.posmaster.user.User;
 import com.osudpotro.posmaster.user.customer.address.Address;
 import com.osudpotro.posmaster.user.customer.address.AddressDto;
@@ -15,6 +16,8 @@ import java.util.List;
 public class CustomerMapper {
     @Autowired
     private AddressMapper addressMapper;
+    @Autowired
+    private MembershipMapper membershipMapper;
     public CustomerDto toDto(Customer customer) {
         if (customer == null) {
             return null;
@@ -53,6 +56,8 @@ public class CustomerMapper {
             pictureDto.setImageUrl(customer.getProfilePic().getImageUrl());
             customerDto.setProfilePic(pictureDto);
         }
+        customerDto.setMembership(membershipMapper.toDto(customer.getMembership()));
+        customerDto.setNetWalletAmount(customer.getNetWalletAmount());
         if (customer.getAddresses() != null && !customer.getAddresses().isEmpty()) {
             List<Address> addressList=customer.getAddresses();
             List<AddressDto> addressDtoList=new ArrayList<>();

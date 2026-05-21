@@ -19,8 +19,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,23 +53,27 @@ public class Sale {
     @ManyToOne(fetch = FetchType.LAZY)
     private Warehouse warehouse;
     private Boolean isStoreOut;
-    private BigDecimal vatAmount;
+    private BigDecimal vat;
+    private AmountType vatType;
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "billing_address_id", nullable = true)
     private Address billingAddress;
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "delivery_address_id", nullable = true)
     private Address deliveryAddress;
-    private BigDecimal walletAmount;
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "offer_id", nullable = true)
     private Offer offer;
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "promotion_offer_id", nullable = true)
     private PromotionOffer promotionOffer;
+    private BigDecimal promotionValue;
+    private LocalDateTime promoStartDate;
+    private LocalDateTime promoEndDate;
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "membership_id", nullable = true)
     private Membership membership;
+    private BigDecimal membershipDiscount;
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "delivery_method_id", nullable = true)
     private DeliveryMethod deliveryMethod;
@@ -81,6 +85,8 @@ public class Sale {
     private Category specialDiscountON;
     private BigDecimal specialDiscount;
     private BigDecimal overallDiscount;
+    private AmountType overallDiscountType;
+    private BigDecimal adjustmentAmount;
     //    1=Through Pos 2=Through Website
     private Integer saleChannel;
     private Integer saleStatus;
@@ -91,7 +97,6 @@ public class Sale {
     private Integer paymentStatus;
     //    1=Cash On Delivery 2=Partial Paid ,3=Full Paid
     private Integer saleType;
-
     private String salePoint;
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "sale_point_man_id", nullable = true)
@@ -122,4 +127,49 @@ public class Sale {
     @JsonIgnore
     @OneToMany(mappedBy = "sale", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<SaleItem> items = new ArrayList<>();
+
+    public int getTotalQty() {
+        return items.stream()
+                .filter(i ->
+                        i.getSaleQty() != null
+                )
+                .mapToInt(SaleItem::getSaleQty)
+                .sum();
+    }
+
+    public BigDecimal getSubTotalPrice() {
+        return items.stream()
+                .map(SaleItem::getTotalPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    public BigDecimal getGrandTotalPrice() {
+        BigDecimal subTotalPrice = this.getSubTotalPrice();
+        if (this.overallDiscount != null) {
+            if (this.overallDiscountType == AmountType.FIXED_AMOUNT) {
+                subTotalPrice = subTotalPrice.subtract(this.overallDiscount);
+            }
+            if (this.overallDiscountType == AmountType.PERCENTAGE) {
+                BigDecimal overallDiscountAmount = subTotalPrice
+                        .multiply(this.overallDiscount)
+                        .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+                subTotalPrice = subTotalPrice.subtract(overallDiscountAmount);
+            }
+        }
+        if (this.vat != null) {
+            if (this.vatType == AmountType.FIXED_AMOUNT) {
+                subTotalPrice = subTotalPrice.add(this.vat);
+            }
+            if (this.vatType == AmountType.PERCENTAGE) {
+                BigDecimal calVatAmount = subTotalPrice
+                        .multiply(this.vat)
+                        .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+                subTotalPrice = subTotalPrice.add(calVatAmount);
+            }
+        }
+        if (this.adjustmentAmount != null) {
+            subTotalPrice = subTotalPrice.subtract(this.adjustmentAmount);
+        }
+        return subTotalPrice;
+    }
 }
