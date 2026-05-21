@@ -697,7 +697,7 @@ public class SaleService {
             sale.setDeliveryMethod(deliveryMethod);
         }
         sale.setDeliveryFee(request.getDeliveryFee());
-        sale.setVatAmount(request.getVatAmount());
+        sale.setVat(request.getVatAmount());
         sale.setPrescriptionDocs(request.getPrescriptionDocs());
 
         // Sale personnel

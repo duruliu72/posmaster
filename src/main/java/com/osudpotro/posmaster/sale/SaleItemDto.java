@@ -21,8 +21,10 @@ public class SaleItemDto {
     private String sizeName;
     private Integer saleQty;
     private BigDecimal discount;
+    private AmountType discountType;
     private BigDecimal salePrice;
     private BigDecimal purchasePrice;
     private BigDecimal mrpPrice;
+    private BigDecimal totalPrice;
     private Integer currentStock;
 }

@@ -4,17 +4,21 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.osudpotro.posmaster.common.BaseEntity;
 import com.osudpotro.posmaster.multimedia.Multimedia;
 import com.osudpotro.posmaster.offerhub.membership.Membership;
+import com.osudpotro.posmaster.sale.SaleItem;
 import com.osudpotro.posmaster.user.User;
 import com.osudpotro.posmaster.user.customer.address.Address;
+import com.osudpotro.posmaster.user.customer.wallet.Wallet;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -53,7 +57,32 @@ public class Customer extends BaseEntity {
     @JoinColumn(name = "membership_id", nullable = true)
     private Membership membership;
     @JsonIgnore
-    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @OrderBy("id DESC")
     private List<Address> addresses = new ArrayList<>();
+    @JsonIgnore
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Wallet> wallets = new ArrayList<>();
+
+    public BigDecimal getTotalCreditAmount() {
+        if (wallets == null || wallets.isEmpty()) {
+            return BigDecimal.ZERO;
+        }
+        return wallets.stream()
+                .map(Wallet::getCreditAmount)
+                .filter(Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+    public BigDecimal getTotalDebitAmount() {
+        if (wallets == null || wallets.isEmpty()) {
+            return BigDecimal.ZERO;
+        }
+        return wallets.stream()
+                .map(Wallet::getDebitAmount)
+                .filter(Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+    public BigDecimal getNetWalletAmount(){
+        return getTotalCreditAmount().subtract(getTotalDebitAmount());
+    }
 }
