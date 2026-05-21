@@ -3,6 +3,7 @@ package com.osudpotro.posmaster.address.area;
 import com.osudpotro.posmaster.common.PagedResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,6 +21,10 @@ import java.util.Map;
 @RestController
 @RequestMapping("/areas")
 public class AreaController {
+
+    @Autowired
+    private AreaRepository areaRepo;
+
     private final AreaService areaService;
 
     //    @PreAuthorize("hasAuthority('BRANCH_READ')")
@@ -43,6 +49,20 @@ public class AreaController {
         Page<AreaDto> result = areaService.getAllEntities(filter, pageable);
         return new PagedResponse<>(result);
     }
+
+
+        @GetMapping("/active")
+        public ResponseEntity<?> getActiveAreas() {
+            List<Area> areas = areaRepo.findByStatusAndIsSubArea(1, false);
+            List<Map<String, Object>> result = areas.stream().map(a -> {
+                Map<String, Object> map = new HashMap<>();
+                map.put("id", a.getId());
+                map.put("name", a.getName());
+                return map;
+            }).toList();
+            return ResponseEntity.ok(result);
+        }
+
 
     @PostMapping("/upload_csv")
     public int uploadCsvFile(@RequestParam("filepond") MultipartFile file) {

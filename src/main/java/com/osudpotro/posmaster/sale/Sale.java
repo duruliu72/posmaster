@@ -41,7 +41,7 @@ public class Sale {
     @Enumerated(EnumType.STRING)
     private UserType userType = UserType.CUSTOMER;
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "customer_user_id", nullable = true)
+    @JoinColumn(name = "user_id", nullable = true)
     private User customerUser;
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "customer_id", nullable = true)
@@ -90,9 +90,11 @@ public class Sale {
     //    1=Through Pos 2=Through Website
     private Integer saleChannel;
     private Integer saleStatus;
-    @OneToOne
-    @JoinColumn(name = "sale_status_id", unique = true)
-    private SaleStatusLog saleStatusLog;
+
+    @OneToMany(mappedBy = "sale", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<SaleStatusLog> saleStatusLogs = new ArrayList<>();
+
+
     //    1=Pending,2=Partial,3=Success 4=Credit (For employee due)
     private Integer paymentStatus;
     //    1=Cash On Delivery 2=Partial Paid ,3=Full Paid
