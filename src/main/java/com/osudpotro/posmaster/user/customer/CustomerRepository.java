@@ -1,6 +1,5 @@
 package com.osudpotro.posmaster.user.customer;
 
-import com.osudpotro.posmaster.user.Employee.Employee;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -18,8 +17,20 @@ public interface CustomerRepository extends JpaSpecificationExecutor<Customer>, 
     boolean existsByMobile(String mobile);
     boolean existsByEmailOrMobile(String email, String mobile);
     Optional<Customer> findByOtpCode(String otpCode);
+
     @Transactional
     @Modifying
     @Query("update Customer c set c.status = :status where c.id in :ids")
     int deleteBulkCustomer(@Param("ids") List<Long> ids, @Param("status") Long status);
-}
+
+    @Query(value = "SELECT * FROM customers WHERE LOWER(email) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(mobile) LIKE LOWER(CONCAT('%', :keyword, '%'))", nativeQuery = true)
+    List<Customer> searchByEmailOrMobile(@Param("keyword") String keyword);
+
+
+    }
+
+
+
+
+
+

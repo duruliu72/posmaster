@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
 @Getter
@@ -63,4 +64,25 @@ public class SaleItem {
     @JoinColumn(name = "membership_id")
     private Membership membership;
     private BigDecimal membershipDiscount;
+    private BigDecimal discount;
+    private AmountType discountType;
+
+    public BigDecimal getTotalPrice() {
+        if (this.salePrice == null || this.saleQty == null) {
+            return BigDecimal.ZERO;
+        }
+        BigDecimal totalPrice = this.salePrice.multiply(BigDecimal.valueOf(this.saleQty));
+        if (this.discount != null) {
+            if (this.discountType == AmountType.FIXED_AMOUNT) {
+                return totalPrice.subtract(this.discount);
+            }
+            if (this.discountType == AmountType.PERCENTAGE) {
+                BigDecimal discountAmount = totalPrice
+                        .multiply(this.discount)
+                        .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+                return totalPrice.subtract(discountAmount);
+            }
+        }
+        return totalPrice;
+    }
 }

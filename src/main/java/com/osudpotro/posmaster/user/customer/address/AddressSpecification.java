@@ -11,7 +11,7 @@ public class AddressSpecification {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             if (filter.getName() != null && !filter.getName().isEmpty()) {
-                predicates.add(cb.like(cb.lower(root.get("name")),
+                predicates.add(cb.like(cb.lower(root.get("fullName")),
                         "%" + filter.getName().toLowerCase() + "%"));
             }
 

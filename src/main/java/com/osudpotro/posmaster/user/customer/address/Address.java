@@ -19,20 +19,21 @@ public class Address extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id")
     private Customer customer;
-    private String name;
+    private String fullName;
     private String email;
     private String mobile;
     //    1=Home Address ,2=Office Address,3=Hometown
     private Integer addressType;
     //    1=Billing Address ,2=Shipping Address
     private Integer addressCategory;
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "area_id", nullable = true)
+    private Area area;
+    private String placeId;
     private Double latitude;
     private Double longitude;
     private Double accuracy;
     private String locationName;
     private String locationDesc;
     private Boolean isDefault;
-    @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "area_id", nullable = true)
-    private Area area;
 }

@@ -14,64 +14,20 @@ import java.util.Optional;
 public interface InventoryRepository extends JpaSpecificationExecutor<Inventory>, JpaRepository<Inventory, Long> {
     List<Inventory> findAllByBranch(Branch branch);
 
+
+    //OASIK
     @Query("SELECT " +
-            "i.purchase.id as purchaseId," +
-            "i.purchaseDetail.id as purchaseDetailId," +
-            "i.purchaseBatchNo as purchaseBatchNo," +
-            "i.productionBatchNo as productionBatchNo," +
-            "i.product.id as productId," +
-            "i.product.productName as productName," +
-            "i.product.productCode as productCode, " +
-            "i.product.productBarCode as productBarCode," +
-            "i.product.productType.id as productTypeId, " +
-            "i.product.productType.name as productTypeName, " +
-            "i.product.manufacturer.id as manufacturerId, " +
-            "i.product.manufacturer.name as manufacturerName, " +
-            "i.productDetail.id as productDetailId, " +
-            "i.productDetail.productDetailCode as productDetailCode, " +
-            "i.productDetail.productDetailBarCode as productDetailBarCode, " +
-            "i.productDetail.productDetailSku as productDetailSku, " +
-            "i.productDetail.purchasePrice as lastPurchasePrice, " +
-            "i.productDetail.mrpPrice as lastMrpPrice, " +
-            "i.productDetail.sellPrice as lastSellPrice, " +
-            "i.productDetail.updatedAt as lastUpdatedAt, " +
-            "i.branch.id as branchId, " +
-            "i.branch.name as branchName, " +
-            "i.productDetail.size.id as sizeId, " +
-            "i.productDetail.size.name as sizeName, " +
-            "COALESCE(SUM(i.stockIn), 0) as totalStockIn, " +
-            "COALESCE(SUM(i.stockOut), 0) as totalStockOut, " +
-            "COALESCE(SUM(i.stockIn), 0) - COALESCE(SUM(i.stockOut), 0) as currentStock, " +
-            "i.createdAt as createdAt " +
+            "COALESCE(SUM(i.stockIn), 0) - COALESCE(SUM(i.stockOut), 0) " +
             "FROM Inventory i " +
-            "WHERE (:productId IS NULL OR i.product.id = :productId) " +
-            "AND (:productDetailId IS NULL OR i.productDetail.id = :productDetailId) " +
-            "GROUP BY " +
-            "i.purchase.id," +
-            "i.purchaseDetail.id," +
-            "i.purchaseBatchNo," +
-            "i.productionBatchNo," +
-            "i.product.id," +
-            "i.product.productName," +
-            "i.product.productCode," +
-            "i.product.productBarCode," +
-            "i.product.productType.id," +
-            "i.product.productType.name," +
-            "i.product.manufacturer.id," +
-            "i.product.manufacturer.name," +
-            "i.productDetail.id," +
-            "i.productDetail.productDetailCode," +
-            "i.productDetail.productDetailBarCode," +
-            "i.productDetail.productDetailSku," +
-            "i.productDetail.purchasePrice," +
-            "i.productDetail.mrpPrice," +
-            "i.productDetail.sellPrice," +
-            "i.productDetail.updatedAt," +
-            "i.branch.id,i.branch.name," +
-            "i.productDetail.size.id, " +
-            "i.productDetail.size.name," +
-            "i.createdAt")
-    List<InventoryByBatchNo> getInvListByBatch(@Param("productId") Long productId, @Param("productDetailId") Long productDetailId);
+            "WHERE i.purchaseBarCode = :purchaseBarCode " +
+            "AND i.productDetail.id = :productDetailId " +
+            "AND i.branch.id = :branchId " +
+            "GROUP BY i.purchaseBarCode, i.productDetail.id, i.branch.id")
+    Integer findCurrentStockByPurchaseBarCode(
+            @Param("purchaseBarCode") String purchaseBarCode,
+            @Param("productDetailId") Long productDetailId,
+            @Param("branchId") Long branchId);
+
 
     @Query("SELECT " +
             "i.purchase.id as purchaseId," +
@@ -103,8 +59,7 @@ public interface InventoryRepository extends JpaSpecificationExecutor<Inventory>
             "i.productDetail.size.name as sizeName, " +
             "COALESCE(SUM(i.stockIn), 0) as totalStockIn, " +
             "COALESCE(SUM(i.stockOut), 0) as totalStockOut, " +
-            "COALESCE(SUM(i.stockIn), 0) - COALESCE(SUM(i.stockOut), 0) as currentStock, " +
-            "i.createdAt as createdAt " +
+            "COALESCE(SUM(i.stockIn), 0) - COALESCE(SUM(i.stockOut), 0) as currentStock " +
             "FROM Inventory i " +
             "WHERE (:branchId IS NULL OR i.branch.id = :branchId) " +
             "AND (:searchKey IS NULL OR LOWER(i.product.productName) LIKE LOWER(CONCAT('%', :searchKey, '%'))) " +
@@ -134,8 +89,9 @@ public interface InventoryRepository extends JpaSpecificationExecutor<Inventory>
             "i.productDetail.updatedAt," +
             "i.branch.id,i.branch.name," +
             "i.productDetail.size.id, " +
-            "i.productDetail.size.name, " +
-            "i.createdAt ORDER BY i.purchaseBatchNo desc")
+            "i.productDetail.size.name " +
+            "HAVING COALESCE(SUM(i.stockIn), 0) - COALESCE(SUM(i.stockOut), 0) > 0 " +
+            "ORDER BY i.purchaseBatchNo desc")
     Page<InventoryByPurchaseBarcode> filterInvGroupByPurchaseBarCodeFromAuthBranch(@Param("branchId") Long branchId, @Param("searchKey") String searchKey, Pageable pageable);
 
     @Query("SELECT " +
@@ -168,8 +124,7 @@ public interface InventoryRepository extends JpaSpecificationExecutor<Inventory>
             "i.productDetail.size.name as sizeName, " +
             "COALESCE(SUM(i.stockIn), 0) as totalStockIn, " +
             "COALESCE(SUM(i.stockOut), 0) as totalStockOut, " +
-            "COALESCE(SUM(i.stockIn), 0) - COALESCE(SUM(i.stockOut), 0) as currentStock, " +
-            "i.createdAt as createdAt " +
+            "COALESCE(SUM(i.stockIn), 0) - COALESCE(SUM(i.stockOut), 0) as currentStock " +
             "FROM Inventory i " +
             "WHERE (:branchId IS NULL OR i.branch.id = :branchId) " +
             "AND (:purchaseBarCode IS NULL OR LOWER(i.purchaseBarCode) LIKE LOWER(CONCAT('%', :purchaseBarCode, '%'))) " +
@@ -199,11 +154,14 @@ public interface InventoryRepository extends JpaSpecificationExecutor<Inventory>
             "i.productDetail.updatedAt," +
             "i.branch.id,i.branch.name," +
             "i.productDetail.size.id, " +
-            "i.productDetail.size.name, " +
-            "i.createdAt ORDER BY i.purchaseBatchNo desc")
+            "i.productDetail.size.name " +
+            "HAVING COALESCE(SUM(i.stockIn), 0) - COALESCE(SUM(i.stockOut), 0) > 0 " +
+            "ORDER BY i.purchaseBatchNo desc")
     Optional<InventoryByPurchaseBarcode> findInvGroupByPurchaseBarCodeFromAuthBranch(@Param("branchId") Long branchId, @Param("purchaseBarCode") String purchaseBarCode);
 
     @Query("SELECT " +
+            "i.purchase.id as purchaseId," +
+            "i.purchaseDetail.id as purchaseDetailId," +
             "i.purchaseBatchNo as purchaseBatchNo," +
             "i.product.id as productId," +
             "i.product.productName as productName," +
@@ -227,12 +185,13 @@ public interface InventoryRepository extends JpaSpecificationExecutor<Inventory>
             "i.productDetail.size.name as sizeName, " +
             "COALESCE(SUM(i.stockIn), 0) as totalStockIn, " +
             "COALESCE(SUM(i.stockOut), 0) as totalStockOut, " +
-            "COALESCE(SUM(i.stockIn), 0) - COALESCE(SUM(i.stockOut), 0) as currentStock, " +
-            "i.createdAt as createdAt " +
+            "COALESCE(SUM(i.stockIn), 0) - COALESCE(SUM(i.stockOut), 0) as currentStock " +
             "FROM Inventory i " +
             "WHERE (:branchId IS NULL OR i.branch.id = :branchId) " +
             "AND (:searchKey IS NULL OR LOWER(i.product.productName) LIKE LOWER(CONCAT('%', :searchKey, '%'))) " +
             "GROUP BY " +
+            "i.purchase.id," +
+            "i.purchaseDetail.id," +
             "i.purchaseBatchNo," +
             "i.product.id," +
             "i.product.productName," +
@@ -252,10 +211,65 @@ public interface InventoryRepository extends JpaSpecificationExecutor<Inventory>
             "i.productDetail.updatedAt," +
             "i.branch.id,i.branch.name," +
             "i.productDetail.size.id, " +
-            "i.productDetail.size.name, " +
-            "i.createdAt ORDER BY i.purchaseBatchNo desc")
+            "i.productDetail.size.name " +
+            "ORDER BY i.purchaseBatchNo desc")
     Page<InventoryByBatchNo> filterInvGroupBatchByBranch(@Param("branchId") Long branchId, @Param("searchKey") String searchKey, Pageable pageable);
-
+    @Query("SELECT " +
+            "i.purchase.id as purchaseId," +
+            "i.purchaseDetail.id as purchaseDetailId," +
+            "i.purchaseBatchNo as purchaseBatchNo," +
+            "i.product.id as productId," +
+            "i.product.productName as productName," +
+            "i.product.productCode as productCode, " +
+            "i.product.productBarCode as productBarCode," +
+            "i.product.productType.id as productTypeId, " +
+            "i.product.productType.name as productTypeName, " +
+            "i.product.manufacturer.id as manufacturerId, " +
+            "i.product.manufacturer.name as manufacturerName, " +
+            "i.productDetail.id as productDetailId, " +
+            "i.productDetail.productDetailCode as productDetailCode, " +
+            "i.productDetail.productDetailBarCode as productDetailBarCode, " +
+            "i.productDetail.productDetailSku as productDetailSku, " +
+            "i.productDetail.purchasePrice as lastPurchasePrice, " +
+            "i.productDetail.mrpPrice as lastMrpPrice, " +
+            "i.productDetail.sellPrice as lastSellPrice, " +
+            "i.productDetail.updatedAt as lastUpdatedAt, " +
+            "i.branch.id as branchId, " +
+            "i.branch.name as branchName, " +
+            "i.productDetail.size.id as sizeId, " +
+            "i.productDetail.size.name as sizeName, " +
+            "COALESCE(SUM(i.stockIn), 0) as totalStockIn, " +
+            "COALESCE(SUM(i.stockOut), 0) as totalStockOut, " +
+            "COALESCE(SUM(i.stockIn), 0) - COALESCE(SUM(i.stockOut), 0) as currentStock " +
+            "FROM Inventory i " +
+            "WHERE (:branchId IS NULL OR i.branch.id = :branchId)" +
+            "AND (:productId IS NULL OR i.product.id = :productId) " +
+            "AND (:productDetailId IS NULL OR i.productDetail.id = :productDetailId) " +
+            "GROUP BY " +
+            "i.purchase.id," +
+            "i.purchaseDetail.id," +
+            "i.purchaseBatchNo," +
+            "i.product.id," +
+            "i.product.productName," +
+            "i.product.productCode," +
+            "i.product.productBarCode," +
+            "i.product.productType.id," +
+            "i.product.productType.name," +
+            "i.product.manufacturer.id," +
+            "i.product.manufacturer.name," +
+            "i.productDetail.id," +
+            "i.productDetail.productDetailCode," +
+            "i.productDetail.productDetailBarCode," +
+            "i.productDetail.productDetailSku," +
+            "i.productDetail.purchasePrice," +
+            "i.productDetail.mrpPrice," +
+            "i.productDetail.sellPrice," +
+            "i.productDetail.updatedAt," +
+            "i.branch.id,i.branch.name," +
+            "i.productDetail.size.id, " +
+            "i.productDetail.size.name " +
+            "ORDER BY i.purchaseBatchNo desc")
+    List<InventoryByBatchNo> getInvListByBatch(@Param("branchId") Long branchId,@Param("productId") Long productId, @Param("productDetailId") Long productDetailId);
     @Query("SELECT i.product.id as productId," +
             "i.product.productName as productName," +
             "i.product.productCode as productCode, " +
@@ -301,6 +315,8 @@ public interface InventoryRepository extends JpaSpecificationExecutor<Inventory>
             "i.productDetail.updatedAt," +
             "i.branch.id,i.branch.name," +
             "i.productDetail.size.id, " +
-            "i.productDetail.size.name")
+            "i.productDetail.size.name " +
+            "HAVING COALESCE(SUM(i.stockIn), 0) - COALESCE(SUM(i.stockOut), 0) > 0 "
+    )
     Page<InventoryByProductDetail> filterInvGroupProductDetailByBranch(@Param("branchId") Long branchId, @Param("searchKey") String searchKey, Pageable pageable);
 }

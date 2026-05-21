@@ -10,8 +10,8 @@ import com.osudpotro.posmaster.role.RoleRepository;
 import com.osudpotro.posmaster.user.*;
 import com.osudpotro.posmaster.user.Employee.EmployeeNotFoundException;
 import com.osudpotro.posmaster.user.auth.AuthService;
-import com.osudpotro.posmaster.user.wallet.Wallet;
-import com.osudpotro.posmaster.user.wallet.WalletRepository;
+import com.osudpotro.posmaster.user.customer.wallet.Wallet;
+import com.osudpotro.posmaster.user.customer.wallet.WalletRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -48,7 +48,9 @@ public class CustomerService {
     public Page<CustomerDto> filterCustomers(CustomerFilter filter, Pageable pageable) {
         return customerRepository.findAll(CustomerSpecification.filter(filter), pageable).map(customerMapper::toDto);
     }
-
+    public Page<CustomerDto> orOpFilterCustomers(CustomerFilter filter, Pageable pageable) {
+        return customerRepository.findAll(CustomerSpecification.orOpFilter(filter), pageable).map(customerMapper::toDto);
+    }
     @Transactional
     public CustomerDto registerCustomer(CustomerCreateRequest request) {
         if (request.getEmail() != null && customerRepository.existsByEmail(request.getEmail())) {

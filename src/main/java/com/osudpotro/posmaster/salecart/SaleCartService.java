@@ -57,6 +57,7 @@ public class SaleCartService {
         SaleCart saleCart = new SaleCart();
         saleCart.setEmail(request.getEmail());
         saleCart.setMobile(request.getMobile());
+        saleCart.setOverallDiscount(request.getOverallDiscount());
         List<SaleCartItem> items = new ArrayList<>();
         if (request.getCartItem() != null) {
             SaleCartItemAddRequest itemRequest = request.getCartItem();
@@ -72,6 +73,7 @@ public class SaleCartService {
             if (itemRequest.getSaleQty() != null) {
                 saleCartItem.setSaleQty(itemRequest.getSaleQty());
             }
+            saleCartItem.setDiscount(itemRequest.getDiscount());
             saleCartItemRepo.save(saleCartItem);
             items.add(saleCartItem);
             saleCartItem.setSaleCart(saleCart);
@@ -89,6 +91,7 @@ public class SaleCartService {
         var authUser = authService.getCurrentUser();
         saleCart.setEmail(request.getEmail());
         saleCart.setMobile(request.getMobile());
+        saleCart.setOverallDiscount(request.getOverallDiscount());
         saleCart.setUpdatedBy(authUser);
         return saleCartMapper.toDto(saleCart);
     }
@@ -116,6 +119,7 @@ public class SaleCartService {
         if (request.getSaleQty() != null) {
             saleCartItem.setSaleQty(request.getSaleQty());
         }
+        saleCartItem.setDiscount(request.getDiscount());
         saleCartItem.setSaleCart(saleCart);
         saleCartItemRepo.save(saleCartItem);
         return saleCartItemMapper.toDto(saleCartItem);
@@ -133,6 +137,7 @@ public class SaleCartService {
             throw new EntityNotFoundException("Sale Cart Item Not Found");
         }
         saleCartItem.setSaleQty(request.getSaleQty());
+        saleCartItem.setDiscount(request.getDiscount());
         return saleCartItemMapper.toDto(saleCartItem);
     }
 

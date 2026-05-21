@@ -10,7 +10,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.data.domain.Page;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -79,7 +78,6 @@ public class Dispatch {
     private Integer dispatchStatus = 1;
     @OneToMany(mappedBy = "dispatch", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<DispatchItem> items = new ArrayList<>();
-
     public int getTotalQty() {
         return items.stream()
                 .filter(i ->

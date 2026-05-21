@@ -10,6 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 public interface AreaRepository extends JpaSpecificationExecutor<Area>,JpaRepository<Area,Long> {
+
+    List<Area> findByStatusAndIsSubArea(Integer status, Boolean isSubArea);
+    List<Area> findByParentAreaIdAndStatus(Long parentAreaId, Integer status);
     boolean existsByName(String name);
     @Transactional
     @Modifying

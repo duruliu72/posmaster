@@ -19,7 +19,8 @@ public class InventoryService {
     InventoryMapper invMapper;
 
     List<InventoryByBatchNo> getInvListByBatch(Long productId, Long productDetailId) {
-        return invRepo.getInvListByBatch(productId, productDetailId);
+        var authUser = authService.getCurrentUser();
+        return invRepo.getInvListByBatch(authUser.getBranch().getId(),productId, productDetailId);
     }
 
     public Page<InventoryDto> filterEntities(InventoryFilter filter, Pageable pageable) {
@@ -45,12 +46,10 @@ public class InventoryService {
         var authUser = authService.getCurrentUser();
         return invRepo.filterInvGroupBatchByBranch(authUser.getBranch().getId(), "", pageable);
     }
-
     public Page<InventoryByProductDetail> filterInvGroupProductDetailByAuthBranch(InventoryFilter filter, Pageable pageable) {
         var authUser = authService.getCurrentUser();
-        return invRepo.filterInvGroupProductDetailByBranch(authUser.getBranch().getId(), "", pageable);
+        return invRepo.filterInvGroupProductDetailByBranch(authUser.getBranch().getId(), filter.getSearchKey(), pageable);
     }
-
     public Page<InventoryByProductDetail> filterInvGroupProductDetailByBranch(InventoryFilter filter, Pageable pageable) {
         return invRepo.filterInvGroupProductDetailByBranch(filter.getBranchId(), filter.getSearchKey(), pageable);
     }

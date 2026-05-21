@@ -71,8 +71,6 @@ public class Purchase {
     @JsonIgnore
     @OneToMany(mappedBy = "purchase", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
     private List<PurchaseDetail> items = new ArrayList<>();
-
-
     public String getGeneratePurchaseBatchNo() {
         String tripPrefix="BATCH";
         String datePart = new SimpleDateFormat("yyyyMMdd").format(new Date());

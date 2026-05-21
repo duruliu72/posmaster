@@ -2,6 +2,7 @@ package com.osudpotro.posmaster.user;
 
 
 import com.osudpotro.posmaster.common.PagedResponse;
+import com.osudpotro.posmaster.user.auth.AuthService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +24,7 @@ public class UserController {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final UserService userService;
+    private final AuthService authService;
 
     @GetMapping
     public List<UserDto> getAllUsers(@RequestHeader(required = false, name = "x-auth-token") String authToken, @RequestParam(required = false, defaultValue = "", name = "sort") String sort) {
