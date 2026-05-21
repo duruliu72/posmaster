@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.osudpotro.posmaster.common.BaseEntity;
 import com.osudpotro.posmaster.multimedia.Multimedia;
 import com.osudpotro.posmaster.offerhub.membership.Membership;
-import com.osudpotro.posmaster.sale.SaleItem;
 import com.osudpotro.posmaster.user.User;
 import com.osudpotro.posmaster.user.customer.address.Address;
 import com.osudpotro.posmaster.user.customer.wallet.Wallet;
