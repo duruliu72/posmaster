@@ -11,6 +11,7 @@ import java.util.List;
 
 public interface DeliveryMethodRepository extends JpaSpecificationExecutor<DeliveryMethod>,JpaRepository<DeliveryMethod,Long> {
     boolean existsByTitle(String name);
+    List<DeliveryMethod> findByStatusOrderByTitleAsc(Integer status);
     @Transactional
     @Modifying
     @Query("update DeliveryMethod dm set dm.status = :status where dm.id in :ids")

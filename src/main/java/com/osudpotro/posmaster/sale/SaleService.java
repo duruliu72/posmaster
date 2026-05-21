@@ -793,6 +793,13 @@ public class SaleService {
 
         sale.setSaleStatus(newStatus);
 
+        // ✅ Create new SaleStatusLog and add to list
+        SaleStatusLog statusLog = new SaleStatusLog();
+        statusLog.setSaleStatus(newStatus);
+        statusLog.setSale(sale);
+        statusLog.setCreatedBy(authUser);
+        sale.getSaleStatusLogs().add(statusLog);
+
         switch (newStatus) {
             case 2:
                 sale.setCustomerCareMan(authUser);
@@ -812,7 +819,7 @@ public class SaleService {
         }
 
         sale.setUpdatedBy(authUser);
-        saleRepo.save(sale);
+        saleRepo.saveAndFlush(sale);
         return saleMapper.toDto(sale);
     }
 
