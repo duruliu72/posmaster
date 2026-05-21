@@ -96,7 +96,21 @@ public class CustomerController {
         Page<CustomerDto> result = customerService.filterCustomers(filter, pageable);
         return new PagedResponse<>(result);
     }
-
+    @PostMapping("/filter-or")
+    public PagedResponse<CustomerDto> orOpFilterCustomers(
+            @RequestBody CustomerFilter filter,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir
+    ) {
+        Sort sort = sortDir.equalsIgnoreCase("asc") ?
+                Sort.by(sortBy).ascending() :
+                Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<CustomerDto> result = customerService.orOpFilterCustomers(filter, pageable);
+        return new PagedResponse<>(result);
+    }
     //    @PreAuthorize("hasAuthority('CUSTOMER_READ')")
     @GetMapping("/{id}")
     public CustomerDto getCustomer(@PathVariable Long id) {
