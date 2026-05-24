@@ -6,7 +6,11 @@ import com.osudpotro.posmaster.user.User;
 import com.osudpotro.posmaster.user.customer.address.Address;
 import com.osudpotro.posmaster.user.customer.address.AddressDto;
 import com.osudpotro.posmaster.user.customer.address.AddressMapper;
+import com.osudpotro.posmaster.user.customer.wallet.Wallet;
+import com.osudpotro.posmaster.user.customer.wallet.WalletDto;
+import com.osudpotro.posmaster.user.customer.wallet.WalletMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -18,11 +22,13 @@ public class CustomerMapper {
     private AddressMapper addressMapper;
     @Autowired
     private MembershipMapper membershipMapper;
-    public CustomerDto toDto(Customer customer) {
+    @Autowired
+    private WalletMapper walletMapper;
+    private CustomerDto toMap(Customer customer) {
         if (customer == null) {
             return null;
         }
-        CustomerDto customerDto = new CustomerDto();
+        CustomerDto customerDto = new CustomerDtoPage();
         customerDto.setId(customer.getId());
         User user = customer.getUser();
         customerDto.setUserName(customer.getUserName());
@@ -58,14 +64,46 @@ public class CustomerMapper {
         }
         customerDto.setMembership(membershipMapper.toDto(customer.getMembership()));
         customerDto.setNetWalletAmount(customer.getNetWalletAmount());
+        return customerDto;
+    }
+
+    public CustomerDto toDto(Customer customer) {
+        CustomerDto customerDto = toMap(customer);
         if (customer.getAddresses() != null && !customer.getAddresses().isEmpty()) {
-            List<Address> addressList=customer.getAddresses();
-            List<AddressDto> addressDtoList=new ArrayList<>();
-            for (Address address:addressList){
+            List<Address> addressList = customer.getAddresses();
+            List<AddressDto> addressDtoList = new ArrayList<>();
+            for (Address address : addressList) {
                 addressDtoList.add(addressMapper.toDto(address));
             }
             customerDto.setAddresses(addressDtoList);
         }
+//        Wallets
+        if (customer.getWallets() != null && !customer.getWallets().isEmpty()) {
+            List<Wallet> wallets = customer.getWallets();
+            List<WalletDto> walletDtoList = new ArrayList<>();
+            for (Wallet wallet : wallets) {
+                walletDtoList.add(walletMapper.toDto(wallet));
+            }
+            customerDto.setWallets(walletDtoList);
+        }
+        return customerDto;
+    }
+
+    public CustomerDtoPage toDtoPage(Customer customer, Page<AddressDto> addressPage, Page<WalletDto> walletPage) {
+        CustomerDtoPage customerDto = (CustomerDtoPage) toMap(customer);
+        //For Address Pagination
+        customerDto.setAddresses(addressPage.getContent());
+        customerDto.setTotalAddressElements(addressPage.getTotalElements());
+        customerDto.setAddressPageNumber(addressPage.getNumber());
+        customerDto.setAddressPageSize(addressPage.getSize());
+        customerDto.setTotalAddressPages(addressPage.getTotalPages());
+
+        //For Wallet Pagination
+        customerDto.setWallets(walletPage.getContent());
+        customerDto.setTotalWalletElements(walletPage.getTotalElements());
+        customerDto.setWalletPageNumber(walletPage.getNumber());
+        customerDto.setWalletPageSize(walletPage.getSize());
+        customerDto.setTotalWalletPages(walletPage.getTotalPages());
         return customerDto;
     }
 

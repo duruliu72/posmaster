@@ -2,8 +2,6 @@ package com.osudpotro.posmaster.user.customer;
 
 import com.osudpotro.posmaster.common.EntityNotFoundException;
 import com.osudpotro.posmaster.common.PagedResponse;
-import com.osudpotro.posmaster.user.User;
-import com.osudpotro.posmaster.user.UserRepository;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +17,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @RestController
@@ -31,10 +28,6 @@ public class CustomerController {
     private CustomerRepository customerRepository;
     @Autowired
     private final CustomerService customerService;
-
-
-
-
 
     @GetMapping("/search-customer")
     public ResponseEntity<?> searchCustomer(@RequestParam String keyword) {
@@ -74,7 +67,6 @@ public class CustomerController {
     }
 
 
-
     //    @PreAuthorize("hasAuthority('CUSTOMER_READ')")
     @GetMapping
     public List<CustomerDto> getAllCustomers() {
@@ -94,8 +86,10 @@ public class CustomerController {
                 Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
         Page<CustomerDto> result = customerService.filterCustomers(filter, pageable);
+
         return new PagedResponse<>(result);
     }
+
     @PostMapping("/filter-or")
     public PagedResponse<CustomerDto> orOpFilterCustomers(
             @RequestBody CustomerFilter filter,
@@ -111,10 +105,36 @@ public class CustomerController {
         Page<CustomerDto> result = customerService.orOpFilterCustomers(filter, pageable);
         return new PagedResponse<>(result);
     }
+
     //    @PreAuthorize("hasAuthority('CUSTOMER_READ')")
     @GetMapping("/{id}")
     public CustomerDto getCustomer(@PathVariable Long id) {
         return customerService.getCustomer(id);
+    }
+
+    @GetMapping("/{id}/filter")
+    public CustomerDtoPage getEntityWithFieldsPage(@PathVariable Long id,
+                                               //For Address Pagination
+                                               @RequestParam(defaultValue = "0") int addressPage,
+                                               @RequestParam(defaultValue = "10") int addressSize,
+                                               @RequestParam(defaultValue = "id") String addressSortBy,
+                                               @RequestParam(defaultValue = "desc") String addressSortDir,
+                                               //For Wallet Pagination
+                                               @RequestParam(defaultValue = "0") int walletPage,
+                                               @RequestParam(defaultValue = "10") int walletSize,
+                                               @RequestParam(defaultValue = "id") String walletSortBy,
+                                               @RequestParam(defaultValue = "desc") String walletSortDir
+    ) {
+        Sort addressSort = addressSortDir.equalsIgnoreCase("asc") ?
+                Sort.by(addressSortBy).ascending() :
+                Sort.by(addressSortBy).descending();
+
+        Sort walletSort = walletSortDir.equalsIgnoreCase("asc") ?
+                Sort.by(walletSortBy).ascending() :
+                Sort.by(walletSortBy).descending();
+        Pageable addressPageable = PageRequest.of(addressPage, addressSize, addressSort);
+        Pageable walletPageable = PageRequest.of(walletPage, walletSize, walletSort);
+        return customerService.getEntityWithFieldsPage(id,addressPageable,walletPageable);
     }
 
     //    @PreAuthorize("hasAuthority('CUSTOMER_CREATE')")
