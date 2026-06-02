@@ -15,6 +15,7 @@ public class WalletMapper {
         walletDto.setSaleRef(walletDto.getSaleRef());
         walletDto.setCreditAmount(wallet.getCreditAmount());
         walletDto.setDebitAmount(wallet.getDebitAmount());
+        walletDto.setCreatedAt(wallet.getCreatedAt());
         return walletDto;
     }
 }

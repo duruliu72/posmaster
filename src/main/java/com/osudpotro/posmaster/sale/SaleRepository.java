@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import java.util.Optional;
 
 public interface SaleRepository extends JpaSpecificationExecutor<Sale>, JpaRepository<Sale, Long> {
-    Sale findTopByOrderByCreatedAtDesc();
+    Sale findTopByOrderByIdDesc();
     Optional<Sale> findByIdAndBranch(Long saleId, Branch branch);
     Page<Sale> findByBranch(Branch branch, Pageable pageable);
 }

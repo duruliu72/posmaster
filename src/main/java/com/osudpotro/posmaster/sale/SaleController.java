@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 import java.util.Map;
@@ -48,7 +49,12 @@ public class SaleController {
         return saleService.getSale(id);
     }
 
-
+    @PostMapping("/pos")
+    public ResponseEntity<SaleDto> createPosSale(@RequestBody PosSaleCreateRequest request, UriComponentsBuilder uriBuilder) {
+        var entityDto = saleService.createPosSale(request);
+        var uri = uriBuilder.path("/sales/{id}").buildAndExpand(entityDto.getId()).toUri();
+        return ResponseEntity.created(uri).body(entityDto);
+    }
     /**
      * CHECKOUT — Convert SaleCart to Sale
      */

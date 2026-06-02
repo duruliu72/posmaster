@@ -44,7 +44,7 @@ public class InventoryService {
 
     public Page<InventoryByBatchNo> filterInvGroupBatchByAuthBranch(InventoryFilter filter, Pageable pageable) {
         var authUser = authService.getCurrentUser();
-        return invRepo.filterInvGroupBatchByBranch(authUser.getBranch().getId(), "", pageable);
+        return invRepo.filterInvGroupBatchByBranch(authUser.getBranch().getId(), filter.getSearchKey(), pageable);
     }
     public Page<InventoryByProductDetail> filterInvGroupProductDetailByAuthBranch(InventoryFilter filter, Pageable pageable) {
         var authUser = authService.getCurrentUser();

@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,7 +22,7 @@ public class Membership extends BaseEntity {
     private String name;
     @Column(name = "code", nullable = true, unique = true, length = 50)
     private String code;
-    private Double discount;
+    private BigDecimal discount;
     private Boolean isPercentage;
     private Double maxDiscount;
 }

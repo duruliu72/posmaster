@@ -1,10 +1,8 @@
 package com.osudpotro.posmaster.sale;
 
-import com.osudpotro.posmaster.offerhub.membership.Membership;
 import com.osudpotro.posmaster.offerhub.offer.Offer;
 import com.osudpotro.posmaster.product.Product;
 import com.osudpotro.posmaster.product.ProductDetail;
-import com.osudpotro.posmaster.offerhub.promotion.PromotionOffer;
 import com.osudpotro.posmaster.purchase.Purchase;
 import com.osudpotro.posmaster.purchase.PurchaseDetail;
 import jakarta.persistence.*;
@@ -54,16 +52,6 @@ public class SaleItem {
     private BigDecimal offerValue;
     private LocalDateTime offerStartDate;
     private LocalDateTime offerEndDate;
-    @ManyToOne
-    @JoinColumn(name = "promotion_offer_id")
-    private PromotionOffer promotionOffer;
-    private BigDecimal promotionValue;
-    private LocalDateTime promoStartDate;
-    private LocalDateTime promoEndDate;
-    @ManyToOne
-    @JoinColumn(name = "membership_id")
-    private Membership membership;
-    private BigDecimal membershipDiscount;
     private BigDecimal discount;
     private AmountType discountType;
 

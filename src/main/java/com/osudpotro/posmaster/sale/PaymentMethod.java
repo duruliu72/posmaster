@@ -2,6 +2,7 @@ package com.osudpotro.posmaster.sale;
 
 public enum PaymentMethod {
     COD("cod", "Cash On Delivery"),
+    CASH("cash", "Cash On Hand"),
     WALLET("wallet", "Wallet"),
     SSL("ssl", "Ssl"),
     BKASH("bkash", "Bkash"),
