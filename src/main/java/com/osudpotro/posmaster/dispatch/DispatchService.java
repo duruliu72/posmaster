@@ -9,6 +9,7 @@ import com.osudpotro.posmaster.inventory.InventoryRepository;
 import com.osudpotro.posmaster.inventory.InvoiceType;
 import com.osudpotro.posmaster.product.*;
 import com.osudpotro.posmaster.purchase.*;
+import com.osudpotro.posmaster.user.User;
 import com.osudpotro.posmaster.user.auth.AuthService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -198,7 +199,7 @@ public class DispatchService {
                 }
             }
         }
-        if(dispatch.getTotalQty()<1){
+        if (dispatch.getTotalQty() < 1) {
             throw new DispatchException("Stock not available !");
         }
         dispatch.getItems().clear();
@@ -219,12 +220,22 @@ public class DispatchService {
     }
 
     public DispatchDto addDispatchItem(Long dispatchId, DispatchItemAddRequest request) {
+        User authUser = authService.getCurrentUser();
         Dispatch dispatch = dispatchRepo.findById(dispatchId).orElseThrow(EntityNotFoundException::new);
-        if (dispatch.getDispatchStatus() == 4 || dispatch.getDispatchStatus()==5) {
+        if (dispatch.getDispatchStatus() == 4 || dispatch.getDispatchStatus() == 5) {
             throw new DispatchException("You are not able to add item after added to inventory!");
         }
         Product product = productRepo.findById(request.getProductId()).orElseThrow(ProductNotFoundException::new);
         ProductDetail productDetail = productDetailRepo.findById(request.getProductDetailId()).orElseThrow(ProductDetailNotFoundException::new);
+//        Check Stock in inventory
+        var item = invRepo.getInvByBranchProductDetail(dispatch.getAcceptorBranch().getId(), product.getId(), productDetail.getId()).orElse(null);
+        if (item == null) {
+            throw new DispatchException("item not found in inventory!");
+        }
+        if (item.getCurrentStock() < request.getQty()) {
+            throw new DispatchException("item not available in inventory!");
+        }
+        ///
         DispatchItem dispatchItem = dispatchItemRepo.findByDispatchAndProductAndProductDetail(dispatch, product, productDetail).orElse(null);
         if (dispatchItem == null) {
             dispatchItem = new DispatchItem();
@@ -245,15 +256,17 @@ public class DispatchService {
     public DispatchDto getDispatch(Long dispatchId) {
         return null;
     }
-    public DispatchItemDto deleteEntityItem(Long dispatchId,Long dispatchItemId) {
+
+    public DispatchItemDto deleteEntityItem(Long dispatchId, Long dispatchItemId) {
         Dispatch dispatch = dispatchRepo.findById(dispatchId).orElseThrow(EntityNotFoundException::new);
-        if (dispatch.getDispatchStatus() == 4 || dispatch.getDispatchStatus()==5) {
+        if (dispatch.getDispatchStatus() == 4 || dispatch.getDispatchStatus() == 5) {
             throw new DispatchException("You are not able to delete item as added to inventory!");
         }
         DispatchItem dispatchItem = dispatchItemRepo.findById(dispatchItemId).orElseThrow(() -> new EntityNotFoundException("Dispatch Item not found with ID: " + dispatchItemId));
         dispatchItemRepo.deleteById(dispatchItemId);
         return dispatchItemMapper.toDto(dispatchItem);
     }
+
     private String getGenerateDispatchRef() {
         Dispatch dispatch = dispatchRepo.findTopByOrderByIdDesc();
         if (dispatch == null) {

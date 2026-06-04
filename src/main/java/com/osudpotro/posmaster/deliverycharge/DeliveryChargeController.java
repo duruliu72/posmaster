@@ -1,5 +1,6 @@
 package com.osudpotro.posmaster.deliverycharge;
 
+import com.osudpotro.posmaster.common.DuplicateEntityException;
 import com.osudpotro.posmaster.common.PagedResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -96,6 +97,12 @@ public class DeliveryChargeController {
 
     @ExceptionHandler(DuplicateDeliveryChargeException.class)
     public ResponseEntity<Map<String, String>> handleDuplicateDeliveryCharge(Exception e) {
+        return ResponseEntity.badRequest().body(
+                Map.of("error", e.getMessage())
+        );
+    }
+    @ExceptionHandler(DuplicateEntityException.class)
+    public ResponseEntity<Map<String, String>> handleDuplicateEntity(Exception e) {
         return ResponseEntity.badRequest().body(
                 Map.of("error", e.getMessage())
         );

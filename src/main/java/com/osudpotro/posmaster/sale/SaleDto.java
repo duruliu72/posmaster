@@ -1,5 +1,10 @@
 package com.osudpotro.posmaster.sale;
 
+import com.osudpotro.posmaster.deliverycharge.DeliveryChargeDto;
+import com.osudpotro.posmaster.deliverymethod.DeliveryMethodDto;
+import com.osudpotro.posmaster.offerhub.membership.MembershipDto;
+import com.osudpotro.posmaster.offerhub.offer.OfferDto;
+import com.osudpotro.posmaster.offerhub.promotion.PromotionOfferDto;
 import com.osudpotro.posmaster.user.UserPlainDto;
 import com.osudpotro.posmaster.user.UserType;
 import lombok.Data;
@@ -31,26 +36,48 @@ public class SaleDto {
     private Boolean isStoreOut;
     private BigDecimal vat;
     private AmountType vatType;
+
     private Long billingAddressId;
     private String billingAddress;
     private Long deliveryAddressId;
     private String deliveryAddress;
+    private OfferDto offer;
+    private Long offerId;
+    private BigDecimal offerValue;
+    private PromotionOfferDto promotionOffer;
+    private Long promotionOfferId;
+    private BigDecimal promotionValue;
+    private LocalDateTime promoStartDate;
+    private LocalDateTime promoEndDate;
+    private MembershipDto membership;
+    private Long membershipId;
+    private BigDecimal membershipDiscount;
+    private AmountType membershipDiscountType;
+//    private Double maxDiscount;
+
+    private DeliveryMethodDto deliveryMethod;
     private Long deliveryMethodId;
+    private BigDecimal defaultDeliveryFee;
+    private DeliveryChargeDto deliveryCharge;
+    private Long deliveryChargeId;
     private BigDecimal deliveryFee;
     private BigDecimal minSaleAmountForDeliveryFree;
-    private BigDecimal walletAmount;
+
     private String prescriptionDocs;
+
     private Long specialDiscountONId;
     private BigDecimal specialDiscount;
     private BigDecimal overallDiscount;
     private AmountType overallDiscountType;
     private BigDecimal adjustmentAmount;
     private Integer saleChannel;
+
+    private List<SaleStatusLog> saleStatusLogs=new ArrayList<>();
     private Long saleStatusLogId;
     private Integer saleStatus;
+
     private Integer paymentStatus;
     private Integer saleType;
-
     private UserPlainDto salePointMan;
     private Long salePointManId;
     private String salePointManName;
@@ -61,7 +88,7 @@ public class SaleDto {
     private UserPlainDto createdBy;
     private LocalDateTime createdAt;
     private List<SaleItemDto> items = new ArrayList<>();
-    private List<SalePaymentDto> payments = new ArrayList<>();
+    private List<SalePaymentDto> salePayments = new ArrayList<>();
     // Summary fields
     private Integer totalQty;
     private BigDecimal subTotalPrice;

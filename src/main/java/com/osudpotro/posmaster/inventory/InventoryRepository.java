@@ -214,6 +214,7 @@ public interface InventoryRepository extends JpaSpecificationExecutor<Inventory>
             "i.productDetail.size.name " +
             "ORDER BY i.purchaseBatchNo desc")
     Page<InventoryByBatchNo> filterInvGroupBatchByBranch(@Param("branchId") Long branchId, @Param("searchKey") String searchKey, Pageable pageable);
+
     @Query("SELECT " +
             "i.purchase.id as purchaseId," +
             "i.purchaseDetail.id as purchaseDetailId," +
@@ -269,7 +270,8 @@ public interface InventoryRepository extends JpaSpecificationExecutor<Inventory>
             "i.productDetail.size.id, " +
             "i.productDetail.size.name " +
             "ORDER BY i.purchaseBatchNo desc")
-    List<InventoryByBatchNo> getInvListByBatch(@Param("branchId") Long branchId,@Param("productId") Long productId, @Param("productDetailId") Long productDetailId);
+    List<InventoryByBatchNo> getInvListByBatch(@Param("branchId") Long branchId, @Param("productId") Long productId, @Param("productDetailId") Long productDetailId);
+
     @Query("SELECT i.product.id as productId," +
             "i.product.productName as productName," +
             "i.product.productCode as productCode, " +
@@ -316,7 +318,56 @@ public interface InventoryRepository extends JpaSpecificationExecutor<Inventory>
             "i.branch.id,i.branch.name," +
             "i.productDetail.size.id, " +
             "i.productDetail.size.name " +
-            "HAVING COALESCE(SUM(i.stockIn), 0) - COALESCE(SUM(i.stockOut), 0) > 0 "
-    )
+            "HAVING COALESCE(SUM(i.stockIn), 0) - COALESCE(SUM(i.stockOut), 0) > 0 ")
     Page<InventoryByProductDetail> filterInvGroupProductDetailByBranch(@Param("branchId") Long branchId, @Param("searchKey") String searchKey, Pageable pageable);
+
+    @Query("SELECT " +
+            "i.product.id as productId," +
+            "i.product.productName as productName," +
+            "i.product.productCode as productCode, " +
+            "i.product.productBarCode as productBarCode," +
+            "i.product.productType.id as productTypeId, " +
+            "i.product.productType.name as productTypeName, " +
+            "i.product.manufacturer.id as manufacturerId, " +
+            "i.product.manufacturer.name as manufacturerName, " +
+            "i.productDetail.id as productDetailId, " +
+            "i.productDetail.productDetailCode as productDetailCode, " +
+            "i.productDetail.productDetailBarCode as productDetailBarCode, " +
+            "i.productDetail.productDetailSku as productDetailSku, " +
+            "i.productDetail.purchasePrice as lastPurchasePrice, " +
+            "i.productDetail.mrpPrice as lastMrpPrice, " +
+            "i.productDetail.sellPrice as lastSellPrice, " +
+            "i.productDetail.updatedAt as lastUpdatedAt, " +
+            "i.branch.id as branchId, " +
+            "i.branch.name as branchName, " +
+            "i.productDetail.size.id as sizeId, " +
+            "i.productDetail.size.name as sizeName, " +
+            "COALESCE(SUM(i.stockIn), 0) as totalStockIn, " +
+            "COALESCE(SUM(i.stockOut), 0) as totalStockOut, " +
+            "COALESCE(SUM(i.stockIn), 0) - COALESCE(SUM(i.stockOut), 0) as currentStock " +
+            "FROM Inventory i " +
+            "WHERE (:branchId IS NULL OR i.branch.id = :branchId)" +
+            "AND (:productId IS NULL OR i.product.id = :productId) " +
+            "AND (:productDetailId IS NULL OR i.productDetail.id = :productDetailId) " +
+            "GROUP BY " +
+            "i.product.id," +
+            "i.product.productName," +
+            "i.product.productCode," +
+            "i.product.productBarCode," +
+            "i.product.productType.id," +
+            "i.product.productType.name," +
+            "i.product.manufacturer.id," +
+            "i.product.manufacturer.name," +
+            "i.productDetail.id," +
+            "i.productDetail.productDetailCode," +
+            "i.productDetail.productDetailBarCode," +
+            "i.productDetail.productDetailSku," +
+            "i.productDetail.purchasePrice," +
+            "i.productDetail.mrpPrice," +
+            "i.productDetail.sellPrice," +
+            "i.productDetail.updatedAt," +
+            "i.branch.id,i.branch.name," +
+            "i.productDetail.size.id, " +
+            "i.productDetail.size.name ")
+    Optional<InventoryByProductDetail> getInvByBranchProductDetail(@Param("branchId") Long branchId, @Param("productId") Long productId, @Param("productDetailId") Long productDetailId);
 }

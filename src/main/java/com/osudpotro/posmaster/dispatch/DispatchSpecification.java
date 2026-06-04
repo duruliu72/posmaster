@@ -25,6 +25,20 @@ public class DispatchSpecification {
     public static Specification<Dispatch> filterByRequesterBranch(DispatchFilter filter, User user) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
+            if (filter.getDispatchRef() != null && !filter.getDispatchRef().isEmpty()) {
+                predicates.add(cb.like(cb.lower(root.get("dispatchRef")),
+                        "%" + filter.getDispatchRef().toLowerCase() + "%"));
+            }
+//            if (filter.getPurchaseType() != null) {
+//                PurchaseType purchaseType =
+//                        PurchaseType.fromCode(filter.getPurchaseType());
+//                predicates.add(
+//                        cb.equal(root.get("purchaseType"), purchaseType)
+//                );
+//            }
+//            if (filter.getStatus() != null) {
+//                predicates.add(cb.equal(root.get("status"), filter.getStatus()));
+//            }
             if (user != null && user.getBranch() != null) {
                 predicates.add(cb.equal(root.get("requesterBranch").get("id"), user.getBranch().getId()));
             }
@@ -37,6 +51,10 @@ public class DispatchSpecification {
             List<Predicate> predicates = new ArrayList<>();
             if (user != null && user.getBranch() != null) {
                 predicates.add(cb.equal(root.get("acceptorBranch").get("id"), user.getBranch().getId()));
+            }
+            if (filter.getDispatchRef() != null && !filter.getDispatchRef().isEmpty()) {
+                predicates.add(cb.like(cb.lower(root.get("dispatchRef")),
+                        "%" + filter.getDispatchRef().toLowerCase() + "%"));
             }
             predicates.add(root.get("dispatchStatus").in(2,3, 4,5));
             predicates.add(cb.isNotEmpty(root.get("items")));

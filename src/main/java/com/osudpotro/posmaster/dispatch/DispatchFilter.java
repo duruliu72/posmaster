@@ -6,4 +6,6 @@ import lombok.Data;
 public class DispatchFilter {
     private String dispatchRef;
     private String dispatchInvoice;
+    private String purchaseType;
+    private Integer status;
 }
