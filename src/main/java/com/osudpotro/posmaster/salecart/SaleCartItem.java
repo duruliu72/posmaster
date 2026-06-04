@@ -6,7 +6,7 @@ import com.osudpotro.posmaster.purchase.PurchaseDetail;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-
+import java.math.BigDecimal;
 @Getter
 @Setter
 @Entity
@@ -22,4 +22,5 @@ public class SaleCartItem extends BaseEntity {
     @JoinColumn(name = "purchase_details_id")
     private PurchaseDetail purchaseDetail;
     private Integer saleQty;
+    private BigDecimal discount;
 }

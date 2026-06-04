@@ -34,5 +34,4 @@ public interface InventoryByPurchaseBarcode {
     BigDecimal getLastMrpPrice();
     BigDecimal getLastSellPrice();
     LocalDateTime getLastUpdatedAt();
-    LocalDateTime getCreatedAt();
 }

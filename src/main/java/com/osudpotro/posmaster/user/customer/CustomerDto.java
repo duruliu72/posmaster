@@ -1,9 +1,12 @@
 package com.osudpotro.posmaster.user.customer;
 
 import com.osudpotro.posmaster.multimedia.Multimedia;
+import com.osudpotro.posmaster.offerhub.membership.MembershipDto;
 import com.osudpotro.posmaster.user.customer.address.AddressDto;
+import com.osudpotro.posmaster.user.customer.wallet.WalletDto;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,5 +26,8 @@ public class CustomerDto {
     private String provider;
     private String providerId;
     private Multimedia profilePic;
+    private MembershipDto membership;
+    private BigDecimal netWalletAmount;
     private List<AddressDto> addresses = new ArrayList<>();
+    private List<WalletDto> wallets = new ArrayList<>();
 }

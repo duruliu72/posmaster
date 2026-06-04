@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class DeliveryMethodDto {
+
     private Long id;
     private String title;
     private String message;

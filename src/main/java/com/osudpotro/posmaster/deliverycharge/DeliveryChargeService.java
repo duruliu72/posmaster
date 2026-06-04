@@ -3,6 +3,7 @@ package com.osudpotro.posmaster.deliverycharge;
 import com.osudpotro.posmaster.address.area.Area;
 import com.osudpotro.posmaster.address.area.AreaNotFoundException;
 import com.osudpotro.posmaster.address.area.AreaRepository;
+import com.osudpotro.posmaster.common.DuplicateEntityException;
 import com.osudpotro.posmaster.deliverymethod.DeliveryMethod;
 import com.osudpotro.posmaster.deliverymethod.DeliveryMethodNotFoundException;
 import com.osudpotro.posmaster.deliverymethod.DeliveryMethodRepository;
@@ -47,7 +48,7 @@ public class DeliveryChargeService {
     public DeliveryChargeDto createEntity(DeliveryChargeCreateRequest request) {
         DeliveryMethod deliveryMethod = dvmRepo.findById(request.getDeliveryMethodId()).orElseThrow(() -> new DeliveryMethodNotFoundException("Delivery Method not found with ID: " + request.getDeliveryMethodId()));
         if (dvcRepo.existsByDeliveryMethodAndIsActive(deliveryMethod, true)) {
-            throw new DuplicateDeliveryChargeException();
+            throw new DuplicateEntityException("Delivery Method already added");
         }
         var user = authService.getCurrentUser();
         DeliveryCharge dvc = new DeliveryCharge();

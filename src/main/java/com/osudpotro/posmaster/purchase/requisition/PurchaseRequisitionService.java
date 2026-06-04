@@ -1,15 +1,14 @@
 package com.osudpotro.posmaster.purchase.requisition;
 
 import com.osudpotro.posmaster.branch.Branch;
+import com.osudpotro.posmaster.common.EntityException;
 import com.osudpotro.posmaster.common.EntityNotFoundException;
 import com.osudpotro.posmaster.purchase.checked.CheckedPurchaseRequisition;
 import com.osudpotro.posmaster.purchase.checked.CheckedPurchaseRequisitionItem;
 import com.osudpotro.posmaster.purchase.checked.CheckedPurchaseRequisitionItemRepository;
 import com.osudpotro.posmaster.purchase.checked.CheckedPurchaseRequisitionRepository;
 import com.osudpotro.posmaster.user.auth.AuthService;
-import com.osudpotro.posmaster.branch.BranchNotFoundException;
 import com.osudpotro.posmaster.branch.BranchRepository;
-import com.osudpotro.posmaster.organization.OrganizationNotFoundException;
 import com.osudpotro.posmaster.organization.OrganizationRepository;
 import com.osudpotro.posmaster.product.ProductDetailNotFoundException;
 import com.osudpotro.posmaster.product.ProductDetailRepository;
@@ -17,7 +16,6 @@ import com.osudpotro.posmaster.product.ProductNotFoundException;
 import com.osudpotro.posmaster.product.ProductRepository;
 import com.osudpotro.posmaster.purchase.PurchaseType;
 import com.osudpotro.posmaster.requisition.*;
-import com.osudpotro.posmaster.requisitiontype.RequisitionTypeNotFoundException;
 import com.osudpotro.posmaster.requisitiontype.RequsitionTypeRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +58,7 @@ public class PurchaseRequisitionService {
     private RequisitionApproverRepository requisitionApproverRepository;
     @Autowired
     private RequisitionOnPathRepository ropRepository;
+
     public List<PurchaseRequisitionDto> getAllPurchaseRequisitions() {
         return prRepo.findAll()
                 .stream()
@@ -80,12 +79,12 @@ public class PurchaseRequisitionService {
             throw new DuplicatePurchaseRequisitionException();
         }
         Branch branch = branchRepository.findById(authUser.getBranch().getId()).orElse(null);
-        if(branch!=null){
+        if (branch == null) {
             throw new EntityNotFoundException("Branch Not assign to user! ");
         }
         var organization = organizationRepository.findById(branch.getOrganization().getId()).orElse(null);
         if (organization == null) {
-            throw new OrganizationNotFoundException();
+            throw new EntityNotFoundException("Organization is Not assign to Branch! ");
         }
         PurchaseRequisition pr = new PurchaseRequisition();
         pr.setRequsitionRef(requisitionRef);
@@ -129,7 +128,11 @@ public class PurchaseRequisitionService {
 
     @Transactional
     public PurchaseRequisitionDto updatePurchaseRequisition(Long purchaseRequisitionId, PurchaseRequisitionUpdateRequest request) {
-        PurchaseRequisition pr = prRepo.findById(purchaseRequisitionId).orElseThrow(PurchaseRequisitionNotFoundException::new);
+        var authUser = authService.getCurrentUser();
+        if (authUser.getBranch() == null) {
+            throw new EntityException("Branch not Assign to user");
+        }
+        PurchaseRequisition pr = prRepo.findByIdAndBranch(purchaseRequisitionId,authUser.getBranch()).orElseThrow(PurchaseRequisitionNotFoundException::new);
         if (pr.getTotalItems() == 0) {
             throw new PurchaseRequisitionEmptyException();
         }
@@ -137,7 +140,6 @@ public class PurchaseRequisitionService {
             pr.setPurchaseType(PurchaseType.fromCode(request.getPurchaseType()));
         }
 
-        var authUser = authService.getCurrentUser();
         pr.setUpdatedBy(authUser);
         //Common Requsition Start Here
         String requsitionName = "";
@@ -153,7 +155,10 @@ public class PurchaseRequisitionService {
         if (pr.getPurchaseType().getCode().equals("procurement")) {
             requsitionName = "PROCUREMENT_REQUISITION";
         }
-        var requisitionType = requsitionTypeRepository.findByRequisitionTypeKey(requsitionName).orElseThrow(RequisitionTypeNotFoundException::new);
+        var requisitionType = requsitionTypeRepository.findByRequisitionTypeKey(requsitionName).orElse(null);
+        if (requisitionType == null) {
+            throw new EntityNotFoundException("Requsition Type not created yet! ");
+        }
         Requisition requisition = null;
         int requisitionStatus = 0;
         Set<Integer> checkRequisitionStatus = Set.of(1, 5);
@@ -353,7 +358,11 @@ public class PurchaseRequisitionService {
 
     //    For Purchase Requisition Item
     public PurchaseRequisitionWithItemPageResponse filterWithItemPagination(Long purchaseRequisitionId, Pageable pageable, PurchaseRequisitionItemFilter filter) {
-        PurchaseRequisition pr = prRepo.findPurchaseRequisitionById(purchaseRequisitionId).orElseThrow(PurchaseRequisitionNotFoundException::new);
+        var authUser = authService.getCurrentUser();
+        if (authUser.getBranch() == null) {
+            throw new EntityException("Branch not Assign to user");
+        }
+        PurchaseRequisition pr = prRepo.findByIdAndBranch(purchaseRequisitionId, authUser.getBranch()).orElseThrow(PurchaseRequisitionNotFoundException::new);
         Page<PurchaseRequisitionItemDto> result = priRepostory.findPurchaseRequisitionItems(purchaseRequisitionId, filter.getName(), pageable).map(priMapper::toDto);
         return purchaseRequisitionMapper.toMinDto(pr, result);
     }
@@ -444,7 +453,7 @@ public class PurchaseRequisitionService {
         return priMapper.toDto(prItem);
     }
 
-    public PurchaseRequisitionItemDto CheckInvoiceAndUpdatePurchaseRequisitionItem(Long purchaseRequisitionId, Long purchaseRequisitionItemId, PurchaseRequisitionItemUpdateRequest request) {
+    public PurchaseRequisitionItemDto checkInvoiceAndUpdatePurchaseRequisitionItem(Long purchaseRequisitionId, Long purchaseRequisitionItemId, PurchaseRequisitionItemUpdateRequest request) {
         PurchaseRequisition pr = prRepo.findById(purchaseRequisitionId).orElse(null);
         if (pr == null) {
             throw new PurchaseRequisitionNotFoundException();
@@ -565,7 +574,7 @@ public class PurchaseRequisitionService {
     }
 
     private String generateRequisitionRef() {
-        PurchaseRequisition pr = prRepo.findTopByOrderByCreatedAtDesc();
+        PurchaseRequisition pr = prRepo.findTopByOrderByIdDesc();
         String prefix = "OSPRE";
         // Extract sequence number from last code
         long nextSeq = 1;

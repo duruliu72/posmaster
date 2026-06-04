@@ -31,5 +31,4 @@ public interface InventoryByBatchNo {
     BigDecimal getLastMrpPrice();
     BigDecimal getLastSellPrice();
     LocalDateTime getLastUpdatedAt();
-    LocalDateTime getCreatedAt();
 }

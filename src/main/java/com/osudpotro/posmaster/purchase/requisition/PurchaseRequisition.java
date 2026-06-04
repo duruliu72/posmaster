@@ -30,15 +30,13 @@ public class PurchaseRequisition extends BaseEntity {
     private Organization organization;
     @ManyToOne(fetch = FetchType.LAZY)
     private Branch branch;
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Branch rootBranch;
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Branch reqBranch;
     private BigDecimal overallDiscount;
     private String purchaseInvoices;
     private String purchaseInvoiceDocs;
     private String orderRefs;
     private Boolean isFinal = false;
+    //1=Req created By Requested Branch,2=Submitted By Requester Branch,3=Approved by Approver,4=Checked By
+    private Integer purchaseRequsitionStatus = 1;
     //  @ManyToOne(fetch = FetchType.LAZY)
 //    private Warehouse warehouse;
 //    @ManyToOne(fetch = FetchType.LAZY)

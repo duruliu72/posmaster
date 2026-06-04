@@ -18,6 +18,7 @@ public class SaleCartMapper {
         SaleCartDto saleCartDto = new SaleCartDto();
         saleCartDto.setId(saleCart.getId());
         saleCartDto.setEmail(saleCart.getEmail());
+        saleCartDto.setOverallDiscount(saleCart.getOverallDiscount());
         if (saleCart.getBranch() != null) {
             Branch branch = saleCart.getBranch();
             saleCartDto.setBranchId(branch.getId());

@@ -1,26 +1,34 @@
 package com.osudpotro.posmaster.user.customer.address;
 
+import com.osudpotro.posmaster.address.area.Area;
+import com.osudpotro.posmaster.address.area.AreaRepository;
 import com.osudpotro.posmaster.common.EntityNotFoundException;
-import com.osudpotro.posmaster.purchase.*;
-import com.osudpotro.posmaster.salecart.*;
 import com.osudpotro.posmaster.user.auth.AuthService;
+import com.osudpotro.posmaster.user.customer.Customer;
+import com.osudpotro.posmaster.user.customer.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class AddressService {
     @Autowired
     private AddressRepository addressRepo;
     @Autowired
+    private CustomerRepository customerRepo;
+    @Autowired
+    private AreaRepository areaRepo;
+    @Autowired
     private AuthService authService;
     @Autowired
     private AddressMapper addressMapper;
 
     public List<AddressDto> getAllEntities() {
-        return addressRepo.findAll()
+        return addressRepo.findAllByOrderByIdAsc()
                 .stream()
                 .map(addressMapper::toDto)
                 .toList();
@@ -37,18 +45,39 @@ public class AddressService {
 
     public AddressDto createEntity(AddressCreateRequest request) {
         var authUser = authService.getCurrentUser();
-        Address address = new Address();
-        address.setEmail(request.getEmail());
-        address.setMobile(request.getMobile());
+        Address address = addressMapper.toEntity(request);
+        if (request.getCustomerId() != null) {
+            Customer customer = customerRepo.findById(request.getCustomerId()).orElse(null);
+            address.setCustomer(customer);
+            if (customer != null) {
+                address.setUser(customer.getUser());
+            }
+        }
+        if (request.getAreaId() != null) {
+            Area area = areaRepo.findById(request.getAreaId()).orElse(null);
+            address.setArea(area);
+        }
+        address.setCreatedBy(authUser);
+        Address isDefaultAddress = addressRepo.findByCustomerAndIsDefault(address.getCustomer(), true).orElse(null);
+        if (isDefaultAddress != null) {
+            isDefaultAddress.setIsDefault(false);
+            addressRepo.save(isDefaultAddress);
+        }
+        addressRepo.save(address);
         return addressMapper.toDto(address);
     }
 
-    public AddressDto updateEntity(Long saleCartId, UpdateSaleCartRequest request) {
-        var address = addressRepo.findById(saleCartId).orElseThrow(PurchaseException::new);
+    public AddressDto updateEntity(Long addressId, AddressUpdateRequest request) {
+        Address address = addressRepo.findById(addressId).orElseThrow(EntityNotFoundException::new);
         var authUser = authService.getCurrentUser();
-        address.setEmail(request.getEmail());
-        address.setMobile(request.getMobile());
+        addressMapper.update(request, address);
+        Address isDefaultAddress = addressRepo.findByCustomerAndIsDefault(address.getCustomer(),true).orElse(null);
+        if (isDefaultAddress != null && !Objects.equals(address.getId(), isDefaultAddress.getId())) {
+            isDefaultAddress.setIsDefault(false);
+            addressRepo.save(isDefaultAddress);
+        }
         address.setUpdatedBy(authUser);
+        addressRepo.save(address);
         return addressMapper.toDto(address);
     }
 

@@ -4,7 +4,9 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
+import com.osudpotro.posmaster.address.district.DistrictNotFoundException;
 import com.osudpotro.posmaster.common.DuplicateEntityException;
+import com.osudpotro.posmaster.common.EntityNotFoundException;
 import com.osudpotro.posmaster.user.auth.AuthService;
 import com.osudpotro.posmaster.brand.Brand;
 import com.osudpotro.posmaster.brand.BrandRepository;
@@ -154,6 +156,7 @@ public class ProductService {
             throw new DuplicateProductException();
         }
         product.setProductName(request.getProductName());
+        product.setDescription(request.getDescription());
         product.setIsPrescribeNeeded(request.getIsPrescribeNeeded());
         if (request.getSeoPageName() != null && !request.getSeoPageName().isEmpty()) {
             product.setSeoPageName(request.getSeoPageName().trim().toLowerCase().replace(" ", "-"));
@@ -326,6 +329,15 @@ public class ProductService {
         return productMapper.toDto(product);
     }
 
+    public ProductDto deleteEntity(Long entityId) {
+        var product = productRepository.findById(entityId).orElseThrow(() -> new EntityNotFoundException("Entity not found with ID: " + entityId));
+        var authUser = authService.getCurrentUser();
+        product.setStatus(3);
+        product.setUpdatedBy(authUser);
+        productRepository.save(product);
+        return productMapper.toDto(product);
+    }
+
     public ProductDto findByIdWithProductGenericStatus(Long productId) {
         var product = productRepository.findById(productId).orElseThrow(ProductNotFoundException::new);
         var list = product.getProductGenerics().stream().filter(item -> item.getStatus() == 1).toList();
@@ -351,23 +363,6 @@ public class ProductService {
             }
         }
         return productRepository.findAll(ProductSpecification.filter(filter), pageable).map(productMapper::toDto);
-//        Page<Product> result = productRepository.findAll(ProductSpecification.filter(filter), pageable);
-//        List<Product> products = result.getContent();
-//        List<ProductDetail> filteredDetails = productDetailRepository.findAll(ProductDetailSpecification.filter(filter));
-//        List<ProductDto> newResult = products.stream()
-//                .map(p -> {
-//                    List<ProductDetailDto> detailDTOs = filteredDetails.stream()
-//                            .filter(d -> d.getProduct().getId().equals(p.getId())).map(productDetailMapper::toDto).toList();
-//                    ProductDto newProductDto = productMapper.toDto(p);
-//                    newProductDto.setDetails(detailDTOs);
-//                    return newProductDto;
-//                }).toList();
-//        return new PageImpl<>(
-//                        newResult,
-//                        result.getPageable(),
-//                        result.getTotalElements()
-//                );
-//        return newPage;
     }
 
     private String generateProductCode() {

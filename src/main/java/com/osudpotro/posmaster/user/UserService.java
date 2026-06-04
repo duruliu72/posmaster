@@ -37,7 +37,6 @@ public class UserService {
     public Page<UserMainDto> filterForOrUsers(UserFilter filter, Pageable pageable) {
         return userRepository.findAll(UserSpecification.filterOr(filter), pageable).map(customUserMapper::toMainDto);
     }
-
     public UserDto registerUser(RegiterUserRequest request) {
         var authUser = authService.getCurrentUser();
         var user = userMapper.toEntity(request);

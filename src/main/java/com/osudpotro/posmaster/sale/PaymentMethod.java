@@ -2,18 +2,22 @@ package com.osudpotro.posmaster.sale;
 
 public enum PaymentMethod {
     COD("cod", "Cash On Delivery"),
+    CASH("cash", "Cash On Hand"),
     WALLET("wallet", "Wallet"),
     SSL("ssl", "Ssl"),
     BKASH("bkash", "Bkash"),
     NAGAD("nagad", "Nagad"),
     ROCKET("rocket", "Rocket"),
-    CREDIT("credit","Credit");
+    CREDIT("credit", "Credit");
+
     private final String key;
     private final String value;
+
     PaymentMethod(String code, String description) {
         this.key = code;
         this.value = description;
     }
+
     public String getCode() {
         return key;
     }
@@ -23,6 +27,9 @@ public enum PaymentMethod {
     }
 
     public static PaymentMethod fromCode(String code) {
+        if (code == null || code.isEmpty()) {
+            return COD; // default
+        }
         for (PaymentMethod type : values()) {
             if (type.key.equalsIgnoreCase(code)) {
                 return type;

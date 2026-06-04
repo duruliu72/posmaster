@@ -1,5 +1,6 @@
 package com.osudpotro.posmaster.purchase.requisition;
 
+import com.osudpotro.posmaster.branch.Branch;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -17,7 +18,8 @@ public interface PurchaseRequisitionRepository extends JpaSpecificationExecutor<
     @Modifying
     @Query("update PurchaseRequisition pr set pr.status = :status where pr.id in :ids")
     int deleteBulkPurchaseRequisition(@Param("ids") List<Long> ids, @Param("status") Long status);
-    PurchaseRequisition findTopByOrderByCreatedAtDesc();
+    PurchaseRequisition findTopByOrderByIdDesc();
+    Optional<PurchaseRequisition> findByIdAndBranch(Long id, Branch branch);
     @Query("SELECT pr FROM PurchaseRequisition pr WHERE pr.id = :id")
     Optional<PurchaseRequisition> findPurchaseRequisitionById(@Param("id") Long id);
 

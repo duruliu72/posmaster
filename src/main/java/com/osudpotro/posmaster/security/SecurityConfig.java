@@ -43,7 +43,13 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/public/**").permitAll()
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/customers/search-customer").permitAll()
+                        .requestMatchers("/customers/test-all").permitAll()
                         .requestMatchers("/web/customers/**").permitAll()
+                        .requestMatchers("/delivery-methods/**").permitAll()
+                        .requestMatchers("/areas/active").permitAll()
+                        .requestMatchers("/delivery-methods/**").permitAll()
+                        .requestMatchers("/web/customers/logout**").permitAll()
                         .requestMatchers("/admin/auth/**").permitAll()
                         .requestMatchers("/employees/auth/**").permitAll()
                         .requestMatchers("/vehicle-drivers/auth/**").permitAll()
@@ -66,10 +72,13 @@ public class SecurityConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
-//        config.addAllowedOrigin("http://127.0.0.1:4200");
+        config.addAllowedOrigin("http://127.0.0.1:4200");
+        config.addAllowedOriginPattern("http://147.79.66.183:3000");
         config.addAllowedOriginPattern("http://localhost:3000");
+        config.addAllowedOriginPattern ("https://localhost:3000");
         config.addAllowedOriginPattern("http://127.0.0.1:3000");
         config.setAllowCredentials(true);
+        config.addExposedHeader("Access-Control-Allow-Private-Network");
         source.registerCorsConfiguration("/**", config);
         return source;
     }

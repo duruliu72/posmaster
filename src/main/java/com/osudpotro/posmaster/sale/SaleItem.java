@@ -1,10 +1,8 @@
 package com.osudpotro.posmaster.sale;
 
-import com.osudpotro.posmaster.offerhub.membership.Membership;
 import com.osudpotro.posmaster.offerhub.offer.Offer;
 import com.osudpotro.posmaster.product.Product;
 import com.osudpotro.posmaster.product.ProductDetail;
-import com.osudpotro.posmaster.offerhub.promotion.PromotionOffer;
 import com.osudpotro.posmaster.purchase.Purchase;
 import com.osudpotro.posmaster.purchase.PurchaseDetail;
 import jakarta.persistence.*;
@@ -12,6 +10,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
 @Getter
@@ -53,14 +52,25 @@ public class SaleItem {
     private BigDecimal offerValue;
     private LocalDateTime offerStartDate;
     private LocalDateTime offerEndDate;
-    @ManyToOne
-    @JoinColumn(name = "promotion_offer_id")
-    private PromotionOffer promotionOffer;
-    private BigDecimal promotionValue;
-    private LocalDateTime promoStartDate;
-    private LocalDateTime promoEndDate;
-    @ManyToOne
-    @JoinColumn(name = "membership_id")
-    private Membership membership;
-    private BigDecimal membershipDiscount;
+    private BigDecimal discount;
+    private AmountType discountType;
+
+    public BigDecimal getTotalPrice() {
+        if (this.salePrice == null || this.saleQty == null) {
+            return BigDecimal.ZERO;
+        }
+        BigDecimal totalPrice = this.salePrice.multiply(BigDecimal.valueOf(this.saleQty));
+        if (this.discount != null) {
+            if (this.discountType == AmountType.FIXED_AMOUNT) {
+                return totalPrice.subtract(this.discount);
+            }
+            if (this.discountType == AmountType.PERCENTAGE) {
+                BigDecimal discountAmount = totalPrice
+                        .multiply(this.discount)
+                        .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+                return totalPrice.subtract(discountAmount);
+            }
+        }
+        return totalPrice;
+    }
 }

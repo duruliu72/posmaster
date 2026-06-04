@@ -1,6 +1,5 @@
 package com.osudpotro.posmaster.inventory;
 
-import com.osudpotro.posmaster.category.Category;
 import com.osudpotro.posmaster.product.Product;
 import com.osudpotro.posmaster.user.User;
 import jakarta.persistence.criteria.Join;
