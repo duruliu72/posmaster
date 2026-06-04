@@ -4,6 +4,7 @@ import com.osudpotro.posmaster.brand.BrandNotFoundException;
 import com.osudpotro.posmaster.category.CategoryNotFoundException;
 import com.osudpotro.posmaster.category.CategoryService;
 import com.osudpotro.posmaster.common.DuplicateEntityException;
+import com.osudpotro.posmaster.common.EntityNotFoundException;
 import com.osudpotro.posmaster.common.PagedResponse;
 import com.osudpotro.posmaster.generic.GenericNotFoundException;
 import com.osudpotro.posmaster.genericunit.GenericUnitNotFoundException;
@@ -28,6 +29,7 @@ import java.util.Map;
 public class ProductController {
     private final ProductService productService;
     private final CategoryService categoryService;
+
     @GetMapping
     public List<ProductDto> getAllProducts() {
         return productService.getAllProducts();
@@ -69,24 +71,30 @@ public class ProductController {
         return productService.updateProduct(id, request);
     }
 
+    @DeleteMapping("/{id}")
+    public ProductDto deleteEntity(
+            @PathVariable(name = "id") Long id) {
+        return productService.deleteEntity(id);
+    }
+
     @ExceptionHandler(DuplicateProductException.class)
     public ResponseEntity<Map<String, String>> handleDuplicateProduct(Exception ex) {
         return ResponseEntity.badRequest().body(
-                Map.of("message", "Name is already exist.")
+                Map.of("error", "Name is already exist.")
         );
     }
 
     @ExceptionHandler(ParentVariantSizeException.class)
     public ResponseEntity<Map<String, String>> handleParentVariantSizeProduct(Exception ex) {
         return ResponseEntity.badRequest().body(
-                Map.of("message", "Parent Variant Size Mismatch.")
+                Map.of("error", "Parent Variant Size Mismatch.")
         );
     }
 
     @ExceptionHandler(DuplicateProductGenericException.class)
     public ResponseEntity<Map<String, String>> handleDuplicateProductGeneric(Exception ex) {
         return ResponseEntity.badRequest().body(
-                Map.of("message", "Product Generic is already exist.")
+                Map.of("error", "Product Generic is already exist.")
         );
     }
 
@@ -98,48 +106,56 @@ public class ProductController {
     @ExceptionHandler(ManufacturerNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleManufacturerNotFound(Exception e) {
         return ResponseEntity.badRequest().body(
-                Map.of("message", e.getMessage())
+                Map.of("error", e.getMessage())
         );
     }
 
     @ExceptionHandler(BrandNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleBrandNotFound(Exception e) {
         return ResponseEntity.badRequest().body(
-                Map.of("message", e.getMessage())
+                Map.of("error", e.getMessage())
+        );
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleEntityNotFound(Exception e) {
+        return ResponseEntity.badRequest().body(
+                Map.of("error", e.getMessage())
         );
     }
 
     @ExceptionHandler(CategoryNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleCategoryNotFound(Exception e) {
         return ResponseEntity.badRequest().body(
-                Map.of("message", e.getMessage())
+                Map.of("error", e.getMessage())
         );
     }
 
     @ExceptionHandler(ProductTypeNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleProductTypeNotFound(Exception e) {
         return ResponseEntity.badRequest().body(
-                Map.of("message", e.getMessage())
+                Map.of("error", e.getMessage())
         );
     }
 
     @ExceptionHandler(GenericNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleGenericNotFound(Exception e) {
         return ResponseEntity.badRequest().body(
-                Map.of("message", e.getMessage())
+                Map.of("error", e.getMessage())
         );
     }
 
     @ExceptionHandler(GenericUnitNotFoundException.class)
     public ResponseEntity<Map<String, String>> handleGenericUnitNotFound(Exception e) {
         return ResponseEntity.badRequest().body(
-                Map.of("message", e.getMessage())
+                Map.of("error", e.getMessage())
         );
     }
+
     @ExceptionHandler(DuplicateEntityException.class)
     public ResponseEntity<Map<String, String>> handleDuplicateEntity(Exception e) {
         return ResponseEntity.badRequest().body(
-                Map.of("message", e.getMessage())
+                Map.of("error", e.getMessage())
         );
     }
 }

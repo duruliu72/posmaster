@@ -4,6 +4,7 @@ import com.osudpotro.posmaster.common.EntityNotFoundException;
 import com.osudpotro.posmaster.common.PagedResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +22,50 @@ import java.util.Map;
 @RestController
 @RequestMapping("/customers")
 public class CustomerController {
+
+
+    @Autowired
+    private CustomerRepository customerRepository;
+    @Autowired
     private final CustomerService customerService;
+
+    @GetMapping("/search-customer")
+    public ResponseEntity<?> searchCustomer(@RequestParam String keyword) {
+        if (keyword == null || keyword.trim().length() < 2) {
+            return ResponseEntity.ok(Collections.emptyList());
+        }
+
+        List<Customer> customers = customerRepository.searchByEmailOrMobile(keyword.trim());
+
+        List<Map<String, Object>> result = customers.stream()
+                .map(c -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("id", c.getId());
+                    map.put("userName", c.getUserName());
+                    map.put("email", c.getEmail());
+                    map.put("mobile", c.getMobile());
+
+                    // Address
+                    if (c.getAddresses() != null && !c.getAddresses().isEmpty()) {
+                        var addr = c.getAddresses().get(0);
+                        map.put("address", addr.getAddressType());
+                        map.put("area", addr.getArea() != null ? addr.getArea().getName() : null);
+                    }
+
+                    // Membership
+                    if (c.getMembership() != null) {
+                        Map<String, Object> membershipMap = new HashMap<>();
+                        membershipMap.put("id", c.getMembership().getId());
+                        membershipMap.put("name", c.getMembership().getName());
+                        map.put("membership", membershipMap);
+                    }
+
+                    return map;
+                }).toList();
+
+        return ResponseEntity.ok(result);
+    }
+
 
     //    @PreAuthorize("hasAuthority('CUSTOMER_READ')")
     @GetMapping
@@ -40,6 +86,23 @@ public class CustomerController {
                 Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
         Page<CustomerDto> result = customerService.filterCustomers(filter, pageable);
+
+        return new PagedResponse<>(result);
+    }
+
+    @PostMapping("/filter-or")
+    public PagedResponse<CustomerDto> orOpFilterCustomers(
+            @RequestBody CustomerFilter filter,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir
+    ) {
+        Sort sort = sortDir.equalsIgnoreCase("asc") ?
+                Sort.by(sortBy).ascending() :
+                Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<CustomerDto> result = customerService.orOpFilterCustomers(filter, pageable);
         return new PagedResponse<>(result);
     }
 
@@ -47,6 +110,31 @@ public class CustomerController {
     @GetMapping("/{id}")
     public CustomerDto getCustomer(@PathVariable Long id) {
         return customerService.getCustomer(id);
+    }
+
+    @GetMapping("/{id}/filter")
+    public CustomerDtoPage getEntityWithFieldsPage(@PathVariable Long id,
+                                               //For Address Pagination
+                                               @RequestParam(defaultValue = "0") int addressPage,
+                                               @RequestParam(defaultValue = "10") int addressSize,
+                                               @RequestParam(defaultValue = "id") String addressSortBy,
+                                               @RequestParam(defaultValue = "desc") String addressSortDir,
+                                               //For Wallet Pagination
+                                               @RequestParam(defaultValue = "0") int walletPage,
+                                               @RequestParam(defaultValue = "10") int walletSize,
+                                               @RequestParam(defaultValue = "id") String walletSortBy,
+                                               @RequestParam(defaultValue = "desc") String walletSortDir
+    ) {
+        Sort addressSort = addressSortDir.equalsIgnoreCase("asc") ?
+                Sort.by(addressSortBy).ascending() :
+                Sort.by(addressSortBy).descending();
+
+        Sort walletSort = walletSortDir.equalsIgnoreCase("asc") ?
+                Sort.by(walletSortBy).ascending() :
+                Sort.by(walletSortBy).descending();
+        Pageable addressPageable = PageRequest.of(addressPage, addressSize, addressSort);
+        Pageable walletPageable = PageRequest.of(walletPage, walletSize, walletSort);
+        return customerService.getEntityWithFieldsPage(id,addressPageable,walletPageable);
     }
 
     //    @PreAuthorize("hasAuthority('CUSTOMER_CREATE')")
@@ -100,6 +188,7 @@ public class CustomerController {
             @PathVariable(name = "id") Long id) {
         return customerService.deactivateCustomer(id);
     }
+
 
     @ExceptionHandler(DuplicateCustomerException.class)
     public ResponseEntity<Map<String, String>> handleDuplicateCustomer(Exception ex) {

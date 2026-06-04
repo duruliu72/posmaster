@@ -33,22 +33,6 @@ public class DeliveryCharge extends BaseEntity {
     private Integer chargeBasedOn;
     //    Min Distance From Nearest Branch
     private Double minDistance;
-//    private Long basedOnEntityId;
-    //    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "division_id")
-//    private Division division;
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "district_id")
-//    private District district;
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "thana_id")
-//    private Thana thana;
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "upozila_id")
-//    private Upozila upozila;
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "city_id")
-//    private City city;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "area_id")
     private Area area;

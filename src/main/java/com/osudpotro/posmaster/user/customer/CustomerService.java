@@ -5,13 +5,19 @@ import com.osudpotro.posmaster.multimedia.Multimedia;
 import com.osudpotro.posmaster.multimedia.MultimediaRepository;
 import com.osudpotro.posmaster.offerhub.membership.Membership;
 import com.osudpotro.posmaster.offerhub.membership.MembershipRepository;
+import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisitionItemDto;
 import com.osudpotro.posmaster.role.Role;
 import com.osudpotro.posmaster.role.RoleRepository;
 import com.osudpotro.posmaster.user.*;
 import com.osudpotro.posmaster.user.Employee.EmployeeNotFoundException;
 import com.osudpotro.posmaster.user.auth.AuthService;
-import com.osudpotro.posmaster.user.wallet.Wallet;
-import com.osudpotro.posmaster.user.wallet.WalletRepository;
+import com.osudpotro.posmaster.user.customer.address.AddressDto;
+import com.osudpotro.posmaster.user.customer.address.AddressMapper;
+import com.osudpotro.posmaster.user.customer.address.AddressRepository;
+import com.osudpotro.posmaster.user.customer.wallet.Wallet;
+import com.osudpotro.posmaster.user.customer.wallet.WalletDto;
+import com.osudpotro.posmaster.user.customer.wallet.WalletMapper;
+import com.osudpotro.posmaster.user.customer.wallet.WalletRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -37,6 +43,9 @@ public class CustomerService {
     private final PasswordEncoder passwordEncoder;
     private final WalletRepository walletRepo;
     private final MembershipRepository membershipRepo;
+    private final AddressRepository addressRepository;
+    private final AddressMapper addressMapper;
+    private final WalletMapper walletMapper;
 
     public List<CustomerDto> gerAllCustomers() {
         return customerRepository.findAll(Sort.by(Sort.Direction.DESC, "id"))
@@ -46,7 +55,12 @@ public class CustomerService {
     }
 
     public Page<CustomerDto> filterCustomers(CustomerFilter filter, Pageable pageable) {
+
         return customerRepository.findAll(CustomerSpecification.filter(filter), pageable).map(customerMapper::toDto);
+    }
+
+    public Page<CustomerDto> orOpFilterCustomers(CustomerFilter filter, Pageable pageable) {
+        return customerRepository.findAll(CustomerSpecification.orOpFilter(filter), pageable).map(customerMapper::toDto);
     }
 
     @Transactional
@@ -175,6 +189,13 @@ public class CustomerService {
     public CustomerDto getCustomer(Long customerId) {
         var customer = customerRepository.findById(customerId).orElseThrow(CustomerNotFoundException::new);
         return customerMapper.toDto(customer);
+    }
+
+    public CustomerDtoPage getEntityWithFieldsPage(Long customerId, Pageable addressPageable, Pageable walletPageable) {
+        Customer customer = customerRepository.findById(customerId).orElseThrow(CustomerNotFoundException::new);
+        Page<AddressDto> addressResult = addressRepository.findAllByCustomer(customer, addressPageable).map(addressMapper::toDto);
+        Page<WalletDto> walletResult = walletRepo.findAllByCustomer(customer, walletPageable).map(walletMapper::toDto);
+        return customerMapper.toDtoPage(customer, addressResult, walletResult);
     }
 
     public CustomerDto getCustomerOrNull(Long customerId) {

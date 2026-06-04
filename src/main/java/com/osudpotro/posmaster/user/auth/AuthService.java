@@ -6,11 +6,13 @@ import com.osudpotro.posmaster.user.CustomUserMapper;
 import com.osudpotro.posmaster.user.User;
 import com.osudpotro.posmaster.user.UserRepository;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @AllArgsConstructor
 @Service
+@Getter
 public class AuthService {
     private final UserRepository userRepository;
     private final CustomUserMapper userMapper;

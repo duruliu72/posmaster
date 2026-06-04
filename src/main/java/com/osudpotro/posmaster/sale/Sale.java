@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.osudpotro.posmaster.branch.Branch;
 import com.osudpotro.posmaster.category.Category;
+import com.osudpotro.posmaster.deliverycharge.DeliveryCharge;
 import com.osudpotro.posmaster.deliverymethod.DeliveryMethod;
 import com.osudpotro.posmaster.offerhub.membership.Membership;
 import com.osudpotro.posmaster.offerhub.offer.Offer;
@@ -11,6 +12,8 @@ import com.osudpotro.posmaster.organization.Organization;
 import com.osudpotro.posmaster.offerhub.promotion.PromotionOffer;
 import com.osudpotro.posmaster.user.User;
 import com.osudpotro.posmaster.user.UserType;
+import com.osudpotro.posmaster.user.customer.Customer;
+import com.osudpotro.posmaster.user.customer.address.Address;
 import com.osudpotro.posmaster.warehouse.Warehouse;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -19,6 +22,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,50 +36,84 @@ public class Sale {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String saleRef;//Order Ref
+    // ✅ ADD THIS FIELD
     @Enumerated(EnumType.STRING)
-    private UserType userType=UserType.CUSTOMER;
+    @Column(name = "payment_method")
+    private PaymentMethod paymentMethod;
+    @Enumerated(EnumType.STRING)
+    private UserType userType = UserType.CUSTOMER;
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "user_id", nullable = true)
+    private User customerUser;
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "customer_id", nullable = true)
+    private Customer customer;
     @ManyToOne(fetch = FetchType.LAZY)
     private Organization organization;
     @ManyToOne(fetch = FetchType.LAZY)
     private Branch branch;
     @ManyToOne(fetch = FetchType.LAZY)
     private Warehouse warehouse;
-    Boolean isStoreOut;
-    private BigDecimal vatAmount;
-    private String billingAddress;
-    private String deliveryAddress;
-    private BigDecimal reAwardAmount;
+    private Boolean isStoreOut;
+    private BigDecimal vat;
+    private AmountType vatType;
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "offer_id", nullable = true)
+    @JoinColumn(name = "billing_address_id", nullable = true)
+    private Address billingAddress;
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "delivery_address_id", nullable = true)
+    private Address deliveryAddress;
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "offer_id", nullable = true)//should be in item
     private Offer offer;
+    private BigDecimal offerValue;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "promotion_offer_id", nullable = true)
     private PromotionOffer promotionOffer;
+    private BigDecimal promotionValue;
+    private LocalDateTime promoStartDate;
+    private LocalDateTime promoEndDate;
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "membership_id", nullable = true)
     private Membership membership;
+    private BigDecimal membershipDiscount;
+    private AmountType membershipDiscountType;
+    private Double maxDiscount;
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "delivery_method_id", nullable = true)
     private DeliveryMethod deliveryMethod;
+    private BigDecimal defaultDeliveryFee;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "delivery_charge_id", nullable = true)
+    private DeliveryCharge deliveryCharge;
     private BigDecimal deliveryFee;
     private BigDecimal minSaleAmountForDeliveryFree;
+
     private String prescriptionDocs;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "special_discount_on_id", nullable = true)
     private Category specialDiscountON;
     private BigDecimal specialDiscount;
+    private BigDecimal overallDiscount;
+    private AmountType overallDiscountType;
+    private BigDecimal adjustmentAmount;
     //    1=Through Pos 2=Through Website
     private Integer saleChannel;
-    //    1=Pending,2=Processing (After review by customer care) ,3=Accepted by Pharmacy,4=Packaging by Pharmacy,5=Dispatch by Rider(Head)/fleet(head),5=On the way by rider(through Apps),6=Delivered On the way by rider(App),7=CancelledAfter review by customer care
+
+    @OneToMany(mappedBy = "sale", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<SaleStatusLog> saleStatusLogs = new ArrayList<>();
     private Integer saleStatus;
-    //    1=Pending,2=Partial,3=Success 4=Credit (For employee due)
+    @OneToMany(mappedBy = "sale", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<SalePayment> salePayments = new ArrayList<>();
+    //1=Pending,2=Partial,3=Success 4=Credit (For employee due)
     private Integer paymentStatus;
-    //    1=Cash On Delivery 2=Partial Paid ,3=Full Paid
+    //1=Cash On Delivery 2=Partial Paid ,3=Full Paid
     private Integer saleType;
-    @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "customer_id", nullable = true)
-    private User customer;
     private String salePoint;
+    private String specialInstruction;
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "sale_point_man_id", nullable = true)
     private User salePointMan;
@@ -103,6 +141,66 @@ public class Sale {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime updatedAt;
     @JsonIgnore
-    @OneToMany(mappedBy = "sale", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "sale", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<SaleItem> items = new ArrayList<>();
+
+    public int getTotalQty() {
+        return items.stream()
+                .filter(i ->
+                        i.getSaleQty() != null
+                )
+                .mapToInt(SaleItem::getSaleQty)
+                .sum();
+    }
+    public BigDecimal getSubTotalPrice() {
+        return items.stream()
+                .map(SaleItem::getTotalPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    public BigDecimal getGrandTotalPrice() {
+        BigDecimal subTotalPrice = this.getSubTotalPrice();
+        if (this.overallDiscount != null) {
+            if (this.overallDiscountType == AmountType.FIXED_AMOUNT) {
+                subTotalPrice = subTotalPrice.subtract(this.overallDiscount);
+            }
+            if (this.overallDiscountType == AmountType.PERCENTAGE) {
+                BigDecimal overallDiscountAmount = subTotalPrice
+                        .multiply(this.overallDiscount)
+                        .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+                subTotalPrice = subTotalPrice.subtract(overallDiscountAmount);
+            }
+        }
+        if (this.vat != null) {
+            if (this.vatType == AmountType.FIXED_AMOUNT) {
+                subTotalPrice = subTotalPrice.add(this.vat);
+            }
+            if (this.vatType == AmountType.PERCENTAGE) {
+                BigDecimal calVatAmount = subTotalPrice
+                        .multiply(this.vat)
+                        .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+                subTotalPrice = subTotalPrice.add(calVatAmount);
+            }
+        }
+        if (this.adjustmentAmount != null) {
+            subTotalPrice = subTotalPrice.subtract(this.adjustmentAmount);
+        }
+        return subTotalPrice;
+    }
+    public BigDecimal getCashReceiveAmount() {
+        return salePayments.stream()
+                .filter(i ->
+                        i.getCashIn() != null
+                )
+                .map(SalePayment::getCashIn)
+                .reduce(BigDecimal.ZERO, BigDecimal::add).setScale(2, RoundingMode.HALF_UP);
+    }
+    public BigDecimal getCashReturnAmount() {
+        return salePayments.stream()
+                .filter(i ->
+                        i.getCashOut() != null
+                )
+                .map(SalePayment::getCashOut)
+                .reduce(BigDecimal.ZERO, BigDecimal::add).setScale(2, RoundingMode.HALF_UP);
+    }
 }

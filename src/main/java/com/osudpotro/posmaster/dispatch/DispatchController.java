@@ -1,5 +1,6 @@
 package com.osudpotro.posmaster.dispatch;
 
+import com.osudpotro.posmaster.common.EntityNotFoundException;
 import com.osudpotro.posmaster.common.PagedResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -49,7 +50,7 @@ public class DispatchController {
             @RequestBody DispatchFilter filter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "dispatchAt") String sortBy,
+            @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir
     ) {
         Sort sort = sortDir.equalsIgnoreCase("asc") ?
@@ -91,11 +92,11 @@ public class DispatchController {
     public DispatchDto acceptByRequesterBranch(@PathVariable(name = "id") Long id, @Valid @RequestBody DispatchUpdateRequest request) {
         return dispatchService.acceptByRequesterBranch(id, request);
     }
-    @PutMapping("/{id}/accept-by-request-receive-branch")
+    @PutMapping("/{id}/accept-by-request-acceptor-branch")
     public DispatchDto acceptByAcceptorBranch(@PathVariable(name = "id") Long id, @Valid @RequestBody DispatchUpdateRequest request) {
         return dispatchService.acceptByAcceptorBranch(id, request);
     }
-    @PutMapping("/{id}/send-by-request-receive-branch")
+    @PutMapping("/{id}/send-by-request-acceptor-branch")
     public DispatchDto sendByAcceptorBranch(@PathVariable(name = "id") Long id, @Valid @RequestBody DispatchUpdateRequest request) {
         return dispatchService.sendByAcceptorBranch(id, request);
     }
@@ -118,7 +119,18 @@ public class DispatchController {
     public DispatchDto addDispatchItem(@PathVariable Long dispatchId, @RequestBody DispatchItemAddRequest request) {
         return dispatchService.addDispatchItem(dispatchId, request);
     }
+    @DeleteMapping("/{dispatchId}/delete-item/{dispatchItemId}")
+    public DispatchItemDto deleteEntityItem(
+            @PathVariable(name = "dispatchId") Long dispatchId,@PathVariable(name = "dispatchItemId") Long dispatchItemId) {
+        return dispatchService.deleteEntityItem(dispatchId,dispatchItemId);
+    }
 
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleEntityNotFound(Exception ex) {
+        return ResponseEntity.badRequest().body(
+                Map.of("error", ex.getMessage())
+        );
+    }
     @ExceptionHandler(DispatchException.class)
     public ResponseEntity<Map<String, String>> handleDispatchException(Exception e) {
         return ResponseEntity.badRequest().body(
