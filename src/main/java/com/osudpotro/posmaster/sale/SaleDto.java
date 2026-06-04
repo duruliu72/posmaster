@@ -18,7 +18,7 @@ import java.util.List;
 public class SaleDto {
     private Long id;
     private String saleRef;
-    private String paymentMethod;
+    private String paymentOption;
     private UserType userType = UserType.CUSTOMER;
     private Long customerUserId;
     private Long customerId;
@@ -53,7 +53,6 @@ public class SaleDto {
     private Long membershipId;
     private BigDecimal membershipDiscount;
     private AmountType membershipDiscountType;
-//    private Double maxDiscount;
 
     private DeliveryMethodDto deliveryMethod;
     private Long deliveryMethodId;
@@ -97,7 +96,6 @@ public class SaleDto {
     private BigDecimal cashReturnAmount;
     // Add these fields to SaleDto.java
     private String specialInstruction;
-
     private String saleStatusLabel;
     private String paymentStatusLabel;
     private String customerAddress;

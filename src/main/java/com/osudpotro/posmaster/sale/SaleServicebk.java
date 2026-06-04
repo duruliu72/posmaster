@@ -662,16 +662,16 @@ public class SaleServicebk {
 
         // ==================== PAYMENT METHOD ====================
 
-        try {
-            if (request.getPaymentMethod() != null && !request.getPaymentMethod().isEmpty()) {
-                sale.setPaymentMethod(PaymentMethod.fromCode(request.getPaymentMethod()));
-            } else {
-                sale.setPaymentMethod(PaymentMethod.COD);
-            }
-        } catch (IllegalArgumentException e) {
-            log.warn("Invalid payment method: {}, defaulting to COD", request.getPaymentMethod());
-            sale.setPaymentMethod(PaymentMethod.COD);
-        }
+//        try {
+//            if (request.getPaymentMethod() != null && !request.getPaymentMethod().isEmpty()) {
+//                sale.setPaymentMethod(PaymentMethod.fromCode(request.getPaymentMethod()));
+//            } else {
+//                sale.setPaymentMethod(PaymentMethod.COD);
+//            }
+//        } catch (IllegalArgumentException e) {
+//            log.warn("Invalid payment method: {}, defaulting to COD", request.getPaymentMethod());
+//            sale.setPaymentMethod(PaymentMethod.COD);
+//        }
 
         sale.setOrganization(branch.getOrganization());
         sale.setBranch(branch);

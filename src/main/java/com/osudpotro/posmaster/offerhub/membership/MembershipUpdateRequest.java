@@ -10,4 +10,6 @@ public class MembershipUpdateRequest {
     private BigDecimal discount;
     private Boolean isPercentage;
     private Double maxDiscount;
+    private Double minPurchaseAmount;
+    private Integer lastNMonth;
 }

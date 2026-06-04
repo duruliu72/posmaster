@@ -7,7 +7,6 @@ import com.osudpotro.posmaster.category.Category;
 import com.osudpotro.posmaster.deliverycharge.DeliveryCharge;
 import com.osudpotro.posmaster.deliverymethod.DeliveryMethod;
 import com.osudpotro.posmaster.offerhub.membership.Membership;
-import com.osudpotro.posmaster.offerhub.offer.Offer;
 import com.osudpotro.posmaster.organization.Organization;
 import com.osudpotro.posmaster.offerhub.promotion.PromotionOffer;
 import com.osudpotro.posmaster.user.User;
@@ -38,8 +37,8 @@ public class Sale {
     private String saleRef;//Order Ref
     // ✅ ADD THIS FIELD
     @Enumerated(EnumType.STRING)
-    @Column(name = "payment_method")
-    private PaymentMethod paymentMethod;
+    @Column(name = "payment_option")
+    private PaymentOption paymentOption;
     @Enumerated(EnumType.STRING)
     private UserType userType = UserType.CUSTOMER;
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
@@ -56,6 +55,7 @@ public class Sale {
     private Warehouse warehouse;
     private Boolean isStoreOut;
     private BigDecimal vat;
+    @Enumerated(EnumType.STRING)
     private AmountType vatType;
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "billing_address_id", nullable = true)
@@ -63,10 +63,10 @@ public class Sale {
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "delivery_address_id", nullable = true)
     private Address deliveryAddress;
-    @ManyToOne(fetch = FetchType.LAZY, optional = true)
-    @JoinColumn(name = "offer_id", nullable = true)//should be in item
-    private Offer offer;
-    private BigDecimal offerValue;
+//    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+//    @JoinColumn(name = "offer_id", nullable = true)//should be in item
+//    private Offer offer;
+//    private BigDecimal offerValue;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "promotion_offer_id", nullable = true)
@@ -78,6 +78,7 @@ public class Sale {
     @JoinColumn(name = "membership_id", nullable = true)
     private Membership membership;
     private BigDecimal membershipDiscount;
+    @Enumerated(EnumType.STRING)
     private AmountType membershipDiscountType;
     private Double maxDiscount;
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
@@ -98,10 +99,11 @@ public class Sale {
     private Category specialDiscountON;
     private BigDecimal specialDiscount;
     private BigDecimal overallDiscount;
+    @Enumerated(EnumType.STRING)
     private AmountType overallDiscountType;
     private BigDecimal adjustmentAmount;
     //    1=Through Pos 2=Through Website
-    private Integer saleChannel;
+    private Integer saleChannel = 2;
 
     @OneToMany(mappedBy = "sale", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<SaleStatusLog> saleStatusLogs = new ArrayList<>();
@@ -110,7 +112,7 @@ public class Sale {
     private List<SalePayment> salePayments = new ArrayList<>();
     //1=Pending,2=Partial,3=Success 4=Credit (For employee due)
     private Integer paymentStatus;
-    //1=Cash On Delivery 2=Partial Paid ,3=Full Paid
+    //1=Cash On Delivery/Not Paid 2=Partial Paid ,3=Full Paid
     private Integer saleType;
     private String salePoint;
     private String specialInstruction;
@@ -152,6 +154,7 @@ public class Sale {
                 .mapToInt(SaleItem::getSaleQty)
                 .sum();
     }
+
     public BigDecimal getSubTotalPrice() {
         return items.stream()
                 .map(SaleItem::getTotalPrice)
@@ -160,17 +163,54 @@ public class Sale {
 
     public BigDecimal getGrandTotalPrice() {
         BigDecimal subTotalPrice = this.getSubTotalPrice();
-        if (this.overallDiscount != null) {
-            if (this.overallDiscountType == AmountType.FIXED_AMOUNT) {
-                subTotalPrice = subTotalPrice.subtract(this.overallDiscount);
+        BigDecimal membershipDiscount = BigDecimal.valueOf(0);
+        BigDecimal overallDiscountAmount = BigDecimal.valueOf(0);
+
+        if (this.membershipDiscount != null) {
+            if (this.membershipDiscountType == AmountType.FIXED_AMOUNT) {
+                membershipDiscount = this.membershipDiscount;
             }
-            if (this.overallDiscountType == AmountType.PERCENTAGE) {
-                BigDecimal overallDiscountAmount = subTotalPrice
-                        .multiply(this.overallDiscount)
+            if (this.membershipDiscountType == AmountType.PERCENTAGE) {
+                membershipDiscount = subTotalPrice
+                        .multiply(this.membershipDiscount)
                         .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
-                subTotalPrice = subTotalPrice.subtract(overallDiscountAmount);
             }
         }
+        if (this.overallDiscount != null) {
+            if (this.overallDiscountType == AmountType.FIXED_AMOUNT) {
+                overallDiscountAmount =this.overallDiscount;
+            }
+            if (this.overallDiscountType == AmountType.PERCENTAGE) {
+                overallDiscountAmount = subTotalPrice
+                        .multiply(this.overallDiscount)
+                        .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+            }
+        }
+        subTotalPrice = subTotalPrice.subtract(membershipDiscount).subtract(overallDiscountAmount);
+//        if (this.membershipDiscount != null) {
+//            if (this.membershipDiscountType == AmountType.FIXED_AMOUNT) {
+//                subTotalPrice = subTotalPrice.subtract(this.membershipDiscount);
+//            }
+//            if (this.membershipDiscountType == AmountType.PERCENTAGE) {
+//                BigDecimal membershipDiscount = subTotalPrice
+//                        .multiply(this.membershipDiscount)
+//                        .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+//                subTotalPrice = subTotalPrice.subtract(membershipDiscount);
+//            }
+//        }
+//
+//        if (this.overallDiscount != null) {
+//            if (this.overallDiscountType == AmountType.FIXED_AMOUNT) {
+//                subTotalPrice = subTotalPrice.subtract(this.overallDiscount);
+//            }
+//            if (this.overallDiscountType == AmountType.PERCENTAGE) {
+//                BigDecimal overallDiscountAmount = subTotalPrice
+//                        .multiply(this.overallDiscount)
+//                        .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+//                subTotalPrice = subTotalPrice.subtract(overallDiscountAmount);
+//            }
+//        }
+
         if (this.vat != null) {
             if (this.vatType == AmountType.FIXED_AMOUNT) {
                 subTotalPrice = subTotalPrice.add(this.vat);
@@ -187,6 +227,7 @@ public class Sale {
         }
         return subTotalPrice;
     }
+
     public BigDecimal getCashReceiveAmount() {
         return salePayments.stream()
                 .filter(i ->
@@ -195,6 +236,7 @@ public class Sale {
                 .map(SalePayment::getCashIn)
                 .reduce(BigDecimal.ZERO, BigDecimal::add).setScale(2, RoundingMode.HALF_UP);
     }
+
     public BigDecimal getCashReturnAmount() {
         return salePayments.stream()
                 .filter(i ->

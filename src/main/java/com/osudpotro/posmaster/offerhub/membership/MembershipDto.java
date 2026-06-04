@@ -1,5 +1,6 @@
 package com.osudpotro.posmaster.offerhub.membership;
 
+import com.osudpotro.posmaster.sale.AmountType;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -10,6 +11,8 @@ public class MembershipDto{
     private Long id;
     private String name;
     private BigDecimal discount;
+    private AmountType discountType;
     private Double maxDiscount;
-    private Boolean isPercentage;
+    private Double minPurchaseAmount;
+    private Integer lastNMonth;
 }

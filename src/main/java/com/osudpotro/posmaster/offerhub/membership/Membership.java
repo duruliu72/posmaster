@@ -1,16 +1,13 @@
 package com.osudpotro.posmaster.offerhub.membership;
 
 import com.osudpotro.posmaster.common.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import com.osudpotro.posmaster.sale.AmountType;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 import java.math.BigDecimal;
-
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -23,6 +20,9 @@ public class Membership extends BaseEntity {
     @Column(name = "code", nullable = true, unique = true, length = 50)
     private String code;
     private BigDecimal discount;
-    private Boolean isPercentage;
+    @Enumerated(EnumType.STRING)
+    private AmountType discountType;
     private Double maxDiscount;
+    private Double minPurchaseAmount;
+    private Integer lastNMonth;
 }

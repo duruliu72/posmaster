@@ -5,7 +5,6 @@ import com.osudpotro.posmaster.deliverycharge.DeliveryCharge;
 import com.osudpotro.posmaster.deliverymethod.DeliveryMethod;
 import com.osudpotro.posmaster.inventory.InventoryRepository;
 import com.osudpotro.posmaster.offerhub.membership.Membership;
-import com.osudpotro.posmaster.offerhub.offer.Offer;
 import com.osudpotro.posmaster.offerhub.promotion.PromotionOffer;
 import com.osudpotro.posmaster.organization.Organization;
 import com.osudpotro.posmaster.product.ProductDetail;
@@ -37,9 +36,9 @@ public class SaleMapper {
         SaleDto dto = new SaleDto();
         dto.setId(sale.getId());
         dto.setSaleRef(sale.getSaleRef());
-//        if (sale.getPaymentMethod() != null) {
-//            dto.setPaymentMethod(sale.getPaymentMethod().getDescription());
-//        }
+        if (sale.getPaymentOption() != null) {
+            dto.setPaymentOption(sale.getPaymentOption().getDescription());
+        }
         dto.setUserType(sale.getUserType());
         if (sale.getCustomer() != null) {
             Customer customer = sale.getCustomer();
@@ -58,6 +57,8 @@ public class SaleMapper {
             dto.setBranchId(branch.getId());
             dto.setBranchName(branch.getName());
         }
+        dto.setOverallDiscount(sale.getOverallDiscount());
+        dto.setOverallDiscountType(sale.getOverallDiscountType());
         dto.setVat(sale.getVat());
         dto.setVatType(sale.getVatType());
 
@@ -71,12 +72,12 @@ public class SaleMapper {
             dto.setDeliveryAddressId(deliveryAddress.getId());
             dto.setDeliveryAddress(deliveryAddress.getLocationDesc());
         }
-//        Offer info
-        if (sale.getOffer() != null) {
-            Offer offer = sale.getOffer();
-            dto.setOfferId(offer.getId());
-            dto.setOfferValue(sale.getOfferValue());
-        }
+////        Offer info
+//        if (sale.getOffer() != null) {
+//            Offer offer = sale.getOffer();
+//            dto.setOfferId(offer.getId());
+//            dto.setOfferValue(sale.getOfferValue());
+//        }
 //        promotion Offer info
         if (sale.getPromotionOffer() != null) {
             PromotionOffer promotionOffer = sale.getPromotionOffer();
@@ -90,11 +91,7 @@ public class SaleMapper {
             Membership membership = sale.getMembership();
             dto.setMembershipId(membership.getId());
             dto.setMembershipDiscount(membership.getDiscount());
-            if (membership.getIsPercentage()) {
-                dto.setMembershipDiscountType(AmountType.PERCENTAGE);
-            } else {
-                dto.setMembershipDiscountType(AmountType.FIXED_AMOUNT);
-            }
+            dto.setMembershipDiscountType(membership.getDiscountType());
         }
 //        Delivery Method info
         if (sale.getDeliveryMethod() != null) {
@@ -129,12 +126,15 @@ public class SaleMapper {
             for (SalePayment salePayment : sale.getSalePayments()) {
                 SalePaymentDto salePaymentDto = new SalePaymentDto();
                 salePaymentDto.setId(salePayment.getId());
-//                salePaymentDto.setPaymentMethod(salePayment.getPaymentMethod().getDescription());
+                if(salePayment.getPaymentMethod()!=null){
+                    salePaymentDto.setPaymentMethod(salePayment.getPaymentMethod().getCode());
+                }
                 salePaymentDto.setTrxId(salePayment.getTrxId());
                 salePaymentDto.setIsSysGenTrx(salePayment.getIsSysGenTrx());
                 salePaymentDto.setCashIn(salePayment.getCashIn());
                 salePaymentDto.setCashOut(salePayment.getCashOut());
                 salePaymentDto.setTransactionType(salePayment.getTransactionType());
+                salePayments.add(salePaymentDto);
             }
             dto.setSalePayments(salePayments);
         }

@@ -18,22 +18,17 @@ import java.util.Map;
 @RestController
 @RequestMapping("/sales")
 public class SaleController {
-
     private final SaleService saleService;
-
-    // Add these to SaleController.java
-
     @GetMapping
     public List<SaleDto> getAllSales() {
         return saleService.getAllSales();
     }
-
     @PostMapping("/filter")
     public PagedResponse<SaleDto> filterSales(
             @RequestBody SaleFilter filter,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDir
     ) {
         Sort sort = sortDir.equalsIgnoreCase("asc") ?

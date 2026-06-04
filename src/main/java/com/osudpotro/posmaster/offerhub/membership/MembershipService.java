@@ -1,5 +1,6 @@
 package com.osudpotro.posmaster.offerhub.membership;
 
+import com.osudpotro.posmaster.sale.AmountType;
 import com.osudpotro.posmaster.user.auth.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -43,7 +44,13 @@ public class MembershipService {
         membership.setName(request.getName());
         membership.setDiscount(request.getDiscount());
         membership.setMaxDiscount(request.getMaxDiscount());
-        membership.setIsPercentage(request.getIsPercentage());
+        if (request.getIsPercentage() != null && request.getIsPercentage()) {
+            membership.setDiscountType(AmountType.PERCENTAGE);
+        } else {
+            membership.setDiscountType(AmountType.FIXED_AMOUNT);
+        }
+        membership.setMinPurchaseAmount(request.getMinPurchaseAmount());
+        membership.setLastNMonth(request.getLastNMonth());
         membership.setCreatedBy(user);
         membershipRepo.save(membership);
         return membershipMapper.toDto(membership);
@@ -51,7 +58,7 @@ public class MembershipService {
 
     public MembershipDto updateEntity(Long entityId, MembershipUpdateRequest request) {
         var membership = membershipRepo.findById(entityId).orElseThrow(MembershipNotFoundException::new);
-        if(!Objects.equals(membership.getName(), request.getName())){
+        if (!Objects.equals(membership.getName(), request.getName())) {
             if (membershipRepo.existsByName(request.getName())) {
                 throw new DuplicateMembershipException();
             }
@@ -60,7 +67,13 @@ public class MembershipService {
         membership.setName(request.getName());
         membership.setDiscount(request.getDiscount());
         membership.setMaxDiscount(request.getMaxDiscount());
-        membership.setIsPercentage(request.getIsPercentage());
+        if (request.getIsPercentage()) {
+            membership.setDiscountType(AmountType.PERCENTAGE);
+        } else {
+            membership.setDiscountType(AmountType.FIXED_AMOUNT);
+        }
+        membership.setMinPurchaseAmount(request.getMinPurchaseAmount());
+        membership.setLastNMonth(request.getLastNMonth());
         membership.setUpdatedBy(user);
         membershipRepo.save(membership);
         return membershipMapper.toDto(membership);

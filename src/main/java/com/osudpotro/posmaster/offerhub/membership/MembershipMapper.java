@@ -15,7 +15,9 @@ public class MembershipMapper {
         membershipDto.setName(membership.getName());
         membershipDto.setDiscount(membership.getDiscount());
         membershipDto.setMaxDiscount(membership.getMaxDiscount());
-        membershipDto.setIsPercentage(membership.getIsPercentage());
+        membershipDto.setDiscountType(membership.getDiscountType());
+        membershipDto.setMinPurchaseAmount(membership.getMinPurchaseAmount());
+        membershipDto.setLastNMonth(membership.getLastNMonth());
         return membershipDto;
     }
 }

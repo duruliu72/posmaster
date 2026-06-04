@@ -30,7 +30,6 @@ import com.osudpotro.posmaster.user.customer.address.AddressRepository;
 import com.osudpotro.posmaster.user.customer.wallet.Wallet;
 import com.osudpotro.posmaster.user.customer.wallet.WalletRepository;
 import jakarta.transaction.Transactional;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -38,6 +37,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import lombok.extern.slf4j.Slf4j;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
@@ -123,19 +123,26 @@ public class SaleService {
             Membership membership = customer.getMembership();
             sale.setMembershipDiscount(membership.getDiscount());
             sale.setMaxDiscount(membership.getMaxDiscount());
-            if (membership.getIsPercentage()) {
-                sale.setMembershipDiscountType(AmountType.PERCENTAGE);
-            } else {
-                sale.setMembershipDiscountType(AmountType.FIXED_AMOUNT);
-            }
+            sale.setMembershipDiscountType(membership.getDiscountType());
         }
-        sale.setOverallDiscount(request.getOverallDiscount());
-        sale.setOverallDiscountType(request.getOverallDiscountType());
-        sale.setVat(request.getVat());
-        sale.setVatType(request.getVatType());
+        if (request.getOverallDiscount() != null) {
+            sale.setOverallDiscount(request.getOverallDiscount());
+            if (request.getOverallDiscountType() != null) {
+                sale.setOverallDiscountType(request.getOverallDiscountType());
+            } else {
+                sale.setOverallDiscountType(AmountType.FIXED_AMOUNT);
+            }
+
+        }
+        if (request.getVatType() != null) {
+            sale.setVat(request.getVat());
+            sale.setVatType(request.getVatType());
+        }
         sale.setAdjustmentAmount(request.getAdjustmentAmount());
         sale.setPrescriptionDocs(request.getPrescriptionDocs());
         sale.setSpecialInstruction(request.getSpecialInstruction());
+        sale.setPaymentOption(PaymentOption.fromCode("cash"));
+        sale.setSaleChannel(1);
 //      Sale Item info
         if (request.getItems() != null) {
             List<SaleItem> saleItemList = new ArrayList<>();
@@ -163,10 +170,38 @@ public class SaleService {
                 saleItem.setSaleQty(itemRequest.getSaleQty());
                 saleItem.setSalePrice(itemRequest.getSalePrice());
                 saleItem.setDiscount(itemRequest.getDiscount());
-                saleItem.setDiscountType(itemRequest.getDiscountType());
+                if (itemRequest.getDiscountType() != null) {
+                    saleItem.setDiscountType(itemRequest.getDiscountType());
+                } else {
+                    saleItem.setDiscountType(AmountType.FIXED_AMOUNT);
+                }
                 saleItemList.add(saleItem);
             }
             sale.setItems(saleItemList);
+        }
+        BigDecimal grandTotal = sale.getGrandTotalPrice();
+        BigDecimal bonusAmount = grandTotal.divide(BigDecimal.valueOf(100));
+        if (customer != null && bonusAmount.compareTo(BigDecimal.ZERO) > 0) {
+            Wallet creditWallet = new Wallet();
+            creditWallet.setCustomer(customer);
+            creditWallet.setUser(customer.getUser());
+            creditWallet.setUserType(UserType.CUSTOMER);
+            creditWallet.setCreditAmount(bonusAmount);
+            creditWallet.setWalletType(3);
+            creditWallet.setSale(sale);
+            creditWallet.setSaleRef(saleRef);
+            walletRepository.save(creditWallet);
+        }
+        //       sale status 6=for delivered
+        sale.setSaleStatus(6);
+//        3=for success for payment
+        sale.setPaymentStatus(3);
+//      Purchase Bonus add to wallet
+        sale.setCreatedBy(authUser);
+        sale.setBranch(authUser.getBranch());
+        saleRepo.save(sale);
+        if (sale.getSalePayments() == null) {
+            sale.setSalePayments(new ArrayList<>());
         }
         //Sale Payment info
         if (request.getSalePayments() != null) {
@@ -193,10 +228,13 @@ public class SaleService {
                     if (!paymentRequest.getIsSysGenTrx()) {
                         salePayment.setTrxId(paymentRequest.getTrxId());
                     } else {
-                        salePayment.setTrxId("System Gene");
+                        String x = generatePaymentTrxId();
+                        salePayment.setTrxId(generatePaymentTrxId());
                     }
                     salePayment.setTransactionType(1);
-                    salePayments.add(salePayment);
+                    salePaymentRepo.save(salePayment);
+//                    salePayments.add(salePayment);
+                    sale.getSalePayments().add(salePayment);
                 }
             }
             if (request.getCashReturnAmount() != null && request.getCashReturnAmount().compareTo(BigDecimal.ZERO) > 0) {
@@ -204,31 +242,17 @@ public class SaleService {
                 salePayment.setSale(sale);
                 salePayment.setSaleRef(saleRef);
                 salePayment.setCashOut(request.getCashReturnAmount());
+                salePayment.setTrxId(generatePaymentTrxId());
                 salePayment.setTransactionType(1);
-                salePayments.add(salePayment);
+                salePaymentRepo.save(salePayment);
+//                salePayments.add(salePayment);
+                sale.getSalePayments().add(salePayment);
             }
-            sale.setSalePayments(salePayments);
+//            sale.setSalePayments(salePayments);
         }
-//      Purchase Bonus add to wallet
-        BigDecimal grandTotal=sale.getGrandTotalPrice();
-        BigDecimal bonusAmount = grandTotal.divide(BigDecimal.valueOf(100));
-        if (customer != null && bonusAmount.compareTo(BigDecimal.ZERO) > 0) {
-            Wallet creditWallet = new Wallet();
-            creditWallet.setCustomer(customer);
-            creditWallet.setUser(customer.getUser());
-            creditWallet.setUserType(UserType.CUSTOMER);
-            creditWallet.setCreditAmount(bonusAmount);
-            creditWallet.setWalletType(3);
-            creditWallet.setSale(sale);
-            creditWallet.setSaleRef(saleRef);
-            walletRepository.save(creditWallet);
-        }
-        sale.setCreatedBy(authUser);
-        sale.setBranch(authUser.getBranch());
-        saleRepo.save(sale);
 //        Stock Out from inventory
         List<Inventory> inventoryList = new ArrayList<>();
-        for (SaleItem saleItem:sale.getItems()){
+        for (SaleItem saleItem : sale.getItems()) {
             Inventory stockOut = new Inventory();
             stockOut.setInvoiceId(sale.getId());
             stockOut.setInvoiceDetailId(saleItem.getId());
@@ -356,16 +380,16 @@ public class SaleService {
 
         // ==================== PAYMENT METHOD ====================
 
-        try {
-            if (request.getPaymentMethod() != null && !request.getPaymentMethod().isEmpty()) {
-                sale.setPaymentMethod(PaymentMethod.fromCode(request.getPaymentMethod()));
-            } else {
-                sale.setPaymentMethod(PaymentMethod.COD);
-            }
-        } catch (IllegalArgumentException e) {
-            log.warn("Invalid payment method: {}, defaulting to COD", request.getPaymentMethod());
-            sale.setPaymentMethod(PaymentMethod.COD);
-        }
+//        try {
+//            if (request.getPaymentMethod() != null && !request.getPaymentMethod().isEmpty()) {
+//                sale.setPaymentMethod(PaymentMethod.fromCode(request.getPaymentMethod()));
+//            } else {
+//                sale.setPaymentMethod(PaymentMethod.COD);
+//            }
+//        } catch (IllegalArgumentException e) {
+//            log.warn("Invalid payment method: {}, defaulting to COD", request.getPaymentMethod());
+//            sale.setPaymentMethod(PaymentMethod.COD);
+//        }
 
         sale.setOrganization(branch.getOrganization());
         sale.setBranch(branch);
@@ -612,5 +636,23 @@ public class SaleService {
             }
         }
         return String.format("%s-%s-%06d", prefix, datePart, nextSeq);
+    }
+
+    private String generatePaymentTrxId() {
+        SalePayment salePayment = salePaymentRepo.findTopByOrderByIdDesc();
+        String prefix = "OPWT";
+        long nextSeq = 1;
+        if (salePayment != null && salePayment.getTrxId() != null) {
+            String lastTrxId = salePayment.getTrxId();
+            String lastPart = lastTrxId.length() > 5 ? lastTrxId.substring(lastTrxId.length() - 6) : lastTrxId;
+            if (!lastPart.isEmpty()) {
+                try {
+                    nextSeq = Long.parseLong(lastPart) + 1;
+                } catch (Exception e) {
+                    log.error("e: ", e);
+                }
+            }
+        }
+        return String.format("%s-%06d", prefix, nextSeq);
     }
 }

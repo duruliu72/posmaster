@@ -53,6 +53,7 @@ public class SaleItem {
     private LocalDateTime offerStartDate;
     private LocalDateTime offerEndDate;
     private BigDecimal discount;
+    @Enumerated(EnumType.STRING)
     private AmountType discountType;
 
     public BigDecimal getTotalPrice() {
