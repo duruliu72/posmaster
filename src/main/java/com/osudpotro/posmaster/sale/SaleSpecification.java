@@ -20,7 +20,7 @@ public class SaleSpecification {
                 predicates.add(cb.like(cb.lower(root.get("saleRef")),
                         "%" + filter.getSaleRef().toLowerCase() + "%"));
             }
-            Join<Sale, Customer> customer = root.join("customer", JoinType.INNER);
+            Join<Sale, Customer> customer = root.join("customer", JoinType.LEFT);
 
             if (filter.getCustomerName() != null && !filter.getCustomerName().isEmpty()) {
                 predicates.add(cb.like(cb.lower(customer.get("userName")),
