@@ -3,12 +3,13 @@ package com.osudpotro.posmaster.security;
 import com.osudpotro.posmaster.action.Action;
 import com.osudpotro.posmaster.action.ActionNotFoundException;
 import com.osudpotro.posmaster.action.ActionRepository;
-import com.osudpotro.posmaster.resource.Resource;
-import com.osudpotro.posmaster.resource.ResourceAction;
-import com.osudpotro.posmaster.resource.ResourceDetailsRepository;
-import com.osudpotro.posmaster.resource.ResourceRepository;
-import com.osudpotro.posmaster.role.Role;
-import com.osudpotro.posmaster.role.RoleRepository;
+import com.osudpotro.posmaster.securityadmistration.permission.*;
+import com.osudpotro.posmaster.securityadmistration.resource.Resource;
+import com.osudpotro.posmaster.securityadmistration.resource.ResourceAction;
+import com.osudpotro.posmaster.securityadmistration.resource.ResourceDetailsRepository;
+import com.osudpotro.posmaster.securityadmistration.resource.ResourceRepository;
+import com.osudpotro.posmaster.securityadmistration.role.Role;
+import com.osudpotro.posmaster.securityadmistration.role.RoleRepository;
 import com.osudpotro.posmaster.user.DuplicateUserException;
 import com.osudpotro.posmaster.user.User;
 import com.osudpotro.posmaster.user.UserRepository;
@@ -33,7 +34,7 @@ public class DataLoader {
             UserRepository userRepository,
             AdminUserRepository adminUserRepository,
             PermissionRepository permissionRepository,
-            PermissionDetailRepository permissionDetailRepository,
+            PermissionActionRepository permissionActionRepository,
             ResourceDetailsRepository resourceDetailsRepository,
             PasswordEncoder passwordEncoder
     ) {
@@ -45,7 +46,7 @@ public class DataLoader {
                     userRepository,
                     adminUserRepository,
                     permissionRepository,
-                    permissionDetailRepository,
+                    permissionActionRepository,
                     resourceDetailsRepository,
                     passwordEncoder
             );
@@ -60,7 +61,7 @@ public class DataLoader {
             UserRepository userRepository,
             AdminUserRepository adminUserRepository,
             PermissionRepository permissionRepository,
-            PermissionDetailRepository permissionDetailRepository,
+            PermissionActionRepository permissionActionRepository,
             ResourceDetailsRepository resourceDetailsRepository,
             PasswordEncoder passwordEncoder
     ) {
@@ -169,20 +170,20 @@ public class DataLoader {
             permission.setPermissionType(PermissionType.ROLE);
             permission.setEnable(true);
             permission.setCreatedBy(superUser);
-            permission = permissionRepository.save(permission);
+//            permission = permissionRepository.save(permission);
             //=== ResourceRequest Details====
             Action read = actionRepository.findByName("READ").orElseThrow(() -> new ActionNotFoundException());
             Action create = actionRepository.findByName("CREATE").orElseThrow(() -> new ActionNotFoundException());
-            PermissionDetail detail1 = new PermissionDetail();
+            PermissionAction detail1 = new PermissionAction();
             detail1.setPermission(permission);
             detail1.setAction(read);
             detail1.setCreatedBy(superUser);
 
-            PermissionDetail detail2 = new PermissionDetail();
+            PermissionAction detail2 = new PermissionAction();
             detail2.setPermission(permission);
             detail2.setAction(create);
             detail2.setCreatedBy(superUser);
-            permissionDetailRepository.saveAll(Arrays.asList(detail1, detail2));
+//            permissionActionRepository.saveAll(Arrays.asList(detail1, detail2));
             System.out.println("✅ Permissions inserted for Super AdminUser");
         }
     }

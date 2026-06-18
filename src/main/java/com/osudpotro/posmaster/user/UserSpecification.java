@@ -1,6 +1,6 @@
 package com.osudpotro.posmaster.user;
 
-import com.osudpotro.posmaster.role.Role;
+import com.osudpotro.posmaster.securityadmistration.role.Role;
 import com.osudpotro.posmaster.user.Employee.Employee;
 import com.osudpotro.posmaster.user.admin.AdminUser;
 import jakarta.persistence.criteria.Join;

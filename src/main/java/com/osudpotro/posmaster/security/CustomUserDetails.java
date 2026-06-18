@@ -23,7 +23,7 @@ public class CustomUserDetails implements UserDetails {
         // Role permissions
         user.getRoles().forEach(role ->
                 role.getPermissions().forEach(permission ->
-                        permission.getPermissionDetails().forEach(pd ->
+                        permission.getPermissionActions().forEach(pd ->
                                         authorities.add(new SimpleGrantedAuthority(
                                                 permission.getResource().getResourceKey() + "_" + pd.getAction().getName()
 //                                        permission.getUiResource().getUiResourceKey()+"_"+pd.getApiResourceKey().getResourceKey() + "_" + pd.getAction().getName()
@@ -31,7 +31,7 @@ public class CustomUserDetails implements UserDetails {
                         )));
 //         Direct user permissions
         user.getPermissions().forEach(permission ->
-                permission.getPermissionDetails().forEach(pd ->
+                permission.getPermissionActions().forEach(pd ->
                                 authorities.add(new SimpleGrantedAuthority(
                                         permission.getResource().getResourceKey() + "_" + pd.getAction().getName()
 //                                permission.getUiResource().getUiResourceKey()+"_"+pd.getApiResourceKey().getResourceKey() + "_" + pd.getAction().getName()

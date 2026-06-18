@@ -37,4 +37,6 @@ public class PurchaseDto {
     private LocalDateTime updatedAt;
     private Integer purchaseStatus;
     private List<PurchaseDetailDto> items = new ArrayList<>();
+    private BigDecimal totalPrice;
+    private Integer totalQty;
 }

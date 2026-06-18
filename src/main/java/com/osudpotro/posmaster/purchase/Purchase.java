@@ -6,6 +6,7 @@ import com.osudpotro.posmaster.branch.Branch;
 import com.osudpotro.posmaster.organization.Organization;
 import com.osudpotro.posmaster.purchase.checked.CheckedPurchaseRequisition;
 import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisition;
+import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisitionItem;
 import com.osudpotro.posmaster.supplier.Supplier;
 import com.osudpotro.posmaster.user.User;
 import com.osudpotro.posmaster.warehouse.Warehouse;
@@ -16,6 +17,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -71,6 +73,27 @@ public class Purchase {
     @JsonIgnore
     @OneToMany(mappedBy = "purchase", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
     private List<PurchaseDetail> items = new ArrayList<>();
+
+    public int getTotalQty() {
+        return items.stream()
+                .filter(i ->
+                        i.getPurchaseQty() != null
+                )
+                .mapToInt(PurchaseDetail::getPurchaseQty)
+                .sum();
+    }
+    public BigDecimal getTotalPrice() {
+        return items.stream()
+                .filter(i ->
+                        i.getPurchaseQty() != null && i.getPurchasePrice() != null
+                )
+                .map(i ->
+                        i.getPurchasePrice()
+                                .multiply(BigDecimal.valueOf(i.getPurchaseQty()))
+                )
+                .reduce(BigDecimal.ZERO, BigDecimal::add).setScale(2, RoundingMode.HALF_UP);
+    }
+
     public String getGeneratePurchaseBatchNo() {
         String tripPrefix="BATCH";
         String datePart = new SimpleDateFormat("yyyyMMdd").format(new Date());

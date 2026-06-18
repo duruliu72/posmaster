@@ -1,8 +1,8 @@
 package com.osudpotro.posmaster.user;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.osudpotro.posmaster.role.RoleDto;
-import com.osudpotro.posmaster.security.PermissionDto;
+import com.osudpotro.posmaster.securityadmistration.role.RoleDto;
+import com.osudpotro.posmaster.securityadmistration.permission.PermissionDto;
 import lombok.Data;
 
 import java.time.LocalDateTime;

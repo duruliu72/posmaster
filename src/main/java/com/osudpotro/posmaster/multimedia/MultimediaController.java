@@ -1,6 +1,5 @@
 package com.osudpotro.posmaster.multimedia;
 
-import com.osudpotro.posmaster.manufacturer.ManufacturerDto;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;

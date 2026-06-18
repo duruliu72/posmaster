@@ -50,9 +50,6 @@ public class PurchaseRequisitionItem {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "purchase_product_unit_id")
     private ProductDetail purchaseProductUnit;
-    public BigDecimal getQty() {
-        return BigDecimal.valueOf(purchaseQty);
-    }
     public BigDecimal getDiscountPrice() {
         if (mrpPrice == null || purchasePrice == null) {
             return BigDecimal.ZERO;

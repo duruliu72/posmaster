@@ -1,8 +1,8 @@
 package com.osudpotro.posmaster.user;
 
 import com.osudpotro.posmaster.user.auth.AuthService;
-import com.osudpotro.posmaster.role.Role;
-import com.osudpotro.posmaster.role.RoleRepository;
+import com.osudpotro.posmaster.securityadmistration.role.Role;
+import com.osudpotro.posmaster.securityadmistration.role.RoleRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

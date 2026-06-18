@@ -1,30 +1,28 @@
 package com.osudpotro.posmaster.purchase;
 
-import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisitionDto;
-import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisitionFilter;
+import com.osudpotro.posmaster.common.EntityNotFoundException;
+import com.osudpotro.posmaster.user.auth.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 
 @Service
 public class PurchaseService {
     @Autowired
+    private AuthService authService;
+    @Autowired
     private PurchaseRepository purchaseRepo;
-    public List<PurchaseRequisitionDto> getAllPurchaseRequisitions() {
-//        return prRepo.findAll()
-//                .stream()
-//                .map(purchaseRequisitionMapper::toDto)
-//                .toList();
-        return null;
-    }
+    @Autowired
+    PurchaseMapper purchaseMapper;
 
-    public Page<PurchaseRequisitionDto> filterPrEntities(PurchaseRequisitionFilter filter, Pageable pageable) {
-//        var authUser = authService.getCurrentUser();
-//        return prRepo.findAll(PurchaseRequisitionSpecification.filter(filter, authUser), pageable).map(purchaseRequisitionMapper::toDto);
-        return null;
+    public Page<PurchaseDto> getAllEntities(PurchaseFilter filter, Pageable pageable) {
+        var authUser = authService.getCurrentUser();
+        return purchaseRepo.findAll(PurchaseSpecification.filter(filter,authUser), pageable).map(purchaseMapper::toDto);
     }
-
+    public PurchaseDto getEntity(Long entityId) {
+        var entity = purchaseRepo.findById(entityId).orElseThrow(() -> new EntityNotFoundException("Area not found with ID: " + entityId));
+        return purchaseMapper.toMaxDto(entity);
+    }
 }

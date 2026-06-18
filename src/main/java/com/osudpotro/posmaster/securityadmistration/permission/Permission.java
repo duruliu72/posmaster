@@ -1,0 +1,44 @@
+package com.osudpotro.posmaster.securityadmistration.permission;
+
+import com.osudpotro.posmaster.common.BaseEntity;
+import com.osudpotro.posmaster.securityadmistration.module.ModuleInfo;
+import com.osudpotro.posmaster.securityadmistration.resource.Resource;
+import com.osudpotro.posmaster.securityadmistration.role.Role;
+import com.osudpotro.posmaster.user.User;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.util.HashSet;
+import java.util.Set;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Table(name = "permissions")
+public class Permission extends BaseEntity {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "role_id")
+    private Role role;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "module_id")
+    private ModuleInfo moduleInfo;
+    @ManyToOne
+    @JoinColumn(name = "resource_id")
+    private Resource resource;
+    @JoinColumn(name = "is_resource_checked")
+    private boolean isResourceChecked=false;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "permission_type")
+    private PermissionType permissionType; // ROLE or USER
+    private boolean isEnable = true;
+    @OneToMany(mappedBy = "permission", cascade = CascadeType.ALL)
+    private Set<PermissionAction> permissionActions = new HashSet<>();
+}

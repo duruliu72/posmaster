@@ -31,5 +31,4 @@ public class ProductUpdateRequest {
     private String metaTitle;
     private String metaKeywords;
     private String metaDescription;
-
 }

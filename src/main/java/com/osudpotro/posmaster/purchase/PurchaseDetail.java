@@ -5,6 +5,7 @@ import com.osudpotro.posmaster.product.Product;
 import com.osudpotro.posmaster.product.ProductDetail;
 import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisition;
 import com.osudpotro.posmaster.purchase.requisition.PurchaseRequisitionItem;
+import com.osudpotro.posmaster.sale.AmountType;
 import com.osudpotro.posmaster.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -13,6 +14,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -53,6 +55,10 @@ public class PurchaseDetail {
     private BigDecimal mrpPrice;
     @Column(precision = 38, scale = 18)
     private BigDecimal purchaseDiscount;
+    @Column(precision = 38, scale = 18)
+    private BigDecimal discount;
+    @Enumerated(EnumType.STRING)
+    private AmountType discountType;
     private Integer purchaseQty;
     private Integer giftOrBonusQty;
     private Integer atomQty;
@@ -72,6 +78,25 @@ public class PurchaseDetail {
     @UpdateTimestamp
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime updatedAt;
+
+    public BigDecimal getTotalPrice() {
+        if (this.purchasePrice == null || this.purchaseQty == null) {
+            return BigDecimal.ZERO;
+        }
+        BigDecimal totalPrice = this.purchasePrice.multiply(BigDecimal.valueOf(this.purchaseQty));
+        if (this.discount != null) {
+            if (this.discountType == AmountType.FIXED_AMOUNT) {
+                return totalPrice.subtract(this.discount);
+            }
+            if (this.discountType == AmountType.PERCENTAGE) {
+                BigDecimal discountAmount = totalPrice
+                        .multiply(this.discount)
+                        .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+                return totalPrice.subtract(discountAmount);
+            }
+        }
+        return totalPrice;
+    }
 
     public String getGeneratePurchaseBarcode() {
         String prefix = "789012";

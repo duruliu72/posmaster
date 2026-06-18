@@ -1,10 +1,10 @@
 package com.osudpotro.posmaster.user;
 
 import com.osudpotro.posmaster.action.ActionDto;
-import com.osudpotro.posmaster.resource.ResourceDto;
-import com.osudpotro.posmaster.role.RoleDto;
-import com.osudpotro.posmaster.security.PermissionDetailDto;
-import com.osudpotro.posmaster.security.PermissionDto;
+import com.osudpotro.posmaster.securityadmistration.permission.PermissionActionDto;
+import com.osudpotro.posmaster.securityadmistration.resource.ResourceDto;
+import com.osudpotro.posmaster.securityadmistration.role.RoleDto;
+import com.osudpotro.posmaster.securityadmistration.permission.PermissionDto;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
@@ -42,16 +42,16 @@ public class CustomUserMapper {
                     resourceDto.setUrl(permission.getResource().getUrl());
                     permissionDto.setResource(resourceDto);
                     permissionDto.setPermissionType(permission.getPermissionType());
-                    Set<PermissionDetailDto> permissionDetails = new HashSet<>();
-                    permission.getPermissionDetails().forEach(pd -> {
-                        PermissionDetailDto permissionDetailDto = new PermissionDetailDto();
+                    Set<PermissionActionDto> permissionActions = new HashSet<>();
+                    permission.getPermissionActions().forEach(pd -> {
+                        PermissionActionDto permissionActionDto = new PermissionActionDto();
                         ActionDto actionDto = new ActionDto();
                         actionDto.setId(pd.getAction().getId());
                         actionDto.setName(pd.getAction().getName());
-                        permissionDetailDto.setAction(actionDto);
-                        permissionDetails.add(permissionDetailDto);
+                        permissionActionDto.setAction(actionDto);
+                        permissionActions.add(permissionActionDto);
                     });
-                    permissionDto.setPermissionDetails(permissionDetails);
+                    permissionDto.setPermissionActions(permissionActions);
                     permissions.add(permissionDto);
                 });
                 roleDto.setPermissions(permissions);
@@ -70,16 +70,16 @@ public class CustomUserMapper {
                 resourceDto.setUrl(permission.getResource().getUrl());
                 permissionDto.setResource(resourceDto);
                 permissionDto.setPermissionType(permission.getPermissionType());
-                Set<PermissionDetailDto> permissionDetails = new HashSet<>();
-                permission.getPermissionDetails().forEach(pd -> {
-                    PermissionDetailDto permissionDetailDto = new PermissionDetailDto();
+                Set<PermissionActionDto> permissionActions = new HashSet<>();
+                permission.getPermissionActions().forEach(pd -> {
+                    PermissionActionDto permissionActionDto = new PermissionActionDto();
                     ActionDto actionDto = new ActionDto();
                     actionDto.setId(pd.getAction().getId());
                     actionDto.setName(pd.getAction().getName());
-                    permissionDetailDto.setAction(actionDto);
-                    permissionDetails.add(permissionDetailDto);
+                    permissionActionDto.setAction(actionDto);
+                    permissionActions.add(permissionActionDto);
                 });
-                permissionDto.setPermissionDetails(permissionDetails);
+                permissionDto.setPermissionActions(permissionActions);
                 permissions.add(permissionDto);
             });
         }
