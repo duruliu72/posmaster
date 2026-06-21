@@ -9,12 +9,14 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public interface PermissionRepository extends JpaRepository<Permission, Long> {
     // Finds permissions either assigned to any of the roles OR to the specific user
     List<Permission> findByRoleInOrUser(Set<Role> roles, User user);
-
+    @Query("SELECT p FROM Permission p WHERE p.role.id= :roleId AND p.moduleInfo.id=:moduleId AND p.resource.id=:resourceId ")
+    Optional<Permission> findPermissionByRoleAndModuleAndResource(@Param("roleId") Long roleId,@Param("moduleId") Long moduleId,@Param("resourceId") Long resourceId);
     @Transactional
     @Modifying
     @Query("UPDATE Permission p SET p.isResourceChecked = :isResourceChecked WHERE p.resource.id NOT IN :ids AND p.role.id= :roleId")

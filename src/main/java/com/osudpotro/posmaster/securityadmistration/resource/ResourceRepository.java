@@ -1,5 +1,6 @@
 package com.osudpotro.posmaster.securityadmistration.resource;
 
+import com.osudpotro.posmaster.securityadmistration.role.RoleProjectionDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -18,7 +19,8 @@ public interface ResourceRepository extends JpaSpecificationExecutor<Resource>, 
     boolean existsByUrl(String url);
 
     Optional<Resource> findByName(String name);
-
+    @Query("SELECT r FROM Resource r where r.id in :ids")
+    List<Resource> findResourceByIds(@Param("ids") List<Long> ids);
     @Transactional
     @Modifying
     @Query("update Resource uir set uir.status = :status where uir.id in :ids")

@@ -66,9 +66,9 @@ public class ResourceService {
 
     public ResourceDto createResource(ResourceCreateRequest request) {
         if (resourceRepository.existsByName(request.getName())) {
-            throw new DuplicateResourceException();
+            throw new DuplicateEntityException("Resource already exist!");
         }
-        if (resourceRepository.existsByResourceKey(request.getResourceKey())) {
+        if (request.getResourceKey() != null && resourceRepository.existsByResourceKey(request.getResourceKey())) {
             throw new DuplicateEntityException("Duplicate Key");
         }
         var user = authService.getCurrentUser();

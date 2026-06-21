@@ -6,4 +6,5 @@ import lombok.Data;
 @Data
 public class PermissionActionDto {
     private ActionDto action;
+    private boolean isActive;
 }

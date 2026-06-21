@@ -115,76 +115,77 @@ public class DataLoader {
                     return roleRepository.save(superAdmin);
                 });
         // === RESOURCES ===
-        Resource findProductResource = resourceRepository.findByName("Product")
-                .orElseGet(() -> {
-                    Resource productResource = new Resource();
-                    productResource.setName("Product");
-                    productResource.setResourceKey("PRODUCT");
-                    productResource.setUrl("/products");
-                    productResource.setCreatedBy(superUser);
-                    Action view = actionRepository.findByName("READ").orElseThrow(() -> new ActionNotFoundException());
-                    Action create = actionRepository.findByName("CREATE").orElseThrow(() -> new ActionNotFoundException());
-                    ResourceAction resourceActionView = new ResourceAction();
-                    resourceActionView.setResource(productResource);
-                    resourceActionView.setAction(view);
-                    resourceActionView.setChecked(true);
-                    resourceActionView.setCreatedBy(superUser);
-                    ResourceAction resourceActionCreate = new ResourceAction();
-                    resourceActionCreate.setResource(productResource);
-                    resourceActionCreate.setAction(create);
-                    resourceActionCreate.setChecked(true);
-                    resourceActionCreate.setCreatedBy(superUser);
-                    productResource.setResourceActions(Arrays.asList(resourceActionView, resourceActionCreate));
-                    return resourceRepository.save(productResource);
-                });
-        Resource findUserResource = resourceRepository.findByName("User")
-                .orElseGet(() -> {
-                    Resource userUIResource = new Resource();
-                    userUIResource.setName("User");
-                    userUIResource.setResourceKey("USER");
-                    userUIResource.setUrl("/users");
-                    userUIResource.setCreatedBy(superUser);
-                    Action view = actionRepository.findByName("READ").orElseThrow(() -> new ActionNotFoundException());
-                    Action create = actionRepository.findByName("CREATE").orElseThrow(() -> new ActionNotFoundException());
-                    ResourceAction resourceActionView = new ResourceAction();
-                    resourceActionView.setResource(userUIResource);
-                    resourceActionView.setAction(view);
-                    resourceActionView.setChecked(true);
-                    resourceActionView.setCreatedBy(superUser);
-                    ResourceAction resourceActionCreate = new ResourceAction();
-                    resourceActionCreate.setResource(userUIResource);
-                    resourceActionCreate.setAction(create);
-                    resourceActionCreate.setChecked(true);
-                    resourceActionCreate.setCreatedBy(superUser);
-                    userUIResource.setResourceActions(Arrays.asList(resourceActionView, resourceActionCreate));
-                    return resourceRepository.save(userUIResource);
-                });
+//        Resource findProductResource = resourceRepository.findByName("Product")
+//                .orElseGet(() -> {
+//                    Resource productResource = new Resource();
+//                    productResource.setName("Product");
+//                    productResource.setResourceKey("PRODUCT");
+//                    productResource.setUrl("/products");
+//                    productResource.setCreatedBy(superUser);
+//                    Action view = actionRepository.findByName("READ").orElseThrow(() -> new ActionNotFoundException());
+//                    Action create = actionRepository.findByName("CREATE").orElseThrow(() -> new ActionNotFoundException());
+//                    ResourceAction resourceActionView = new ResourceAction();
+//                    resourceActionView.setResource(productResource);
+//                    resourceActionView.setAction(view);
+//                    resourceActionView.setChecked(true);
+//                    resourceActionView.setCreatedBy(superUser);
+//                    ResourceAction resourceActionCreate = new ResourceAction();
+//                    resourceActionCreate.setResource(productResource);
+//                    resourceActionCreate.setAction(create);
+//                    resourceActionCreate.setChecked(true);
+//                    resourceActionCreate.setCreatedBy(superUser);
+//                    productResource.setResourceActions(Arrays.asList(resourceActionView, resourceActionCreate));
+//                    return resourceRepository.save(productResource);
+//                });
+//        Resource findUserResource = resourceRepository.findByName("User")
+//                .orElseGet(() -> {
+//                    Resource userUIResource = new Resource();
+//                    userUIResource.setName("User");
+//                    userUIResource.setResourceKey("USER");
+//                    userUIResource.setUrl("/users");
+//                    userUIResource.setCreatedBy(superUser);
+//                    Action view = actionRepository.findByName("READ").orElseThrow(() -> new ActionNotFoundException());
+//                    Action create = actionRepository.findByName("CREATE").orElseThrow(() -> new ActionNotFoundException());
+//                    ResourceAction resourceActionView = new ResourceAction();
+//                    resourceActionView.setResource(userUIResource);
+//                    resourceActionView.setAction(view);
+//                    resourceActionView.setChecked(true);
+//                    resourceActionView.setCreatedBy(superUser);
+//                    ResourceAction resourceActionCreate = new ResourceAction();
+//                    resourceActionCreate.setResource(userUIResource);
+//                    resourceActionCreate.setAction(create);
+//                    resourceActionCreate.setChecked(true);
+//                    resourceActionCreate.setCreatedBy(superUser);
+//                    userUIResource.setResourceActions(Arrays.asList(resourceActionView, resourceActionCreate));
+//                    return resourceRepository.save(userUIResource);
+//                });
         // ===SET ROLE SUPER ADMIN USER  ===
         superUser.setRoles(Set.of(findSuperAdminRole));
         userRepository.save(superUser);
         // === PERMISSIONS ===
-        if (permissionRepository.count() == 0) {
-            Permission permission = new Permission();
-            permission.setRole(findSuperAdminRole);
-            permission.setResource(findProductResource);
-            permission.setPermissionType(PermissionType.ROLE);
-            permission.setEnable(true);
-            permission.setCreatedBy(superUser);
-//            permission = permissionRepository.save(permission);
-            //=== ResourceRequest Details====
-            Action read = actionRepository.findByName("READ").orElseThrow(() -> new ActionNotFoundException());
-            Action create = actionRepository.findByName("CREATE").orElseThrow(() -> new ActionNotFoundException());
-            PermissionAction detail1 = new PermissionAction();
-            detail1.setPermission(permission);
-            detail1.setAction(read);
-            detail1.setCreatedBy(superUser);
-
-            PermissionAction detail2 = new PermissionAction();
-            detail2.setPermission(permission);
-            detail2.setAction(create);
-            detail2.setCreatedBy(superUser);
-//            permissionActionRepository.saveAll(Arrays.asList(detail1, detail2));
-            System.out.println("✅ Permissions inserted for Super AdminUser");
-        }
+//        if (permissionRepository.count() == 0) {
+//            Permission permission = new Permission();
+//            permission.setRole(findSuperAdminRole);
+//            permission.setResource(findProductResource);
+//            permission.setPermissionType(PermissionType.ROLE);
+//            permission.setEnable(true);
+//            permission.setCreatedBy(superUser);
+////            permission = permissionRepository.save(permission);
+//            //=== ResourceRequest Details====
+//            Action read = actionRepository.findByName("READ").orElseThrow(() -> new ActionNotFoundException());
+//            Action create = actionRepository.findByName("CREATE").orElseThrow(() -> new ActionNotFoundException());
+//            PermissionAction detail1 = new PermissionAction();
+//            detail1.setPermission(permission);
+//            detail1.setAction(read);
+//            detail1.setCreatedBy(superUser);
+//
+//            PermissionAction detail2 = new PermissionAction();
+//            detail2.setPermission(permission);
+//            detail2.setAction(create);
+//            detail2.setCreatedBy(superUser);
+////            permissionActionRepository.saveAll(Arrays.asList(detail1, detail2));
+//            System.out.println("✅ Permissions inserted for Super AdminUser");
+//        }
+        System.out.println("Running");
     }
 }
