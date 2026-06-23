@@ -1,10 +1,10 @@
 package com.osudpotro.posmaster.securityadmistration.permission;
 
-import com.osudpotro.posmaster.securityadmistration.resource.ResourceDto;
 import lombok.Data;
-
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Data
 public class PermissionResourceDto {
@@ -18,6 +18,7 @@ public class PermissionResourceDto {
     private Long moduleId;
     private String moduleName;
     private Long parentId;
-    private List<ResourceDto> childResource;
+    private List<PermissionResourceDto> childResource;
     private List<PermissionActionDto> permissionActions=new ArrayList<>();
+    private Set<PermissionAction> activePermissionActions = new HashSet<>();
 }

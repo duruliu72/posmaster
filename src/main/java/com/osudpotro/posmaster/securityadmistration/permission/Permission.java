@@ -1,6 +1,7 @@
 package com.osudpotro.posmaster.securityadmistration.permission;
 
 import com.osudpotro.posmaster.common.BaseEntity;
+import com.osudpotro.posmaster.purchase.PurchaseDetail;
 import com.osudpotro.posmaster.securityadmistration.module.ModuleInfo;
 import com.osudpotro.posmaster.securityadmistration.resource.Resource;
 import com.osudpotro.posmaster.securityadmistration.role.Role;
@@ -13,6 +14,7 @@ import lombok.Setter;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -41,4 +43,10 @@ public class Permission extends BaseEntity {
     private boolean isEnable = true;
     @OneToMany(mappedBy = "permission", cascade = CascadeType.ALL)
     private Set<PermissionAction> permissionActions = new HashSet<>();
+    public Set<PermissionAction> getActiveActions() {
+        return permissionActions.stream()
+                .filter(PermissionAction::isActive
+                ).collect(Collectors.toSet());
+
+    }
 }

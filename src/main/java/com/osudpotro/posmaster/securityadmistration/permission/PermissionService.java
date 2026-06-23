@@ -1,5 +1,6 @@
 package com.osudpotro.posmaster.securityadmistration.permission;
 
+import com.osudpotro.posmaster.category.Category;
 import com.osudpotro.posmaster.securityadmistration.resource.Resource;
 import com.osudpotro.posmaster.securityadmistration.resource.ResourceRepository;
 import com.osudpotro.posmaster.securityadmistration.role.Role;
@@ -9,7 +10,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class PermissionService {
@@ -27,34 +30,40 @@ public class PermissionService {
         var authUser = authService.getCurrentUser();
         Set<Role> roles = authUser.getRoles();
         var permissions = permissionRep.findByRoleInOrUser(roles, authUser);
-        var permissionResources = new ArrayList<>(
-                permissions.stream()
-                        .map(permissionMapper::toPermissionResourceDto)
-                        .toList()
-        );
-        List<Long> parentIds = permissions.stream()
+        var filterPermissions= permissions.stream()
                 .filter(i ->
-                        i.getResource() != null && i.getResource().getParentResource() != null
-                )
-                .map(p -> p.getResource().getParentResource().getId())
-                .distinct()
-                .toList();
-        List<Resource> parentResourceList = resourceRep.findResourceByIds(parentIds);
-        List<PermissionResourceDto> list=new ArrayList<>();
-        for (var item : parentResourceList) {
-            List<PermissionResourceDto> subList=new ArrayList<>();
-            var parentResources = getResource(item, subList);
-            list.addAll(parentResources);
+                        !i.getActiveActions().isEmpty()
+                ).toList();
+        List<PermissionResourceDto> resources = new ArrayList<>();
+        for (var permission : filterPermissions) {
+            List<PermissionResourceDto> newResources = new ArrayList<>();
+            resources.addAll(getIds(permission.getResource(), newResources));
         }
-        permissionResources.addAll(list);
-        return permissionResources;
+        Set<PermissionResourceDto> topResources = resources.stream()
+                .filter(i ->
+                        i.getParentId() == null
+                )
+                .collect(Collectors.toSet());
+        for (var topResource : topResources) {
+            loadChildrenRecursively(topResource, resources);
+        }
+        return topResources.stream().toList();
     }
 
-    private List<PermissionResourceDto> getResource(Resource resource, List<PermissionResourceDto> list) {
-        list.add(permissionMapper.toPermissionResourceDto(resource));
+    private List<PermissionResourceDto> getIds(Resource resource, List<PermissionResourceDto> resources) {
+        resources.add(permissionMapper.toPermissionResourceDto(resource));
         if (resource.getParentResource() != null) {
-            getResource(resource.getParentResource(), list);
+            getIds(resource.getParentResource(), resources);
         }
-        return list;
+        return resources;
+    }
+
+    private void loadChildrenRecursively(PermissionResourceDto prDto, List<PermissionResourceDto> resources) {
+        List<PermissionResourceDto> childResources = resources.stream()
+                .filter(i ->
+                        Objects.equals(i.getParentId(), prDto.getId())
+                )
+                .toList();
+        prDto.setChildResource(childResources);
     }
 }

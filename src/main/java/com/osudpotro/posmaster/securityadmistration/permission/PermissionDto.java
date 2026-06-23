@@ -12,4 +12,5 @@ public class PermissionDto {
     private ResourceDto resource;
     private PermissionType permissionType;
     private Set<PermissionActionDto> permissionActions = new HashSet<>();
+    private Set<PermissionAction> activePermissionActions = new HashSet<>();
 }

@@ -252,7 +252,6 @@ public class CategoryService {
     public int deleteBulkCategory(List<Long> ids) {
         return categoryRepository.deleteBulkCategory(ids, 3L);
     }
-
     private void loadChildrenRecursively(Category category) {
         List<Category> children = categoryRepository.findByParentId(category.getId());
         category.setChildren(children);
